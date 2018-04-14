@@ -1,0 +1,49 @@
+<html>
+  <head>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/css/style.css"/>
+  </head>
+  <body>
+    <script>
+      window.dataType = '{{ data_type }}'
+    </script>
+    <div id="wrap">
+      <div id="text-classification" style="display:none;">
+        <h2 class="center">
+          {{ title }}
+        </h2>
+        <div class="center">
+          <div id="text-classification-text">
+          </div>
+        </div>
+      </div>
+
+      <div id="image-classification" style="display:none;">
+        <h2 class="center">
+          {{ title }}
+        </h2>
+        <div class="center">
+          <img id="item-image" class="img-responsive" src="/" />
+        </div>
+      </div>
+    </div>
+
+    <div id="footer" style="display:flex;">
+        <div style="flex-grow:1;">
+          <h3 style="background: #27ae60;" data-judgement="YES" class="judgement-button center">
+              Yes ( j )
+          </h3>
+        </div>
+        <div style="flex-grow:1;">
+          <h3 style="background: #e74c3c;" data-judgement="NO" class="judgement-button center">
+              No ( k )
+          </h3>
+        </div>
+    </div>
+    <script src="/static/js/script.js"></script>
+  </body>
+</html>

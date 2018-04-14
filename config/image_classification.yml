@@ -1,0 +1,7 @@
+task:
+  title: Is this a good crop?
+dataset:
+  directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/images/
+  data_type: images
+  judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/labels.csv
+user: chris
