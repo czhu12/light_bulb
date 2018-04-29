@@ -1,7 +1,7 @@
 from utils import utils
-import tensorflow as tf
 import numpy as np
 import keras
+from models.base_model import BaseModel
 from keras_squeezenet import SqueezeNet
 from keras.preprocessing.image import ImageDataGenerator
 from keras.models import Model
@@ -10,10 +10,9 @@ from keras import optimizers
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
 
-class CNNModel():
+class CNNModel(BaseModel):
     def __init__(
         self,
-        model_directory,
         input_shape=(128, 128),
         hyperparameters={
             'loss': 'binary_crossentropy',
@@ -22,10 +21,9 @@ class CNNModel():
             'embedding_dim': (4, 4, 8),
         },
     ):
-        self.model_directory = model_directory
+        super(CNNModel, self).__init__()
         self.input_shape = input_shape
         self.model, self.autoencoder = self.initialize_model(input_shape, hyperparameters)
-        self.graph = tf.get_default_graph()
         self.data_generator = self.initialize_data_generator()
 
         self.initial_weights = self.model.get_weights()
@@ -169,7 +167,3 @@ class CNNModel():
     def evaluate(self, x_test, y_test):
         with self.graph.as_default():
             return self.model.evaluate(x_test, y_test)
-
-    def save(self, name):
-        with self.graph.as_default():
-            return self.model.save("{}/{}.h5".format(self.model_directory, name))

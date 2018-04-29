@@ -41,11 +41,13 @@ def load_data(imdb_tagged_directory, train_size, test_size):
     imdb_tagged_directory=("IMDB reviews tagged directory.", "option", "d", str),
     train_size=("Size of training samples.", "option", "train_size", int),
     test_size=("Size of test samples", "option", "test_size", int),
+    epochs=("Num epochs.", "option", "e", int),
 )
 def main(
-        imdb_tagged_directory,
-        train_size,
-        test_size,
+        imdb_tagged_directory='/Users/chriszhu/Documents/Github/labelling-tool/dataset/imdb_tagged/',
+        train_size=400,
+        test_size=1000,
+        epochs = 10,
     ):
     X_train, X_test, y_train, y_test = load_data(
         imdb_tagged_directory,
@@ -54,7 +56,7 @@ def main(
     )
     model = RNNModel('directory')
 
-    model.train(X_train, y_train, validation_split=0.1, epochs=20)
+    model.train(X_train, y_train, validation_split=0.1, epochs=epochs)
 
     results = model.evaluate(X_test, y_test)
     print(results)

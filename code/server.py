@@ -5,6 +5,7 @@ from flask import Flask, request, send_from_directory, render_template, jsonify,
 from label_app import LabelApp
 from mimetypes import MimeTypes
 from threading import Thread
+from utils import utils
 
 app = Flask(__name__, static_url_path='/static')
 
@@ -34,6 +35,13 @@ def batch():
     json_batch = jsonify({'batch': list(batch.T.to_dict().values())})
     return json_batch
 
+@app.route('/history', methods=['GET'])
+def history():
+    """
+    Get training history for label app.
+    """
+    return jsonify({ "history": label_app.get_history().history })
+
 @app.route('/evalution', methods=['GET'])
 def evaluation():
     """
@@ -49,19 +57,39 @@ def get_image():
     mimetype, _ = mime.guess_type(image_path)
     return send_file(image_path, mimetype=mimetype)
 
-@app.route("/score")
+@app.route("/demo")
+def demo():
+    return render_template(
+        'demo.html',
+        data_type=config_obj['dataset']['data_type'],
+        title=label_app.title,
+    )
+
+@app.route("/score", methods=['POST', 'PUT', 'GET'])
 def score():
     """
     Image Classification:
     {
-        "url": "https://my-url.com/image.jpg",
+        "type": "image_classification",
+        "urls": ["https://my-url.com/image.jpg"],
     }
     Text Classification:
     {
-        "text": "the text that i want to classify",
+        "type": "text_classification",
+        "texts": ["the text that i want to classify"],
     }
     """
-    self.label_app.score(request)
+    json = request.get_json()
+
+    type = json['type']
+    if type == "images":
+        urls = json["urls"]
+        x_train, images = utils.download_urls(urls)
+        scores = label_app.score(x_train)
+    elif type == "text":
+        texts = json["texts"]
+        scores = label_app.score(texts)
+    return jsonify({'scores': scores.tolist()})
 
 @plac.annotations(
     config=("Path to config file", "option", "c", str),
@@ -74,10 +102,15 @@ def main(config, mode="training"):
 
     label_app = LabelApp.load_from(config)
 
-    t = Thread(target=label_app.threaded_train)
-    t.daemon = True
-    t.start()
+    train_thread = Thread(target=label_app.threaded_train)
+    train_thread.daemon = True
+    train_thread.start()
 
+    labelling_thread = Thread(target=label_app.threaded_label)
+    labelling_thread.daemon = True
+    labelling_thread.start()
+
+    app.debug = True
     app.run(debug=True)
 
 if __name__ == "__main__":

@@ -1,0 +1,53 @@
+<html>
+  <head>
+    <script>
+      window.dataType = '{{ data_type }}'
+    </script>
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+      crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/css/style.css"/>
+  </head>
+  <body>
+    <div class="container">
+      {% if data_type == "images" %}
+      <form>
+        <div class="form-group">
+          <label for="image-classification">{{ title }}</label>
+          <input
+            class="form-control"
+            id="image-classification"
+            rows="3"
+          />
+        </div>
+        <button id="classify-image" class="btn btn-primary">Classify Image</button>
+      </form>
+      <div class="row">
+        <div class="col-md-6 offset-md-2">
+          <img id="selected-image" class="img-fluid" src=""/>
+        </div>
+      </div>
+      {% elif data_type == "text" %}
+      
+      <form>
+        <div class="form-group">
+          <label for="text-classification">{{ title }}</label>
+          <textarea
+            class="form-control"
+            id="text-classification"
+            rows="3"
+          ></textarea>
+        </div>
+        <button id="classify-text" class="btn btn-primary">Classify Text</button>
+      </form>
+
+      {% endif %}
+      <div id="result">
+      </div>
+    </div>
+
+    <script src="/static/js/demo.js"></script>
+  </body>
+</html>

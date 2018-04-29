@@ -1,18 +1,17 @@
 import pdb
 import keras
+from models.base_model import BaseModel
 from utils import utils
 from keras.models import Sequential
 from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional
-import tensorflow as tf
 from utils.glove_utils import LanguageModel
 from keras.callbacks import EarlyStopping
 
-class RNNModel():
-    def __init__(self, model_directory, config={'word_vectors': False}):
+class RNNModel(BaseModel):
+    def __init__(self, config={'word_vectors': False, 'model_type': 'lstm'}):
         # maxlen should be computed based on statistic of text lengths.
+        super(RNNModel, self).__init__()
         self.lang = LanguageModel()
-        self.model_directory = model_directory
-        self.graph = tf.get_default_graph()
         self.dim_embedding_size = 128
         self.model = self.get_model()
 
@@ -29,11 +28,15 @@ class RNNModel():
         # Representation learning for text?
         return self
 
+    def vectorize_text(self, x_texts):
+        x_train = self.lang.texts_to_sequence(x_texts)
+        return x_train
+
     def get_model(self):
         model = Sequential()
         model.add(self.lang.embedding_layer)
-        model.add(Bidirectional(LSTM(64)))
-        model.add(Dropout(0.5))
+        model.add(Bidirectional(LSTM(100)))
+        model.add(Dropout(0.2))
         model.add(Dense(2, activation='softmax'))
         model.summary()
 
@@ -42,7 +45,7 @@ class RNNModel():
         return model
 
     def train(self, x_texts, y_train, validation_split=0, epochs=1):
-        x_train = self.lang.texts_to_sequence(x_texts)
+        x_train = self.vectorize_text(x_texts)
         if validation_split > 0.:
             callbacks = [EarlyStopping(patience=3)]
         else:
@@ -58,15 +61,11 @@ class RNNModel():
             )
     
     def evaluate(self, x_texts, y_test):
-        x_test = self.lang.texts_to_sequence(x_texts)
+        x_test = self.vectorize_text(x_texts)
         with self.graph.as_default():
             return self.model.evaluate(x_test, y_test)
 
     def score(self, x_texts):
-        x_test = self.lang.texts_to_sequence(x_texts)
+        x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.model.predict(x_test)
-
-    def save(self, name):
-        with self.graph.as_default():
-            return self.model.save("{}/{}.h5".format(self.model_directory, name))
+            return self.model.predict(x_scores)

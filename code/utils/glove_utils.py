@@ -38,6 +38,7 @@ class LanguageModel():
                 EMBEDDING_DIM,
                 weights=[embedding_matrix],
                 trainable=False)
+
         self.vocab = list(embeddings_index.keys())
         self.num_words = num_words
         self.embedding_matrix = embedding_matrix

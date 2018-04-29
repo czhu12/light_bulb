@@ -1,4 +1,15 @@
-When to stop training
-  1. Implement a better strategy for stopping training
-Be able to save the model
-Add word embeddings for text dataset
+Features:
+  1. Be able to have more than one label
+Some bootstrap work:
+  1. 
+Validations:
+  1. Check to make sure the directories that are specified are correct
+Front end work:
+  1. Show improvements in performance given more labels
+  2. Load next batch before current batch is complete
+The evaluation is not correct, we need to simulate the max entropy sampling environment
+Classify images according to evaluator
+  1. Add extra tag to images labelled by model
+    - We probably shouldn't train based on these labels?
+  2. Do we need a minimum number of evaluation samples to be able to do this confidently?
+  3. Go through the dataset and start classifying based on precision achieved

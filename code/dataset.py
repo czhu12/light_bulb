@@ -29,7 +29,6 @@ class Dataset:
         self.data_type = config.get('data_type')
         self.directory = config.get('directory')
         self.judgements_file = config.get('judgements_file')
-        self.model_directory = config.get('model_directory')
 
         # Start dataset with existing judgements
         self.dataset = self.load_existing_judgements()
@@ -87,7 +86,7 @@ class Dataset:
         raise NotImplementedError
 
     @property
-    def unsupervised_set(self):
+    def unlabelled_set(self):
         raise NotImplementedError
 
     @property
@@ -118,7 +117,7 @@ class Dataset:
         self.save()
 
 class TextDataset(Dataset):
-    COLUMNS = ['label', 'path', 'labelled', 'stage', 'text']
+    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage', 'text']
 
     def load_unlabelled_dataset(self):
         types = ['*.txt']
@@ -142,10 +141,13 @@ class TextDataset(Dataset):
 
     @property
     def model(self):
-        return RNNModel(self.model_directory, self.dataset['text'].values)
+        return RNNModel(self.dataset['text'].values)
     
     @property
     def test_set(self):
+        if len(self.test_data) == 0:
+            return [], []
+
         test_data = self.test_data
         x_train = test_data['text'].values
         y_train = utils.one_hot_encode(test_data['label'].values)
@@ -153,16 +155,22 @@ class TextDataset(Dataset):
 
     @property
     def train_set(self):
+        if len(self.train_data) == 0:
+            return [], []
         train_data = self.train_data
         x_train = train_data['text'].values
         y_train = utils.one_hot_encode(train_data['label'].values)
         return x_train, y_train
 
-    def unsupervised_set(self):
-        raise ValueError("Unsupervised learning not supported for text datasets.")
+    def unlabelled_set(self, size=Dataset.MIN_UNSUPERVISED_EXAMPLES):
+        if len(self.unlabelled) < Dataset.MIN_UNSUPERVISED_EXAMPLES:
+            raise ValueError("Need at least {} examples for unsupervised training.".format(Dataset.MIN_UNSUPERVISED_EXAMPLES))
+
+        data = self.sample(size)
+        return data['text'].values, data['path'].values
 
 class ImageDataset(Dataset):
-    COLUMNS = ['label', 'path', 'labelled', 'stage']
+    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
 
     def __init__(self, config):
         super(ImageDataset, self).__init__(config)
@@ -183,6 +191,8 @@ class ImageDataset(Dataset):
 
     @property
     def test_set(self):
+        if len(self.test_data) == 0:
+            return [], []
         test_data = self.test_data
         x_train = utils.load_images(test_data['path'].values, self.input_shape)
         y_train = utils.one_hot_encode(test_data['label'].values)
@@ -190,19 +200,20 @@ class ImageDataset(Dataset):
 
     @property
     def train_set(self):
+        if len(self.train_data) == 0:
+            return [], []
         train_data = self.train_data
         x_train = utils.load_images(train_data['path'].values, self.input_shape)
         y_train = utils.one_hot_encode(train_data['label'].values)
         return x_train, y_train
 
-    @property
-    def unsupervised_set(self):
+    def unlabelled_set(self, size=Dataset.MIN_UNSUPERVISED_EXAMPLES):
         if len(self.unlabelled) < Dataset.MIN_UNSUPERVISED_EXAMPLES:
             raise ValueError("Need at least {} examples for unsupervised training.".format(Dataset.MIN_UNSUPERVISED_EXAMPLES))
-        data = self.sample(size=Dataset.MIN_UNSUPERVISED_EXAMPLES)
+        data = self.sample(size)
         x_train = utils.load_images(data['path'].values, self.input_shape)
-        return x_train
+        return x_train, data['path'].values
 
     @property
     def model(self):
-        return CNNModel(self.model_directory, input_shape=self.input_shape)
+        return CNNModel(input_shape=self.input_shape)

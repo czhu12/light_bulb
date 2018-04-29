@@ -4,5 +4,5 @@ dataset:
   directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/cat_or_dog/
   data_type: images
   judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/cat_or_dog.csv
-  model_directory: /Users/chriszhu/Documents/Github/labelling-tool/models/cat_or_dog/
+model_directory: /Users/chriszhu/Documents/Github/labelling-tool/models/cat_or_dog/
 user: chris
