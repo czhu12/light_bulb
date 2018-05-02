@@ -57,7 +57,8 @@ class RNNModel(BaseModel):
                 y_train,
                 validation_split=validation_split,
                 callbacks=callbacks,
-                epochs=epochs
+                epochs=epochs,
+                verbose=0,
             )
     
     def evaluate(self, x_texts, y_test):

@@ -51,7 +51,7 @@ class LabelApp:
         self.dataset.set_current_stage()
         if self.dataset.current_stage == Dataset.TEST:
             sampled_df = self.dataset.sample(size)
-            return sampled_df
+            return sampled_df, 0, self.dataset.current_stage
 
         # Generate training data
         sampled_df = self.dataset.sample(size * 5)
@@ -63,7 +63,7 @@ class LabelApp:
         scores = self.model.score(x_data)
         entropy = np.sum(scores * np.log(scores) / np.log(2), axis=1)
         max_entropy_indexes = np.argpartition(-entropy, size)[:size]
-        return sampled_df.iloc[max_entropy_indexes]
+        return sampled_df.iloc[max_entropy_indexes], max_entropy_indexes.tolist(), self.dataset.current_stage
 
     def add_label(self, _id, label):
         # _id is just the path to the file
@@ -71,10 +71,7 @@ class LabelApp:
             raise ValueError('{} is not a valid label'.format(label))
         label = Dataset.LABEL_MAP[label]
         self.dataset.add_label(_id, label, self.dataset.current_stage)
-        logger.debug("Unlabelled Count: {}, Labelled Count: {}".format(
-            len(self.dataset.unlabelled),
-            len(self.dataset.labelled)),
-        )
+
     @property
     def title(self):
         return self.task.title
@@ -87,6 +84,9 @@ class LabelApp:
 
     def get_history(self):
         return self.trainer.get_history()
+
+    def get_stats(self):
+        return self.dataset.stats
 
 class Task:
     @staticmethod

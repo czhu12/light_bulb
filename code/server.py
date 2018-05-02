@@ -30,9 +30,13 @@ def batch():
     Returns a batch of items to be labelled and the phase
     of the label collection (training or test)
     """
-    batch = label_app.next_batch()
+    batch, entropy, stage = label_app.next_batch()
     batch = batch.fillna('NaN')
-    json_batch = jsonify({'batch': list(batch.T.to_dict().values())})
+    json_batch = jsonify({
+        "batch": list(batch.T.to_dict().values()),
+        "entropy": entropy,
+        "stage": stage
+    })
     return json_batch
 
 @app.route('/history', methods=['GET'])
@@ -40,7 +44,14 @@ def history():
     """
     Get training history for label app.
     """
-    return jsonify({ "history": label_app.get_history().history })
+    history = {
+        "history": label_app.get_history().history,
+    }
+    stats = label_app.get_stats()
+    return jsonify({
+        **history,
+        **stats,
+    })
 
 @app.route('/evalution', methods=['GET'])
 def evaluation():
