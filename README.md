@@ -1,9 +1,11 @@
 Features:
   1. Be able to have more than one label
+  2. Add eta times to the features
 Some bootstrap work:
   1. 
 Validations:
   1. Check to make sure the directories that are specified are correct
+  2. Single directory for all the data collected by the model
 Front end work:
   1. Show improvements in performance given more labels
   2. Load next batch before current batch is complete

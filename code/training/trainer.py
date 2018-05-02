@@ -6,6 +6,9 @@ import glob
 import pickle
 from utils.model_evaluation import Evaluator
 from dataset import Dataset
+from dataset import MIN_UNSUPERVISED_EXAMPLES
+from dataset import MIN_TEST_EXAMPLES
+from dataset import MIN_TRAIN_EXAMPLES
 
 THRESHOLD = 0.95
 TRAINING_STOPPED = "TRAINING_STOPPED"
@@ -87,31 +90,46 @@ class Trainer():
         with open("{}/history.pkl".format(directory), 'wb') as output:
             pickle.dump(self.history, output, pickle.HIGHEST_PROTOCOL)
 
+    def ready_to_represent(self, dataset):
+        return len(dataset.unlabelled) > MIN_UNSUPERVISED_EXAMPLES
+
+    def ready_to_evaluate(self, dataset):
+        return len(dataset.test_data) > MIN_TEST_EXAMPLES
+
+    def ready_to_train(self, dataset):
+        return len(dataset.train_data) > MIN_TRAIN_EXAMPLES
+
     def evaluate(self):
-        if not self.dataset.ready_to_evaluate:
+        if not self.ready_to_evaluate(self.dataset):
             raise ValueError(
                 "Not ready to test, only has {} samples, needs {} samples.".format(
                     len(self.dataset.test_data),
-                    Dataset.MIN_TEST_EXAMPLES,
+                    MIN_TEST_EXAMPLES,
                 )
             )
         x_test, y_test = self.dataset.test_set
         return self.model.evaluate(x_test, y_test)
 
     def train_step(self):
-        if not self.dataset.ready_to_train:
+        if not self.ready_to_train(self.dataset):
             raise ValueError(
                 "Not ready to train, only has {} samples, needs {} samples.".format(
                     len(self.dataset.train_data),
-                    Dataset.MIN_TRAIN_EXAMPLES,
+                    MIN_TRAIN_EXAMPLES,
                 )
             )
         x_train, y_train = self.dataset.train_set
         self.logger.debug("Training on {} samples.".format(len(x_train)))
         return self.model.train(x_train, y_train)
 
+    def print_stats(self):
+        stats = self.dataset.stats
+        self.logger.debug(stats)
+
     def train(self):
         while True:
+            self.print_stats()
+
             trained = False
             evaluated = False
             if self.history.should_continue_training(len(self.dataset.labelled)):
@@ -144,7 +162,7 @@ class Trainer():
 
                 if trained and evaluated:
                     self.history.add_train_eval_step(
-                        len(self.dataset.labelled), # Length of this dataset might have more labels
+                        len(self.dataset.train_data), # Length of this dataset might have more labels
                         history.history['acc'][0],
                         history.history['loss'][0],
                         evaluation[1],
@@ -165,8 +183,10 @@ class Trainer():
             # Unsupervised training
             try:
                 # TODO: If we do this, we have to keep training, because we are changing the underlying model without changing the classifier weights
-                x_train, _ = self.dataset.unlabelled_set()
-                results = self.model.representation_learning(x_train)
+                if self.ready_to_represent(self.dataset):
+                    self.logger.debug("Starting representation training.")
+                    x_train, _ = self.dataset.unlabelled_set(MIN_UNSUPERVISED_EXAMPLES)
+                    results = self.model.representation_learning(x_train)
             except ValueError as e:
                 self.logger.error(e)
 

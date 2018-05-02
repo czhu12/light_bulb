@@ -132,7 +132,7 @@ class CNNModel(BaseModel):
     def representation_learning(self, x_train, epochs=1):
         with self.graph.as_default():
             self.data_generator.fit(x_train)
-            results = self.autoencoder.fit(x_train, x_train, epochs=epochs)
+            results = self.autoencoder.fit(x_train, x_train, epochs=epochs, verbose=0)
             return results
 
     def train(self, x_train, y_train, validation_split=0., epochs=1):
@@ -156,6 +156,7 @@ class CNNModel(BaseModel):
                 epochs=epochs,
                 validation_data=validation_data,
                 callbacks=callbacks,
+                verbose=0,
             )
 
             return results

@@ -6,17 +6,20 @@ import chardet
 from models.cnn_models import CNNModel
 from models.rnn_model import RNNModel
 from utils import glove_utils
+from threading import Lock
+
+MIN_TRAIN_EXAMPLES = 10
+MIN_TEST_EXAMPLES = 20
+MIN_UNSUPERVISED_EXAMPLES = 100
 
 
 class Dataset:
     TRAIN = 'TRAIN'
     TEST = 'TEST'
+    MODEL_LABELLED = 'MODEL_LABELLED'
     LABEL_MAP = { 'YES': 1, 'NO': 0 }
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
-    MIN_TRAIN_EXAMPLES = 20 
-    MIN_TEST_EXAMPLES = 20
-    MIN_UNSUPERVISED_EXAMPLES = 100
 
     @staticmethod
     def load_from(config):
@@ -29,16 +32,41 @@ class Dataset:
         self.data_type = config.get('data_type')
         self.directory = config.get('directory')
         self.judgements_file = config.get('judgements_file')
+        self.save_lock = Lock()
 
         # Start dataset with existing judgements
         self.dataset = self.load_existing_judgements()
         # Add unlabelled examples
-        self.dataset = self.dataset.append(self.load_unlabelled_dataset())
+        unlabelled = self.load_unlabelled_dataset()
+        if len(unlabelled) == 0:
+            raise ValueError("Dataset is empty. dataset.directory is probably pointing at a wrong directory?")
+
+        self.dataset = self.dataset.append(unlabelled)
         self.loaded_text = False
-        self.current_stage = Dataset.TRAIN
+        self.current_stage = Dataset.TEST
 
     def save(self):
-        self.labelled.to_csv(self.judgements_file, index=False)
+        self.save_lock.acquire()
+        try:
+            directory = os.path.dirname(self.judgements_file)
+            if not os.path.exists(directory):
+                os.makedirs(directory)
+            # Make directory if it doesn't exist
+            self.labelled.to_csv(self.judgements_file, index=False)
+        finally:
+            self.save_lock.release()
+
+    @property
+    def stats(self):
+        return {
+            "labelled": {
+                "total": len(self.labelled),
+                "train": len(self.train_data),
+                "model_labelled": len(self.model_labelled_data),
+                "test": len(self.test_data),
+            },
+            "unlabelled": len(self.unlabelled),
+        }
 
     def load_unlabelled_dataset(self):
         raise NotImplementedError
@@ -65,6 +93,10 @@ class Dataset:
         return self.dataset[self.dataset['labelled'] == True]
 
     @property
+    def model_labelled_data(self):
+        return self.labelled[self.labelled['stage'] == Dataset.MODEL_LABELLED]
+
+    @property
     def train_data(self):
         return self.labelled[self.labelled['stage'] == Dataset.TRAIN]
 
@@ -85,21 +117,13 @@ class Dataset:
     def train_set(self):
         raise NotImplementedError
 
-    @property
     def unlabelled_set(self):
         raise NotImplementedError
 
-    @property
-    def ready_to_evaluate(self):
-        return len(self.test_data) > Dataset.MIN_TEST_EXAMPLES
-
-    @property
-    def ready_to_train(self):
-        return len(self.train_data) > Dataset.MIN_TRAIN_EXAMPLES
-
     def set_current_stage(self):
-        if len(self.test_data) <= Dataset.MIN_TEST_EXAMPLES:
+        if len(self.test_data) <= MIN_TEST_EXAMPLES:
             self.current_stage = Dataset.TEST
+            return
 
         ratio = len(self.test_data) / (len(self.train_data) + 1)
         
@@ -162,10 +186,7 @@ class TextDataset(Dataset):
         y_train = utils.one_hot_encode(train_data['label'].values)
         return x_train, y_train
 
-    def unlabelled_set(self, size=Dataset.MIN_UNSUPERVISED_EXAMPLES):
-        if len(self.unlabelled) < Dataset.MIN_UNSUPERVISED_EXAMPLES:
-            raise ValueError("Need at least {} examples for unsupervised training.".format(Dataset.MIN_UNSUPERVISED_EXAMPLES))
-
+    def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
         data = self.sample(size)
         return data['text'].values, data['path'].values
 
@@ -207,12 +228,15 @@ class ImageDataset(Dataset):
         y_train = utils.one_hot_encode(train_data['label'].values)
         return x_train, y_train
 
-    def unlabelled_set(self, size=Dataset.MIN_UNSUPERVISED_EXAMPLES):
-        if len(self.unlabelled) < Dataset.MIN_UNSUPERVISED_EXAMPLES:
-            raise ValueError("Need at least {} examples for unsupervised training.".format(Dataset.MIN_UNSUPERVISED_EXAMPLES))
+    def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
         data = self.sample(size)
-        x_train = utils.load_images(data['path'].values, self.input_shape)
-        return x_train, data['path'].values
+        if len(data) > 0:
+            x_train = utils.load_images(data['path'].values, self.input_shape)
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
 
     @property
     def model(self):

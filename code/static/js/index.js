@@ -105,8 +105,6 @@ $(document).ready(() => {
           y.push(null)
         }
       }
-      console.log(x)
-      console.log(y)
       plot(x, y)
     })
   }

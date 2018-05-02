@@ -14,10 +14,7 @@ class Evaluator():
     def threshold_for_precision(self, target_precision=0.9):
         y_score = self.model.score(self.X)
         average_precision = average_precision_score(self.y, y_score)
-        precisions, recalls, thresholds = precision_recall_curve(self.y[:, 0], y_score[:, 0])
+        precisions, recalls, thresholds = precision_recall_curve(y_test, y_score)
         index = np.argmax(precisions > target_precision)
-        threshold = thresholds[index - 1] # This might be a bug, idk
+        threshold = thresholds[index]
         return threshold
-
-if __name__ == "__main__":
-    Evaluator()
