@@ -6,11 +6,32 @@ import time
 import pdb
 
 from utils import utils
+from utils import model_builder
 import logging
 import sys
 from dataset import Dataset
 from training.trainer import Trainer
 from labeller import ModelLabeller
+from label import Label
+from operator import itemgetter
+CLASSIFICATION_COLORS = [
+"#1abc9c",
+"#2ecc71",
+"#3498db",
+"#9b59b6",
+"#34495e",
+"#f1c40f",
+"#e67e22",
+"#e74c3c",
+"#16a085",
+"#27ae60",
+"#2980b9",
+"#8e44ad",
+"#2c3e50",
+"#f39c12",
+"#d35400",
+"#c0392b",
+]
 
 logger = logging.getLogger()
 logger.setLevel(logging.DEBUG)
@@ -29,22 +50,36 @@ class LabelApp:
         task = Task.load_from(config['task'])
         dataset = Dataset.load_from(config['dataset'])
         model_directory = config['model_directory']
-        return LabelApp(task, dataset, model_directory)
+        label_helper = Label.load_from(config['label'])
+        user = config['user']
 
-    def __init__(self, task, dataset, model_directory):
+        return LabelApp(task, dataset, model_directory, label_helper, user)
+
+    def __init__(self, task, dataset, model_directory, label_helper, user, model_labelling=True):
         self.task = task
         self.dataset = dataset
         self.data_type = self.dataset.data_type
-        self.model = self.dataset.model
+
+        self.label_helper = label_helper
+        self.label_type = label_helper.label_type
+
+        self.model = model_builder.ModelBuilder(dataset, self.label_helper).build()
 
         self.trainer = Trainer(model_directory, self.model, self.dataset, logger=logger)
         self.trainer.load_existing()
 
         self.labeller = ModelLabeller(self.model, self.dataset, logger=logger)
 
-    def score(self, x_train):
-        scores = self.model.score(x_train)
+        self.user = user
+        self.model_labelling = model_labelling
+
+    def score(self, x):
+        scores = self.model.score(x)
         return scores
+
+    def predict(self, x):
+        predictions = self.model.predict(x)
+        return predictions
 
     def next_batch(self, size=10):
         logger.debug("Sampling a batch for {} set.".format(self.dataset.current_stage))
@@ -61,20 +96,29 @@ class LabelApp:
             x_data = sampled_df['text'].values
 
         scores = self.model.score(x_data)
-        entropy = np.sum(scores * np.log(scores) / np.log(2), axis=1)
+        entropy = np.sum(scores * np.log(scores) / np.log(2), axis=-1)
+        if len(entropy.shape) > 1:
+            entropy = entropy.mean(1)
         max_entropy_indexes = np.argpartition(-entropy, size)[:size]
         return sampled_df.iloc[max_entropy_indexes], max_entropy_indexes.tolist(), self.dataset.current_stage
 
+
     def add_label(self, _id, label):
+        # Validate label
+        # TODO: Reevaluate this get_data thing, I'm not a fan of this.
+        data = self.dataset.get_data(_id)
+        self.label_helper.validate(data, label)
+        label = self.label_helper.decode(label)
         # _id is just the path to the file
-        if label not in Dataset.LABEL_MAP:
-            raise ValueError('{} is not a valid label'.format(label))
-        label = Dataset.LABEL_MAP[label]
-        self.dataset.add_label(_id, label, self.dataset.current_stage)
+        self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user)
 
     @property
     def title(self):
         return self.task.title
+
+    @property
+    def description(self):
+        return self.task.description
 
     def threaded_train(self):
         self.trainer.train()
@@ -91,7 +135,8 @@ class LabelApp:
 class Task:
     @staticmethod
     def load_from(config):
-        return Task(title=config['title'])
+        return Task(**config)
 
-    def __init__(self, title=''):
+    def __init__(self, title='', description=''):
         self.title = title
+        self.description = description

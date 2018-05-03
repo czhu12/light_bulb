@@ -9,6 +9,8 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartist-plugin-axistitle@0.0.4/dist/chartist-plugin-axistitle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/js/toastr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
     <link rel="stylesheet" href="/static/css/style.css"/>
@@ -18,6 +20,7 @@
 </style>
     <script>
       window.dataType = '{{ data_type }}'
+      window.labelType = '{{ label_type }}'
     </script>
     <div id="wrap">
       <div class="row">
@@ -36,6 +39,9 @@
           {{ title }}
         </h2>
         <div class="center">
+          {{ description|safe }}
+        </div>
+        <div class="center">
           <div id="text-classification-text">
           </div>
         </div>
@@ -52,16 +58,50 @@
     </div>
 
     <div id="footer" style="display:flex;">
-        <div style="flex-grow:1;">
-          <h3 style="background: #27ae60;" data-judgement="YES" class="judgement-button center">
-              Yes ( j )
-          </h3>
+      {% if label_type == 'binary' %}
+      <div style="flex-grow:1;">
+        <h3 style="background: #27ae60;" data-judgement="YES" class="judgement-button center">
+            Yes ( j )
+        </h3>
+      </div>
+      <div style="flex-grow:1;">
+        <h3 style="background: #e74c3c;" data-judgement="NO" class="judgement-button center">
+            No ( k )
+        </h3>
+      </div>
+      {% endif %}
+
+      {% if label_type == 'classification' %}
+        {% for cls in label_helper.classes %}
+          <div style="flex-grow:1;">
+            <h3 style="background: {{ classification_colors[loop.index0] }};" data-judgement="{{loop.index0}}" class="judgement-button center">
+              {{ cls }}
+            </h3>
+          </div>
+        {% endfor %}
+      {% endif %}
+
+      {% if label_type == 'sequence' %}
+      <div style="flex-grow:1;" class="sequence-input">
+        <div>
+          {% for token in label_helper.valid_tokens %}
+          <div class="token center" data-token="{{ token }}">{{ token }}</div>
+          {% endfor %}
+          <div class="clear"></div>
         </div>
-        <div style="flex-grow:1;">
-          <h3 style="background: #e74c3c;" data-judgement="NO" class="judgement-button center">
-              No ( k )
-          </h3>
+
+        <div class="input-group mb-3">
+          <div class="input-group-prepend">
+            <span class="input-group-text">{{ title }}</span>
+          </div>
+          <input
+            autofocus
+            type="text"
+            class="form-control"
+            placeholder="label">
         </div>
+      </div>
+      {% endif %}
     </div>
     <script src="/static/js/index.js"></script>
   </body>

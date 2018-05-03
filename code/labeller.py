@@ -8,6 +8,7 @@ from dataset import MIN_UNSUPERVISED_EXAMPLES
 
 THRESHOLD = 0.95
 MAX_INTERVAL_TIME = 60
+MODEL_LABELLER = 'MODEL_LABELLER'
 
 class ModelLabeller():
     def __init__(self, model, dataset, interval=10, logger=logging.getLogger()):
@@ -19,6 +20,10 @@ class ModelLabeller():
 
     def start(self):
         while True:
+            # Put this at the top of the while loop to prevent thread timing issues.
+            # If we want to solve this properly, check here: https://github.com/keras-team/keras/issues/5223
+            time.sleep(min(self.exponential_backoff_factor * self.interval, MAX_INTERVAL_TIME))
+
             x_test, y_test = self.dataset.test_set
             if len(x_test) > MIN_TEST_EXAMPLES:
                 self.logger.debug("Scoring items with model labeller.")
@@ -39,7 +44,7 @@ class ModelLabeller():
 
                     if yes > threshold:
                         past_threshold += 1
-                        self.dataset.add_label(id, 1., Dataset.MODEL_LABELLED)
+                        self.dataset.add_label(id, 1., Dataset.MODEL_LABELLED, MODEL_LABELLER)
                         self.logger.debug("Labelled {}\tYES.".format(id))
 
                 if past_threshold > 0:
@@ -48,5 +53,3 @@ class ModelLabeller():
             else:
                 self.logger.debug("Need at least {} labels to start labelling images".format(MIN_TEST_EXAMPLES))
                 self.exponential_backoff_factor += 1
-
-            time.sleep(min(self.exponential_backoff_factor * self.interval, MAX_INTERVAL_TIME))

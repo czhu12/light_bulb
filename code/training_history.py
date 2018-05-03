@@ -6,7 +6,7 @@ class TrainingHistory:
         self.history = []
         self._should_save = False
         self._was_training = True
-    
+
     # TODO: Consider replacing num_labels idea with just creating a new model
     def add_train_eval_step(
         self,
@@ -29,8 +29,9 @@ class TrainingHistory:
         })
 
     def should_continue_training(self, current_labels):
-        # Early stopping strategy = stop training once validation loss doesn't improve for n straight epochs.
-        # But in our case, we also need to consider the amount of training data that currently exists.
+        # Early stopping strategy = stop training once validation loss doesn't
+        # improve for n straight epochs. But in our case, we also need to consider
+        # the amount of training data that currently exists.
         # We will use a rule based system:
         # If training data has increased by 20%.
         if len(self.history) <= 3:
@@ -78,20 +79,23 @@ class TrainingHistory:
     def plot(self):
         test_loss = ap.markers['o']
         test_acc = ap.markers['s']
-        p = ap.AFigure(plot_labels=True)
-        p.plot(
+        p_loss = ap.AFigure(plot_labels=True)
+        p_loss.plot(
             np.arange(len(self.history)),
             [step['test']['loss'] for step in self.history],
             marker='_o',
         )
-        p.plot(
+
+        p_acc = ap.AFigure(plot_labels=True)
+        p_acc.plot(
             np.arange(len(self.history)),
             [step['test']['acc'] for step in self.history],
             marker='_s',
         )
 
         return """
-        Test Loss: {}
-        Test Accuracy: {}
+        Test Loss
         {}
-        """.format(test_loss, test_acc, p.draw())
+        Test Accuracy
+        {}
+        """.format(p_loss.draw(), p_acc.draw())
