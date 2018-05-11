@@ -3,10 +3,10 @@ import os
 import glob
 from utils import utils
 import chardet
-from models.cnn_models import CNNModel
-from models.rnn_model import RNNModel
 from utils import glove_utils
 from threading import Lock
+from models.cnn_model import CNNModel
+from models.rnn_model import RNNModel
 
 MIN_TRAIN_EXAMPLES = 10
 MIN_TEST_EXAMPLES = 20
@@ -17,7 +17,6 @@ class Dataset:
     TRAIN = 'TRAIN'
     TEST = 'TEST'
     MODEL_LABELLED = 'MODEL_LABELLED'
-    LABEL_MAP = { 'YES': 1, 'NO': 0 }
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
 
@@ -105,13 +104,9 @@ class Dataset:
         return self.labelled[self.labelled['stage'] == Dataset.TEST]
 
     def sample(self, size=100):
-        if len(self.unlabelled) == 0:
+        if len(self.unlabelled) < size:
             return self.unlabelled
         return self.unlabelled.sample(size)
-
-    @property
-    def model(self):
-        raise NotImplementedError
 
     @property
     def train_set(self):
@@ -126,7 +121,7 @@ class Dataset:
             return
 
         ratio = len(self.test_data) / (len(self.train_data) + 1)
-        
+
         if ratio < 0.33:
             self.current_stage = Dataset.TEST
         else:
@@ -136,12 +131,18 @@ class Dataset:
     def test_set(self):
         raise NotImplementedError
 
-    def add_label(self, id, label, stage):
-        self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage']] = [label, True, stage]
+    def add_label(self, id, label, stage, user='default'):
+        self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage', 'labelled_by']] = [label, True, stage, user]
         self.save()
+
+    def get_data(self, _id):
+        return None
 
 class TextDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage', 'text']
+
+    def get_data(self, _id):
+        return self.dataset[self.dataset['path'] == _id]['text'].values[0]
 
     def load_unlabelled_dataset(self):
         types = ['*.txt']
@@ -164,17 +165,13 @@ class TextDataset(Dataset):
         return new_dataset
 
     @property
-    def model(self):
-        return RNNModel(self.dataset['text'].values)
-    
-    @property
     def test_set(self):
         if len(self.test_data) == 0:
             return [], []
 
         test_data = self.test_data
         x_train = test_data['text'].values
-        y_train = utils.one_hot_encode(test_data['label'].values)
+        y_train = test_data['label'].values
         return x_train, y_train
 
     @property
@@ -183,7 +180,7 @@ class TextDataset(Dataset):
             return [], []
         train_data = self.train_data
         x_train = train_data['text'].values
-        y_train = utils.one_hot_encode(train_data['label'].values)
+        y_train = train_data['label'].values
         return x_train, y_train
 
     def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
@@ -237,7 +234,3 @@ class ImageDataset(Dataset):
             x_train = []
             ids = []
         return x_train, ids
-
-    @property
-    def model(self):
-        return CNNModel(input_shape=self.input_shape)

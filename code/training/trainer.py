@@ -19,7 +19,14 @@ class TrainingObserver():
         raise NotImplementedError()
 
 class Trainer():
-    def __init__(self, model_directory, model, dataset, history=TrainingHistory(), logger=logging.getLogger()):
+    def __init__(
+            self,
+            model_directory,
+            model,
+            dataset,
+            history=TrainingHistory(),
+            logger=logging.getLogger()
+        ):
         self.listeners = []
         self.model = model
         self.dataset = dataset
@@ -49,7 +56,7 @@ class Trainer():
         self.model.load_existing_model(perf['model_path'])
         with open(perf['history_path'], 'rb') as f:
             self.history = pickle.load(f)
-        
+
     def _parse_performance_from_path(self, path):
         basename = path.split('/')[-1]
         _, _, accuracy, _, loss, _, num_labels = basename.split('-')
@@ -159,6 +166,7 @@ class Trainer():
                     evaluated = True
                 except ValueError as e:
                     self.logger.error(e)
+                    raise e
 
                 if trained and evaluated:
                     self.history.add_train_eval_step(
@@ -193,4 +201,4 @@ class Trainer():
             if len(self.history) > 0 and trained:
                 print(self.history.plot())
 
-            time.sleep(50)
+            time.sleep(5)

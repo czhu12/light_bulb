@@ -1,0 +1,46 @@
+task:
+  title: Construct a query with these entities
+  description: |
+    <table style="width:50%;margin: 0 auto;text-align:center;">
+      <tr>
+        <th>ENTITY</th>
+        <th>INSPIRATIONS</th>
+      </tr>
+      <tr>
+        <td>VERTICAL</td>
+        <td>cabin</td>
+      </tr>
+      <tr>
+        <td>LOCATION</td>
+        <td>123 sesame street</td>
+      </tr>
+      <tr>
+        <td>TIME</td>
+        <td>oct 4, after november, during SXSW (?)</td>
+      </tr>
+      <tr>
+        <td>PRICE</td>
+        <td>over 100, under threehundred, cheap</td>
+      </tr>
+      <tr>
+        <td>REFINEMENT</td>
+        <td>skiing trip, bike ride</td>
+      </tr>
+      <tr>
+        <td>ATTRIBUTE</td>
+        <td>with hot tub, dog friendly</td>
+      </tr>
+      <tr>
+        <td>OCCUPANCY</td>
+        <td>6 people, large, 3 bedroom</td>
+      </tr>
+    </table>
+dataset:
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/query_generation
+  data_type: text
+  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/query_generation/labels.csv
+label:
+  type: sequence
+model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/query_generation/models/
+user: chris
+model_labelling: false

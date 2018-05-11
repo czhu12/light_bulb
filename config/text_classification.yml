@@ -4,5 +4,7 @@ dataset:
   directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/imdb_texts/
   data_type: text
   judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/text_labels.csv
+label:
+  type: binary
 model_directory: /Users/chriszhu/Documents/Github/labelling-tool/models/imdb_classification/
 user: chris

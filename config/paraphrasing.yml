@@ -1,0 +1,11 @@
+task:
+  title: Noun Chunking Tag for this query
+dataset:
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/paraphrasing
+  data_type: text
+  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/paraphrasing/labels.csv
+label:
+  type: sequence
+model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/paraphrasing/models/
+user: chris
+model_labelling: false

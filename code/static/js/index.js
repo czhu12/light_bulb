@@ -1,4 +1,6 @@
 $(document).ready(() => {
+  // Start Plotting
+  $(".ct-chart").hide()
   $("#show-history").click(() => {
     if ($(".ct-chart").is(":visible")) {
       $(".ct-chart").hide()
@@ -17,7 +19,7 @@ $(document).ready(() => {
       showLine: false,
       axisX: {
         labelInterpolationFnc: (value, index) => {
-          return index % 10 === 0 ? value : null;
+          return index % 10 === 0 ? value : null
         },
       },
       plugins: [
@@ -43,27 +45,51 @@ $(document).ready(() => {
           }
         })
       ]
-    });
+    })
   }
+  // End Plotting
 
+  $(".sequence-input .token").click((el) => {
+    let token = $(el.target).data("token")
+    let val = $(".sequence-input input").val()
+    if (!val) {
+      $(".sequence-input input").val(token)
+    } else {
+      $(".sequence-input input").val(val + ' ' + token)
+    }
+    $(".sequence-input input").focus()
+  })
+
+  // Start Key Handling
   $(document).keypress((e) => {
-    let yes = 106;
-    let no = 107;
-    if (e.which == yes) {
-      submitJudgement('YES')
-    }
-    if (e.which == no) {
-      submitJudgement('NO')
-    }
-  });
+    if (window.labelType === 'binary') {
+      let yes = 106
+      let no = 107
+      if (e.which === yes) {
+        submitJudgement('YES')
+      }
+      if (e.which === no) {
+        submitJudgement('NO')
+      }
+    } else if (window.labelType === 'classification') {
 
-  let itemsToLabel = [];
-  let currentIndex = 0;
+    } else if (window.labelType === 'sequence') {
+      let enter = 13
+      if (e.which === enter) {
+        submitJudgement($(".sequence-input input").val())
+        $(".sequence-input input").val('')
+      }
+    }
+  })
+  // End Key Handling
+
+  let itemsToLabel = []
+  let currentIndex = 0
   let showItem = undefined
   if (window.dataType === 'images') {
     $("#image-classification").css("display", "block")
     showItem = () => {
-      let item = itemsToLabel[currentIndex];
+      let item = itemsToLabel[currentIndex]
       let path = item['path']
       $("#item-image").attr("src", "/images?image_path=" + path)
     }
@@ -110,13 +136,14 @@ $(document).ready(() => {
   }
 
   let getNextBatch = () => {
-    $.get('/batch', (data) => {
-      let batch = data['batch'];
+    $.get('/batch?prediction=' + false, (data) => {
+      let batch = data['batch']
       itemsToLabel = itemsToLabel.concat(batch)
       if (currentIndex == 0) {
         showItem()
       }
     })
+
   }
 
   let submitJudgement = (label) => {
@@ -124,7 +151,11 @@ $(document).ready(() => {
     let path = image.path
 
     $.post('/judgements', {id: path, label: label}, (response) => {
-      showNextItem();
+      if ('error' in response) {
+        toastr.error(response['error'], 'Error!')
+        return
+      }
+      showNextItem()
       if (currentIndex + 3 > itemsToLabel.length) {
         getNextBatch()
         getTrainingHistory()
@@ -138,11 +169,11 @@ $(document).ready(() => {
   }
 
   // Kick everything off
-  getNextBatch();
+  getNextBatch()
   getTrainingHistory()
 
   $(".judgement-button").click((el) => {
     let label = $(el.target).data("judgement")
     submitJudgement(label)
-  });
+  })
 })

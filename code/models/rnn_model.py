@@ -46,6 +46,7 @@ class RNNModel(BaseModel):
 
     def train(self, x_texts, y_train, validation_split=0, epochs=1):
         x_train = self.vectorize_text(x_texts)
+        y_train = utils.one_hot_encode(y_train)
         if validation_split > 0.:
             callbacks = [EarlyStopping(patience=3)]
         else:
@@ -60,9 +61,10 @@ class RNNModel(BaseModel):
                 epochs=epochs,
                 verbose=0,
             )
-    
+
     def evaluate(self, x_texts, y_test):
         x_test = self.vectorize_text(x_texts)
+        y_test = utils.one_hot_encode(y_test)
         with self.graph.as_default():
             return self.model.evaluate(x_test, y_test)
 
