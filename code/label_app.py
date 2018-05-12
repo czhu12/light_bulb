@@ -100,7 +100,7 @@ class LabelApp:
         if len(entropy.shape) > 1:
             entropy = entropy.mean(1)
         max_entropy_indexes = np.argpartition(-entropy, size)[:size]
-        return sampled_df.iloc[max_entropy_indexes], max_entropy_indexes.tolist(), self.dataset.current_stage
+        return sampled_df.iloc[max_entropy_indexes], max_entropy_indexes.tolist(), self.dataset.current_stage, x_data[max_entropy_indexes]
 
 
     def add_label(self, _id, label):

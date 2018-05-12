@@ -56,7 +56,7 @@ class CNNModel(BaseModel):
         encoder = Model(squeezenet.input, embedding)
         utils.freeze_layers(squeezenet)
         return encoder
-    
+
     def _decoder_model(self, hyperparameters):
         input = Input(shape=(np.prod(hyperparameters['embedding_dim']),))
         x = Reshape(hyperparameters['embedding_dim'])(input)
@@ -91,7 +91,7 @@ class CNNModel(BaseModel):
         encoder = self._encoder_model(input_shape, hyperparameters)
         decoder = self._decoder_model(hyperparameters)
         classifier = self._classifier_model(hyperparameters)
-        
+
         autoencoder_input = Input(shape=(self.input_shape[0], self.input_shape[1], 3))
         autoencoder = Model(autoencoder_input, decoder(encoder(autoencoder_input)))
         model_input = Input(shape=(self.input_shape[0], self.input_shape[1], 3))
@@ -106,29 +106,9 @@ class CNNModel(BaseModel):
                 metrics=['accuracy'])
         return model, autoencoder
 
-        #squeezenet = SqueezeNet(
-        #    input_shape=(self.input_shape[0], self.input_shape[1], 3),
-        #    include_top=False,
-        #)
-        #utils.freeze_layers(squeezenet)
-        #x = Flatten()(squeezenet.output)
-        #x = Dropout(0.25)(x)
-        #x = Dense(250)(x)
-        #x = BatchNormalization()(x)
-        #x = Activation('relu')(x)
-        #x = Dropout(0.25)(x)
-        #x = Dense(2)(x)
-        #x = Activation('softmax')(x)
+    def predict(self, x):
+        return None
 
-        #classifier = Model(squeezenet.input, x)
-        #classifier.summary()
-
-        ## Let's train the model using RMSprop
-        #classifier.compile(loss='categorical_crossentropy',
-        #        optimizer=keras.optimizers.Adam(lr=0.0001),
-        #        metrics=['accuracy'])
-        #return classifier
-        
     def representation_learning(self, x_train, epochs=1):
         with self.graph.as_default():
             self.data_generator.fit(x_train)

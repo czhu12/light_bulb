@@ -39,12 +39,18 @@ def batch():
     Returns a batch of items to be labelled and the phase
     of the label collection (training or test)
     """
-    batch, entropy, stage = label_app.next_batch()
+    prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
+    batch, indexes, stage, x_data = label_app.next_batch()
+    y_prediction = None
+    if prediction:
+        y_prediction = label_app.predict(x_data)
+
     batch = batch.fillna('NaN')
     json_batch = jsonify({
         "batch": list(batch.T.to_dict().values()),
-        "entropy": entropy,
-        "stage": stage
+        "entropy": indexes,
+        "stage": stage,
+        "y_prediction": y_prediction,
     })
     return json_batch
 

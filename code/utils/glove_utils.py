@@ -69,7 +69,7 @@ class Vocabulary(object):
             sequences.append(ids)
         return sequences
 
-    def decode_one_hot_sequence_predictions(self, y_scores, valid_tokens=None):
+    def decode_one_hot_sequence_predictions(self, y_scores, lengths, valid_tokens=None):
         if not valid_tokens:
             valid_tokens = string.printable
 
@@ -82,7 +82,8 @@ class Vocabulary(object):
             for idx in idxs:
                 tags.append(id2token[idx])
 
-            decoded.append(tags)
+            length = lengths[index]
+            decoded.append(tags[-length:-1])
         # Filter out all preset tokens
         return decoded
 
@@ -119,11 +120,12 @@ class Vocabulary(object):
         Sequences is padded of size (batch, maxlen).
         """
         sequences = self._sequence_ids(texts, character)
+        lengths = [len(ids) for ids in sequences]
 
         if not maxlen:
             maxlen = max([len(ids) for ids in sequences])
 
-        return pad_sequences(sequences, maxlen=maxlen)
+        return pad_sequences(sequences, maxlen=maxlen), lengths
 
 class LanguageModel(Vocabulary):
     def __init__(self):

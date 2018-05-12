@@ -6,9 +6,15 @@ PYTHON ?= $(VIRTUALENV)/bin/python
 all: .virt
 
 .virt:
-	virtualenv $@
+	python3.6 -m venv $@
 	$@/bin/pip install --upgrade pip
 	$@/bin/pip install -r requirements.txt
 
-start: .virt
+query_generation: .virt
+	$(PYTHON) code/server.py --config config/query_generation.yml
+
+generate_ner: .virt
+	$(PYTHON) scripts/generate_ner_to_label.py
+
+ner_tagging: .virt
 	$(PYTHON) code/server.py --config config/query_generation.yml

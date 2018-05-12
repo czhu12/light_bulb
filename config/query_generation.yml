@@ -4,34 +4,42 @@ task:
     <table style="width:50%;margin: 0 auto;text-align:center;">
       <tr>
         <th>ENTITY</th>
+        <th>DEFINITION</th>
         <th>INSPIRATIONS</th>
       </tr>
       <tr>
         <td>VERTICAL</td>
+        <td>Name of a type of home or experience.</td>
         <td>cabin</td>
       </tr>
       <tr>
         <td>LOCATION</td>
+        <td>Any text that can refer to an experience.</td>
         <td>123 sesame street</td>
       </tr>
       <tr>
         <td>TIME</td>
+        <td>Any text that has a defined time.</td>
         <td>oct 4, after november, during SXSW (?)</td>
       </tr>
       <tr>
         <td>PRICE</td>
+        <td>Price of a home / experience.</td>
         <td>over 100, under threehundred, cheap</td>
       </tr>
       <tr>
         <td>REFINEMENT</td>
+        <td>Activity, usually for trips.</td>
         <td>skiing trip, bike ride</td>
       </tr>
       <tr>
         <td>ATTRIBUTE</td>
+        <td>Some attribute of a home.</td>
         <td>with hot tub, dog friendly</td>
       </tr>
       <tr>
         <td>OCCUPANCY</td>
+        <td>Size of a home / number of guests.</td>
         <td>6 people, large, 3 bedroom</td>
       </tr>
     </table>

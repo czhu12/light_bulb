@@ -48,7 +48,7 @@ class SequenceModel(BaseModel):
     def train(self, x_seq, y_seq, validation_split=0., epochs=1):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
-            x_train = self.lang.texts_to_sequence(x_seq)
+            x_train, lengths = self.lang.texts_to_sequence(x_seq)
             y_train = self.lang.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
             return self.model.fit(x_train, y_train)
 
@@ -62,19 +62,20 @@ class SequenceModel(BaseModel):
                 raise ValueError("Can't do sequence to sequence models yet.")
             else:
                 # Unroll until completion (this returns a string)
-                x_seq = self.lang.texts_to_sequence(x_seq, character=self.character_mode)
+                x_seq, lengths = self.lang.texts_to_sequence(x_seq, character=self.character_mode)
                 return self.model.predict(x_seq)
 
     def predict(self, x):
         with self.graph.as_default():
-            x = self.lang.texts_to_sequence(x)
+            x, lengths = self.lang.texts_to_sequence(x)
             return self.lang.decode_one_hot_sequence_predictions(
                 self.model.predict(x),
+                lengths,
                 valid_tokens=self.valid_outputs,
             )
 
     def evaluate(self, x_seq, y_seq):
         with self.graph.as_default():
-            x_eval = self.lang.texts_to_sequence(x_seq)
+            x_eval, lengths = self.lang.texts_to_sequence(x_seq)
             y_eval = self.lang.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
             return self.model.evaluate(x_eval, y_eval)

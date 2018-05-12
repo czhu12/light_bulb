@@ -9,14 +9,14 @@ body {
   min-height: 100%;
   height: auto;
   /* Negative indent footer by its height */
-  margin: 0 auto -60px;
+  margin: 0 auto -130px;
   /* Pad bottom by footer height */
-  padding: 0 0 60px;
+  padding: 0 0 130px;
 }
 
 /* Set the fixed height of the footer here */
 #footer {
-  height: 80px;
+  height: 130px;
 }
 
 #item-image {
@@ -39,7 +39,7 @@ body {
   margin 0 auto;
 }
 
-.sequence-input .token {
+.token {
   min-width: 50px;
   padding: 3px 20px;
   margin-right: 10px;
@@ -50,7 +50,7 @@ body {
   margin-bottom: 5px;
 }
 
-.sequence-input .token:hover {
+.token:hover {
   min-width: 50px;
   padding: 3px 20px;
   margin-right: 10px;

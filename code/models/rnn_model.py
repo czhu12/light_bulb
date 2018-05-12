@@ -24,12 +24,15 @@ class RNNModel(BaseModel):
     def reinitialize_model(self):
         self.model.set_weights(self.initial_weights)
 
+    def predict(self, x):
+        return None
+
     def representation_learning(self, x_train, epochs=1):
         # Representation learning for text?
         return self
 
     def vectorize_text(self, x_texts):
-        x_train = self.lang.texts_to_sequence(x_texts)
+        x_train, lengths = self.lang.texts_to_sequence(x_texts)
         return x_train
 
     def get_model(self):

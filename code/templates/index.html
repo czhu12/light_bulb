@@ -23,6 +23,7 @@
       window.labelType = '{{ label_type }}'
     </script>
     <div id="wrap">
+      <!--
       <div class="row">
         <div class="col-md-3">
           <a class="btn btn-primary" id="show-history">
@@ -33,10 +34,11 @@
           <div class="ct-chart ct-perfect-fourth" data-x-axis="X axis label" data-y-axis="Y axis label"></div>
         </div>
       </div>
+      -->
 
       <div id="text-classification" style="display:none;">
         <h2 class="center">
-          {{ title }}
+          {{ title|safe }}
         </h2>
         <div class="center">
           {{ description|safe }}
@@ -49,7 +51,7 @@
 
       <div id="image-classification" style="display:none;">
         <h2 class="center">
-          {{ title }}
+          {{ title|safe }}
         </h2>
         <div class="center">
           <img id="item-image" class="img-responsive" src="/" />
@@ -57,51 +59,61 @@
       </div>
     </div>
 
-    <div id="footer" style="display:flex;">
-      {% if label_type == 'binary' %}
-      <div style="flex-grow:1;">
-        <h3 style="background: #27ae60;" data-judgement="YES" class="judgement-button center">
-            Yes ( j )
-        </h3>
-      </div>
-      <div style="flex-grow:1;">
-        <h3 style="background: #e74c3c;" data-judgement="NO" class="judgement-button center">
-            No ( k )
-        </h3>
-      </div>
-      {% endif %}
+    <div id="footer">
+      <div id="control-panel">
+        <div>
+          Suggestion: <span id="suggestion"></span>
+        </div>
 
-      {% if label_type == 'classification' %}
-        {% for cls in label_helper.classes %}
-          <div style="flex-grow:1;">
-            <h3 style="background: {{ classification_colors[loop.index0] }};" data-judgement="{{loop.index0}}" class="judgement-button center">
-              {{ cls }}
-            </h3>
-          </div>
-        {% endfor %}
-      {% endif %}
-
-      {% if label_type == 'sequence' %}
-      <div style="flex-grow:1;" class="sequence-input">
+        {% if label_type == 'sequence' %}
         <div>
           {% for token in label_helper.valid_tokens %}
           <div class="token center" data-token="{{ token }}">{{ token }}</div>
           {% endfor %}
           <div class="clear"></div>
         </div>
-
-        <div class="input-group mb-3">
-          <div class="input-group-prepend">
-            <span class="input-group-text">{{ title }}</span>
-          </div>
-          <input
-            autofocus
-            type="text"
-            class="form-control"
-            placeholder="label">
-        </div>
+       {% endif %}
       </div>
-      {% endif %}
+
+      <div style="display:flex;">
+        {% if label_type == 'binary' %}
+        <div style="flex-grow:1;">
+          <h3 style="background: #27ae60;" data-judgement="YES" class="judgement-button center">
+              Yes ( j )
+          </h3>
+        </div>
+        <div style="flex-grow:1;">
+          <h3 style="background: #e74c3c;" data-judgement="NO" class="judgement-button center">
+              No ( k )
+          </h3>
+        </div>
+        {% endif %}
+
+        {% if label_type == 'classification' %}
+          {% for cls in label_helper.classes %}
+            <div style="flex-grow:1;">
+              <h3 style="background: {{ classification_colors[loop.index0] }};" data-judgement="{{loop.index0}}" class="judgement-button center">
+                {{ cls }}
+              </h3>
+            </div>
+          {% endfor %}
+        {% endif %}
+
+        {% if label_type == 'sequence' %}
+        <div style="flex-grow:1;" class="sequence-input">
+          <div class="input-group mb-3">
+            <div class="input-group-prepend">
+              <span class="input-group-text">{{ title }}</span>
+            </div>
+            <input
+              autofocus
+              type="text"
+              class="form-control"
+              placeholder="label">
+          </div>
+        </div>
+        {% endif %}
+      </div>
     </div>
     <script src="/static/js/index.js"></script>
   </body>
