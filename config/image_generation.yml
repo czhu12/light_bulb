@@ -1,0 +1,10 @@
+task:
+  title: NER Tags for query
+dataset:
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/image_generation
+  data_type: text
+  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/ner_sequence/labels.csv
+label: generation
+model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/ner_sequence/models/
+user: chris
+model_labelling: false

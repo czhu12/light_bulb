@@ -11,6 +11,8 @@ class Label(object):
     CLASSIFICATION = 'classification'
     BINARY = 'binary'
     SEQUENCE = 'sequence'
+    OBJECT_DETECTION = 'object_detection'
+
     @staticmethod
     def load_from(config):
         if 'type' not in config:
@@ -21,6 +23,8 @@ class Label(object):
             return BinaryClassificationLabel(config)
         if config['type'] == Label.SEQUENCE:
             return SequenceLabel(**config)
+        if config['type'] == Label.OBJECT_DETECTION:
+            return ObjectDetectionLabel(**config)
         raise ValueError("Unrecognized label {}".format(config['type']))
 
     def __init__(self, config):
@@ -76,3 +80,8 @@ class SequenceLabel(Label):
 
     def decode(self, encoded):
         return encoded
+
+class ObjectDetectionLabel(Label):
+    def __init__(self, **kwargs):
+        super(ObjectDetectionLabel, self).__init__(kwargs)
+        self.classes = kwargs['classes']
