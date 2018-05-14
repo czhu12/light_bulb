@@ -42,7 +42,7 @@ def batch():
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
     batch, indexes, stage, x_data = label_app.next_batch()
     y_prediction = None
-    if prediction:
+    if prediction and x_data and len(x_data) > 0:
         y_prediction = label_app.predict(x_data)
 
     batch = batch.fillna('NaN')

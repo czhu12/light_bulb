@@ -15,13 +15,9 @@ from labeller import ModelLabeller
 from label import Label
 from operator import itemgetter
 CLASSIFICATION_COLORS = [
-"#1abc9c",
 "#2ecc71",
-"#3498db",
 "#9b59b6",
-"#34495e",
 "#f1c40f",
-"#e67e22",
 "#e74c3c",
 "#16a085",
 "#27ae60",
@@ -31,6 +27,10 @@ CLASSIFICATION_COLORS = [
 "#f39c12",
 "#d35400",
 "#c0392b",
+"#1abc9c",
+"#3498db",
+"#34495e",
+"#e67e22",
 ]
 
 logger = logging.getLogger()
@@ -86,7 +86,7 @@ class LabelApp:
         self.dataset.set_current_stage()
         if self.dataset.current_stage == Dataset.TEST:
             sampled_df = self.dataset.sample(size)
-            return sampled_df, 0, self.dataset.current_stage
+            return sampled_df, 0, self.dataset.current_stage, [] # TODO: This needs to be fixed
 
         # Generate training data
         sampled_df = self.dataset.sample(size * 5)
@@ -100,7 +100,13 @@ class LabelApp:
         if len(entropy.shape) > 1:
             entropy = entropy.mean(1)
         max_entropy_indexes = np.argpartition(-entropy, size)[:size]
-        return sampled_df.iloc[max_entropy_indexes], max_entropy_indexes.tolist(), self.dataset.current_stage, x_data[max_entropy_indexes]
+        response = (
+            sampled_df.iloc[max_entropy_indexes],
+            max_entropy_indexes.tolist(),
+            self.dataset.current_stage,
+            x_data[max_entropy_indexes],
+        )
+        return response
 
 
     def add_label(self, _id, label):
