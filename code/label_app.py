@@ -82,6 +82,7 @@ class LabelApp:
         predictions = self.model.predict(x)
         return predictions
 
+    @property
     def is_done(self):
         return len(self.dataset.unlabelled) == 0
 
