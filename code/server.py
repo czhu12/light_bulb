@@ -39,6 +39,15 @@ def batch():
     Returns a batch of items to be labelled and the phase
     of the label collection (training or test)
     """
+    if label_app.is_done:
+        return jsonify({
+            "done": True,
+            "batch": [],
+            "entropy": [],
+            "stage": [],
+            "y_prediction": [],
+        })
+
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
     batch, indexes, stage, x_data = label_app.next_batch()
     y_prediction = None
@@ -51,7 +60,9 @@ def batch():
         "entropy": indexes,
         "stage": stage,
         "y_prediction": y_prediction,
+        "done": False,
     })
+
     return json_batch
 
 @app.route('/history', methods=['GET'])

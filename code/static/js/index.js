@@ -52,11 +52,11 @@ $(document).ready(() => {
   $(".token").click((el) => {
     let token = $(el.target).data("token")
     let val = $(".sequence-input input").val()
-    if (!val) {
-      $(".sequence-input input").val(token)
-    } else {
-      $(".sequence-input input").val(val + ' ' + token)
-    }
+    // Take the tokens and join with space
+    let tokens = val.split(' ')
+    tokens.push(token)
+    let newVal = tokens.filter((t) => { return !!t }).join(' ')
+    $(".sequence-input input").val(newVal)
     $(".sequence-input input").focus()
   })
 
@@ -110,6 +110,7 @@ $(document).ready(() => {
     $.get('/history', (data) => {
       let history = data['history']
       let bestAccByNumLabels = {}
+
       history.forEach((hist) => {
         if (!(hist['num_labels'] in bestAccByNumLabels)) {
           bestAccByNumLabels[hist['num_labels']] = hist['test']['acc']
@@ -120,6 +121,7 @@ $(document).ready(() => {
           bestAccByNumLabels[hist['num_labels']],
         )
       })
+
       let maxLabels = Math.max(Object.keys(bestAccByNumLabels))
       let x = []
       let y = []
@@ -131,19 +133,43 @@ $(document).ready(() => {
           y.push(null)
         }
       }
-      plot(x, y)
+      //plot(x, y)
+      setLabelledCounts(data['labelled']['total'], data['unlabelled'] + data['labelled']['total'])
     })
+  }
+
+  let setLabelledCounts = (labelled, unlabelled) => {
+    $('#labelled-counts-text').data('labelled', labelled)
+    $('#labelled-counts-text').data('unlabelled', unlabelled)
+    $('#labelled-counts-text').html(`${labelled} / ${unlabelled}`)
+  }
+
+  let incrementLabelledCounts = () => {
+    let labelled = parseInt($('#labelled-counts-text').data('labelled'), 10)
+    let unlabelled = parseInt($('#labelled-counts-text').data('unlabelled'), 10)
+    $('#labelled-counts-text').data('labelled', labelled + 1)
+    $('#labelled-counts-text').data('unlabelled', unlabelled)
+    $('#labelled-counts-text').html(`${labelled + 1} / ${unlabelled}`)
+  }
+
+  let labellingDone = () => {
+    $("#wrap").hide()
+    $("#footer").hide()
+    $("#done-page").show()
   }
 
   let getNextBatch = () => {
     $.get('/batch?prediction=' + false, (data) => {
+      if (data['done']) {
+        labellingDone()
+        return
+      }
       let batch = data['batch']
       itemsToLabel = itemsToLabel.concat(batch)
       if (currentIndex == 0) {
         showItem()
       }
     })
-
   }
 
   let submitJudgement = (label) => {
@@ -156,6 +182,7 @@ $(document).ready(() => {
         return
       }
       showNextItem()
+      incrementLabelledCounts()
       if (currentIndex + 3 > itemsToLabel.length) {
         getNextBatch()
         getTrainingHistory()

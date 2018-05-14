@@ -44,11 +44,11 @@ task:
       </tr>
     </table>
 dataset:
-  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/query_generation
+  directory: dataset/query_generation
   data_type: text
-  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/query_generation/labels.csv
+  judgements_file: outputs/query_generation/labels.csv
 label:
   type: sequence
-model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/query_generation/models/
+model_directory: outputs/query_generation/models/
 user: chris
 model_labelling: false

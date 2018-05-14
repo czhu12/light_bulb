@@ -37,8 +37,6 @@ class Dataset:
         self.dataset = self.load_existing_judgements()
         # Add unlabelled examples
         unlabelled = self.load_unlabelled_dataset()
-        if len(unlabelled) == 0:
-            raise ValueError("Dataset is empty. dataset.directory is probably pointing at a wrong directory?")
 
         self.dataset = self.dataset.append(unlabelled)
         self.loaded_text = False
@@ -150,6 +148,9 @@ class TextDataset(Dataset):
         for type in types:
             text_paths.extend(glob.glob("{}/{}".format(self.directory, type)))
 
+        if len(set(text_paths)) == 0:
+            raise ValueError("No txt files found in {}. Probably pointing at a wrong directory?".format(self.directory))
+
         unlabelled_paths = set(text_paths) - set(self.dataset['path'].values)
         data = []
         for path in unlabelled_paths:
@@ -203,6 +204,10 @@ class ImageDataset(Dataset):
         for type in types:
             image_paths.extend(glob.glob("{}/{}".format(self.directory, type)))
 
+        if len(set(image_paths)) == 0:
+            raise ValueError(
+                "No jpg or png files found in {}. Probably pointing at a wrong directory?".format(directory),
+            )
         unlabelled_paths = set(image_paths) - set(self.dataset['path'].values)
         new_dataset = pd.DataFrame([{'path': path, 'labelled': False} for path in unlabelled_paths], columns=self.__class__.COLUMNS)
         return new_dataset

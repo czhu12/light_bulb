@@ -1,9 +1,9 @@
 task:
   title: NER Tags for query
 dataset:
-  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/ner_sequence
+  directory: dataset/ner_sequence
   data_type: text
-  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/ner_sequence/labels.csv
+  judgements_file: outputs/ner_sequence/labels.csv
 label:
   type: sequence
   length_equality: true
@@ -23,6 +23,6 @@ label:
     - B-OCC
     - I-OCC
     - O
-model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/ner_sequence/models/
+model_directory: outputs/ner_sequence/models/
 user: chris
 model_labelling: false

@@ -14,6 +14,7 @@ from training.trainer import Trainer
 from labeller import ModelLabeller
 from label import Label
 from operator import itemgetter
+
 CLASSIFICATION_COLORS = [
 "#2ecc71",
 "#9b59b6",
@@ -81,7 +82,13 @@ class LabelApp:
         predictions = self.model.predict(x)
         return predictions
 
+    def is_done(self):
+        return len(self.dataset.unlabelled) == 0
+
     def next_batch(self, size=10):
+        if self.is_done:
+            raise ValueError("Tried to sample a batch when there is nothing else to sample")
+
         logger.debug("Sampling a batch for {} set.".format(self.dataset.current_stage))
         self.dataset.set_current_stage()
         if self.dataset.current_stage == Dataset.TEST:

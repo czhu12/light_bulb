@@ -13,15 +13,26 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/css/toastr.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/chartist/0.11.0/chartist.min.css"/>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.13/css/all.css" integrity="sha384-DNOHZ68U8hZfKXOrtjWvjxusGo9WQnrNx2sqG0tfsghAvtVlRW3tvkXWZh58N9jp" crossorigin="anonymous">
+
     <link rel="stylesheet" href="/static/css/style.css"/>
+
   </head>
   <body>
-<style>
-</style>
     <script>
       window.dataType = '{{ data_type }}'
       window.labelType = '{{ label_type }}'
     </script>
+    <div id="done-page" style="display: none">
+      <div class="container center">
+        <h2>Your Done!</h2>
+        <img
+          height="450"
+          width="450"
+          class="img-responsive"
+          src="https://free.clipartof.com/76-Free-Cute-Cartoon-Monkey-Clipart-Illustration.png" />
+      </div>
+    </div>
     <div id="wrap">
       <!--
       <div class="row">
@@ -35,6 +46,20 @@
         </div>
       </div>
       -->
+
+      <nav class="navbar navbar-toggleable-md navbar-light bg-faded navbar-expand-md">
+        <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <a class="navbar-brand" href="#"><i style="font-size: 1.5em;" class="far fa-lightbulb"></i></a>
+        <div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+          <div class="navbar-nav">
+            <a class="nav-item nav-link">Labelled: <b id="labelled-counts-text"></b></a>
+            <a class="nav-item nav-link">Accuracy: <b id="accuracy-text">25%</b></a>
+          </div>
+        </div>
+      </nav>
+
 
       <div id="text-classification" style="display:none;">
         <h2 class="center">
