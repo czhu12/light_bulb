@@ -10,6 +10,9 @@ all: .virt
 	$@/bin/pip install --upgrade pip
 	$@/bin/pip install -r requirements.txt
 
+generate_query_inspirations: .virt
+	$(PYTHON) scripts/generate_query_inspirations.py
+
 query_generation: .virt
 	$(PYTHON) code/server.py --config config/query_generation.yml
 
