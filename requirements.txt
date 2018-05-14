@@ -13,10 +13,12 @@ idna==2.6
 itsdangerous==0.24
 Jinja2==2.10
 Keras==2.1.6
+keras-squeezenet==0.4
 Markdown==2.6.11
 MarkupSafe==1.0
 nltk==3.2.5
 numpy==1.14.3
+opencv-python==3.4.0.12
 pandas==0.22.0
 Pillow==5.1.0
 plac==0.9.6
@@ -25,10 +27,13 @@ python-dateutil==2.7.2
 pytz==2018.4
 PyYAML==3.12
 requests==2.18.4
+scikit-learn==0.19.1
 scipy==1.0.1
 six==1.11.0
+sklearn==0.0
 tensorboard==1.8.0
 tensorflow==1.8.0
 termcolor==1.1.0
+torch==0.4.0
 urllib3==1.22
 Werkzeug==0.14.1
