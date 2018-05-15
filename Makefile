@@ -6,7 +6,7 @@ PYTHON ?= $(VIRTUALENV)/bin/python
 all: .virt
 
 .virt:
-	python3.6 -m venv $@
+	python3 -m venv $@
 	$@/bin/pip install --upgrade pip
 	$@/bin/pip install -r requirements.txt
 
