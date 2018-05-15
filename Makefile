@@ -11,7 +11,7 @@ all: .virt
 	$@/bin/pip install -r requirements.txt
 
 generate_query_inspirations: .virt
-	$(PYTHON) scripts/generate_query_inspirations.py -n 100
+	$(PYTHON) scripts/generate_query_inspirations.py -d scripts/data.yml -n 100
 
 query_generation: .virt
 	$(PYTHON) code/server.py --config config/query_generation.yml
