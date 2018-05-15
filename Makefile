@@ -20,4 +20,4 @@ generate_ner: .virt
 	$(PYTHON) scripts/generate_ner_to_label.py
 
 ner_tagging: .virt
-	$(PYTHON) code/server.py --config config/query_generation.yml
+	$(PYTHON) code/server.py --config config/ner_sequence.yml
