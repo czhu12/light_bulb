@@ -36,11 +36,12 @@ PRICE:
 TIME:
   frequency_ratio: 0.2
   options:
-    - after / before / during some event
-    - after / before / during some holiday
-    - after / before / during
-    - after / before / during some event
-    - after / before / during some event
+    - after / before / during some event (superbowl)
+    - after / before / during some holiday (easter long weekend)
+    - exact date (May 12)
+    - next week, this week
+    - relative dates (tomorrow)
+    - between exact dates (may 12 to may 19)
 REFINEMENT:
   frequency_ratio: 0.8
   options:
@@ -51,6 +52,7 @@ REFINEMENT:
     - surfing
     - wind surfing
     - hiking
+    - <language> speaking host
 ATTRIBUTE:
   frequency_ratio: 0.8
   options:
@@ -81,4 +83,4 @@ OCCUPANCY:
     - <number> bedrooms
     - <number> bathrooms
     - <number> of guests
-    - for <number> people
+    - <number> people
