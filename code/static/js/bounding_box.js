@@ -10,7 +10,6 @@ $(document).ready(() => {
   img.src = 'https://png.pngtree.com/element_pic/16/11/18/b82016401753f3bfd306ac8ce82c82c0.jpg'
 
   // style the context
-  ctx.strokeStyle = "blue";
   ctx.lineWidth = 3;
 
   // calculate where the canvas is on the window
@@ -28,7 +27,10 @@ $(document).ready(() => {
   // these vars will hold the starting mouse position
   var startX;
   var startY;
-  var boxes = [];
+  var boxes = []; // TODO: Need to add colors to the objects added
+  var currentColor = '#eeeeee';
+  var currentClass = '';
+
   $(document).keydown((e) => {
     if (e.keyCode === 8) {
       e.preventDefault();
@@ -59,7 +61,8 @@ $(document).ready(() => {
       mouseY = parseInt(e.clientY - offsetY);
       var width = mouseX - startX;
       var height = mouseY - startY;
-      boxes.push({startX, startY, width, height});
+      // Get currently selected detection-button
+      boxes.push({startX, startY, width, height, color: ctx.strokeStyle});
   }
 
   function handleMouseOut(e) {
@@ -77,7 +80,8 @@ $(document).ready(() => {
         var boxStartY = boxes[i].startY;
         var boxWidth = boxes[i].width;
         var boxHeight = boxes[i].height;
-        ctx.strokeRect(boxStartX, boxStartY, boxWidth, boxHeight);
+        var color = boxes[i].color;
+        drawBox(ctx, boxStartX, boxStartY, boxWidth, boxHeight, color);
       }
   }
 
@@ -102,11 +106,13 @@ $(document).ready(() => {
       // on starting vs current mouse position
       var width = mouseX - startX;
       var height = mouseY - startY;
-
       // draw a new rect from the start position
       // to the current mouse position
+      drawBox(ctx, startX, startY, width, height, currentColor);
+  }
+  function drawBox(ctx, startX, startY, width, height, color) {
+      ctx.strokeStyle = color;
       ctx.strokeRect(startX, startY, width, height);
-
   }
 
   // listen for mouse events
@@ -137,6 +143,10 @@ $(document).ready(() => {
     let color = $(el.target).data('color');
     $(el.target).attr('style', `background: ${color};`);
     selectedClass = $(el.target).data('detection-class')
-    ctx.strokeStyle = color;
+    currentColor = color;
+    currentClass = selectedClass;
   });
+
+  function submitBoundBox() {
+  }
 });

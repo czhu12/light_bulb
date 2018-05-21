@@ -36,7 +36,7 @@ body {
 .detection-button {
   padding-top: 15px;
   height: 80px;
-  color: #ecf0f1;
+  color: #7f8c8d;
   margin: 0;
 }
 
@@ -81,4 +81,7 @@ body {
 
 #text-classification-text {
   font-size: 1.7em;
+}
+.cursor {
+  cursor: pointer;
 }
