@@ -21,18 +21,18 @@ LOCATION:
   frequency_ratio: 1.0
   options:
     - near resturants / gym / amenities
-    - near / in <metro city>
-    - near / in <skiing destination>
-    - near / in <surfing destination>
+    - near / in [metro city]
+    - near / in [skiing destination]
+    - near / in [surfing destination]
     - exact address (123 sesame street)
     - near point of interest (golden gate bridge)
 PRICE:
   frequency_ratio: 0.1
   options:
-    - under <price>
+    - under [price]
     - luxurious
     - cheap / low cost
-    - between <price> and <price>
+    - between [price] and [price]
 TIME:
   frequency_ratio: 0.2
   options:
@@ -52,7 +52,7 @@ REFINEMENT:
     - surfing
     - wind surfing
     - hiking
-    - <language> speaking host
+    - [language] speaking host
 ATTRIBUTE:
   frequency_ratio: 0.8
   options:
@@ -80,7 +80,7 @@ ATTRIBUTE:
 OCCUPANCY:
   frequency_ratio: 0.3
   options:
-    - <number> bedrooms
-    - <number> bathrooms
-    - <number> of guests
-    - <number> people
+    - [number] bedrooms
+    - [number] bathrooms
+    - [number] of guests
+    - [number] people
