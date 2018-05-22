@@ -9,6 +9,7 @@ Validations:
   3. Make sure the output directory isn't already being used
   4. Make directories relative so that they don't change when computers change
   5. Glove utils needs to download glove dataset if necessary
+  6. Theres a bug where we might label the same thing twice: since we sample next batch before current batch is labelled, we may end up sampling same items in next batch
 Front end work:
   1. Show improvements in performance given more labels
   2. Load next batch before current batch is complete

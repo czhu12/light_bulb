@@ -8,10 +8,11 @@ label:
   type: sequence
   length_equality: true
   valid_tokens:
-    - B-VERT
-    - I-VERT
+    - O
     - B-LOC
     - I-LOC
+    - B-VERT
+    - I-VERT
     - B-TIME
     - I-TIME
     - B-PRICE
@@ -22,7 +23,6 @@ label:
     - I-ATTR
     - B-OCC
     - I-OCC
-    - O
 model_directory: outputs/ner_sequence/models/
 user: chris
 model_labelling: false
