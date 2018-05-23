@@ -94,7 +94,7 @@ class LabelApp:
         self.dataset.set_current_stage()
         if self.dataset.current_stage == Dataset.TEST:
             sampled_df = self.dataset.sample(size)
-            return sampled_df, 0, self.dataset.current_stage, [] # TODO: This needs to be fixed
+            return sampled_df, 0, self.dataset.current_stage, [], 0 # TODO: This needs to be fixed
 
         # Generate training data
         sampled_df = self.dataset.sample(size * 5)
@@ -113,6 +113,7 @@ class LabelApp:
             max_entropy_indexes.tolist(),
             self.dataset.current_stage,
             x_data[max_entropy_indexes],
+            float(entropy[max_entropy_indexes].mean()),
         )
         return response
 

@@ -40,7 +40,7 @@ class ClassificationLabel(Label):
         return encoded
 
 class BinaryClassificationLabel(ClassificationLabel):
-    LABEL_MAP = { 'YES': 1, 'NO': 0 }
+    LABEL_MAP = { 'YES': 1., 'NO': 0. }
     def __init__(self, config):
         super(BinaryClassificationLabel, self).__init__({**config, **{'classes': ['YES', 'NO']}})
 
@@ -50,7 +50,7 @@ class BinaryClassificationLabel(ClassificationLabel):
                 encoded,
                 BinaryClassificationLabel.LABEL_MAP,
             ))
-        return encoded
+        return BinaryClassificationLabel.LABEL_MAP[encoded]
 
 class SequenceLabel(Label):
     def __init__(self, length_equality=False, valid_tokens=[], delimiter=' ', **kwargs):

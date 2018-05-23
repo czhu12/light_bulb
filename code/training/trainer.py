@@ -166,7 +166,6 @@ class Trainer():
                     evaluated = True
                 except ValueError as e:
                     self.logger.error(e)
-                    raise e
 
                 if trained and evaluated:
                     self.history.add_train_eval_step(

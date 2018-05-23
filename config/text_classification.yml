@@ -1,10 +1,10 @@
 task:
   title: Is this text positive?
 dataset:
-  directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/imdb_texts/
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/text_classification/
   data_type: text
-  judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/text_labels.csv
+  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/labels.csv
 label:
   type: binary
-model_directory: /Users/chriszhu/Documents/Github/labelling-tool/models/imdb_classification/
+model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/models/text_classification/
 user: chris

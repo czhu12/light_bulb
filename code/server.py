@@ -49,7 +49,7 @@ def batch():
         })
 
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
-    batch, indexes, stage, x_data = label_app.next_batch()
+    batch, indexes, stage, x_data, entropy = label_app.next_batch()
     y_prediction = None
     if prediction and x_data and len(x_data) > 0:
         y_prediction = label_app.predict(x_data)
@@ -57,7 +57,7 @@ def batch():
     batch = batch.fillna('NaN')
     json_batch = jsonify({
         "batch": list(batch.T.to_dict().values()),
-        "entropy": indexes,
+        "entropy": entropy,
         "stage": stage,
         "y_prediction": y_prediction,
         "done": False,
