@@ -135,7 +135,17 @@ $(document).ready(() => {
       }
       //plot(x, y)
       setLabelledCounts(data['labelled']['total'], data['unlabelled'] + data['labelled']['total'])
+
+      let accuracies = data['history'].map((step) => {
+        return step['test']['acc']
+      })
+      let maxAccuracy = Math.round(Math.max(...accuracies) * 100)
+      setAccuracy(maxAccuracy)
     })
+  }
+
+  let setAccuracy = (maxAccuracy) => {
+    $('#accuracy-text').html(`${maxAccuracy}%`)
   }
 
   let setLabelledCounts = (labelled, unlabelled) => {
