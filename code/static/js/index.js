@@ -1,54 +1,4 @@
 $(document).ready(() => {
-  // Start Plotting
-  //$(".ct-chart").hide()
-  //$("#show-history").click(() => {
-  //  if ($(".ct-chart").is(":visible")) {
-  //    $(".ct-chart").hide()
-  //    $("#show-history").html("Show Training History")
-  //  } else {
-  //    $(".ct-chart").show()
-  //    $("#show-history").html("Hide Training History")
-  //  }
-  //})
-
-  //let plot = (x, y) => {
-  //  new Chartist.Line('.ct-chart', {
-  //    labels: x,
-  //    series: [y]
-  //  }, {
-  //    showLine: false,
-  //    axisX: {
-  //      labelInterpolationFnc: (value, index) => {
-  //        return index % 10 === 0 ? value : null
-  //      },
-  //    },
-  //    plugins: [
-  //      Chartist.plugins.ctAxisTitle({
-  //        axisX: {
-  //          axisTitle: 'Num Labelled',
-  //          axisClass: 'ct-axis-title',
-  //          offset: {
-  //            x: 0,
-  //            y: 33
-  //          },
-  //          textAnchor: 'middle'
-  //        },
-  //        axisY: {
-  //          axisTitle: 'Test Accuracy (%)',
-  //          axisClass: 'ct-axis-title',
-  //          offset: {
-  //            x: 0,
-  //            y: -5
-  //          },
-  //          textAnchor: 'middle',
-  //          flipTitle: false
-  //        }
-  //      })
-  //    ]
-  //  })
-  //}
-  // End Plotting
-
   $(".token").click((el) => {
     let token = $(el.target).data("token")
     let val = $(".sequence-input input").val()
@@ -133,13 +83,17 @@ $(document).ready(() => {
           y.push(null)
         }
       }
-      //plot(x, y)
       setLabelledCounts(data['labelled']['total'], data['unlabelled'] + data['labelled']['total'])
 
       let accuracies = data['history'].map((step) => {
         return step['test']['acc']
       })
-      let maxAccuracy = Math.round(Math.max(...accuracies) * 100)
+
+      if (accuracies.length > 0) {
+        let maxAccuracy = Math.round(Math.max(...accuracies) * 100)
+      } else {
+        maxAccuracy = 0
+      }
       setAccuracy(maxAccuracy)
     })
   }
