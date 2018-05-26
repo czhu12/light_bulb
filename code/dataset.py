@@ -5,6 +5,7 @@ from utils import utils
 import chardet
 from utils import glove_utils
 from threading import Lock
+#from datasets.object_detection_dataset import ObjectDetectionDataset
 from models.cnn_model import CNNModel
 from models.rnn_model import RNNModel
 
@@ -19,13 +20,18 @@ class Dataset:
     MODEL_LABELLED = 'MODEL_LABELLED'
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
+    OBJECT_DETECTION_TYPE = 'object_detection'
 
     @staticmethod
     def load_from(config):
         if config['data_type'] == Dataset.IMAGE_TYPE:
             return ImageDataset(config)
-        else:
+        elif config['data_type'] == Dataset.TEXT_TYPE:
             return TextDataset(config)
+        else:
+            pass
+        #elif config['data_type'] == Dataset.OBJECT_DETECTION_TYPE:
+            #return ObjectDetectionDataset(config)
 
     def __init__(self, config):
         self.data_type = config.get('data_type')

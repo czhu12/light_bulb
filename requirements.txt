@@ -1,9 +1,12 @@
+git+https://gitlab.com/EAVISE/brambox
+git+https://gitlab.com/EAVISE/lightnet
 absl-py==0.2.0
 astor==0.6.2
 bleach==1.5.0
 certifi==2018.4.16
 chardet==3.0.4
 click==6.7
+cycler==0.10.0
 Flask==1.0.2
 gast==0.2.0
 grpcio==1.11.0
@@ -14,8 +17,10 @@ itsdangerous==0.24
 Jinja2==2.10
 Keras==2.1.6
 keras-squeezenet==0.4
+kiwisolver==1.0.1
 Markdown==2.6.11
 MarkupSafe==1.0
+matplotlib==2.2.2
 nltk==3.2.5
 numpy==1.14.3
 opencv-python==3.4.0.12
@@ -23,6 +28,7 @@ pandas==0.22.0
 Pillow==5.1.0
 plac==0.9.6
 protobuf==3.5.2.post1
+pyparsing==2.2.0
 python-dateutil==2.7.2
 pytz==2018.4
 PyYAML==3.12
@@ -35,6 +41,7 @@ tensorboard==1.8.0
 tensorflow==1.8.0
 termcolor==1.1.0
 torch==0.4.0
+torchvision==0.2.1
 urllib3==1.22
 Werkzeug==0.14.1
 vendor/sequence_tagger-0.1.0-py3-none-any.whl

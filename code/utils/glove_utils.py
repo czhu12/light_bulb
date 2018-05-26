@@ -10,6 +10,7 @@ from keras.layers import Embedding
 from nltk.tokenize import word_tokenize
 import requests
 from subprocess import call
+from utils.utils import download_file
 
 EMBEDDING_DIM = 50
 MAX_NUM_WORDS = 20000
@@ -25,19 +26,9 @@ def download_glove_vectors(remote_path='http://nlp.stanford.edu/data/glove.6B.zi
         logger.debug("Already downloaded glove vectors")
         return './vendor/glove/glove.6B/glove.6B.50d.txt'
 
-    if not os.path.isdir('./vendor'):
-        logger.debug("Created ./vendor")
-        os.makedirs('./vendor')
-
-    if not os.path.isdir('./vendor/glove'):
-        logger.debug("Created ./vendor/glove")
-        os.makedirs('./vendor/glove')
-
-    with open('./vendor/glove/glove.6B.zip', "wb") as f:
-        response = requests.get(remote_path)
-        f.write(response.content)
-        call(['unzip', './vendor/glove/glove.6B.zip', '-d', './vendor/glove/glove.6B'])
-        logger.debug("Unzipped to './vendor/glove/glove.6B'")
+    downloaded_filepath = download_file(remote_path, './vendor/glove')
+    call(['unzip', downloaded_filepath, '-d', './vendor/glove/glove.6B'])
+    logger.debug("Unzipped to './vendor/glove/glove.6B'")
 
     return './vendor/glove/glove.6B/glove.6B.50d.txt'
 

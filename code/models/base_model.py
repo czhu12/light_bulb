@@ -1,10 +1,4 @@
-import glob
-import os
-import logging
 import tensorflow as tf
-
-root = logging.getLogger()
-root.setLevel(logging.DEBUG)
 
 class BaseModel():
     def __init__(self):

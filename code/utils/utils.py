@@ -40,3 +40,23 @@ def download_urls(urls, target_size=(128, 128)):
         images.append(img)
 
     return np.array([np.array(img) for img in images]), images
+
+def download_file(remote_path, local_dir):
+    if not os.path.isdir('./vendor'):
+        logger.debug("Created ./vendor")
+        os.makedirs('./vendor')
+
+    if not os.path.isdir(local_dir):
+        logger.debug(f"Created {local_dir}")
+        os.makedirs(local_dir)
+
+    filename = os.path.basename(remote_path)
+    path_to_downloaded_file = f'{local_dir}/{filename}'
+    if os.path.exists(path_to_downloaded_file):
+        return path_to_downloaded_file
+
+    with open(path_to_downloaded_file, "wb") as f:
+        response = requests.get(remote_path)
+        f.write(response.content)
+
+    return path_to_downloaded_file
