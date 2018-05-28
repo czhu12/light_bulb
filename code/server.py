@@ -55,8 +55,9 @@ def task():
 @app.route('/judgements', methods=['POST'])
 def create_judgement():
     try:
-        id = request.form.get('id')
-        label = request.form.get('label')
+        json = request.get_json()
+        id = json.get('id')
+        label = json.get('label')
         label_app.add_label(id, label)
         return jsonify({'id': id, 'label': label})
     except LabelError as e:
@@ -80,7 +81,7 @@ def batch():
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
     batch, indexes, stage, x_data, entropy = label_app.next_batch()
     y_prediction = None
-    if prediction and x_data and len(x_data) > 0:
+    if prediction and len(x_data) > 0:
         y_prediction = label_app.predict(x_data)
 
     batch = batch.fillna('NaN')
@@ -217,8 +218,7 @@ def main(config, port=5000, mode="training"):
     #labelling_thread.start()
 
     print("Started local server at http://localhost:5000")
-    app.debug = True
-    app.run(debug=True, port=port)
+    app.run(debug=True, use_reloader=False, port=port)
 
 if __name__ == "__main__":
     plac.call(main)

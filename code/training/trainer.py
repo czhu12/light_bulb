@@ -1,6 +1,7 @@
 import time
 import os
 import logging
+import threading
 from training_history import TrainingHistory
 import glob
 import pickle
@@ -134,6 +135,7 @@ class Trainer():
         self.logger.debug(stats)
 
     def train(self):
+        sleep_time = 1.
         while True:
             self.print_stats()
 
@@ -198,6 +200,7 @@ class Trainer():
                 self.logger.error(e)
 
             if len(self.history) > 0 and trained:
+                print("Thread ID: {}".format(threading.get_ident()))
                 print(self.history.plot())
 
-            time.sleep(5)
+            time.sleep(sleep_time)

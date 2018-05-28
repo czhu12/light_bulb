@@ -25,7 +25,7 @@ export const fetchStats = () => ({
 export const FETCH_STATS_SUCCESS = 'STATS/FETCH/SUCCESS';
 export const fetchStatsSuccess = response => ({
   type: FETCH_STATS_SUCCESS,
-  metrics: response,
+  stats: response,
 });
 
 export const FETCH_STATS_FAILURE = 'STATS/FETCH/FAILURE';
@@ -81,6 +81,18 @@ export const labellingComplete = () => ({
   type: LABELLING_COMPLETE
 });
 
+export const SET_BOUNDING_BOX_CLASS = 'SET_BOUNDING_BOX_CLASS';
+export const setBoundingBoxClass = (boundingBoxClass) => ({
+  type: SET_BOUNDING_BOX_CLASS,
+  boundingBoxClass,
+});
+
+export const CHANGE_SEQUENCE_INPUT = 'CHANGE_SEQUENCE_INPUT';
+export const changeSequenceInput = (sequenceInput) => ({
+  type: CHANGE_SEQUENCE_INPUT,
+  sequenceInput,
+});
+
 export function getNextBatch() {
   return (dispatch) => {
     dispatch(fetchItems());
@@ -128,20 +140,31 @@ export function getTask() {
 export function submitJudgement(judgement) {
   return (dispatch, getState) => {
     const state = getState();
-    const itemId = state.items.items[state.items.currentIndex];
+    if (state.judgements.submitting) { // Double clicked
+      console.log('Double called submitJudgement.');
+      return;
+    }
 
-    dispatch(submitJudgementToBackend(itemId, judgement))
-    dispatch(showNextItem())
+    const currentIndex = state.items.currentIndex;
+    const items = state.items.items;
+    const itemId = items[currentIndex]['path'];
+    dispatch(submitJudgementToBackend(itemId, judgement, () => {
+      if (currentIndex + 4 > items.length) {
+        dispatch(getNextBatch())
+      }
+      dispatch(getStats())
+      dispatch(showNextItem())
+    }))
   }
 }
 
-export function submitJudgementToBackend(itemId, judgement) {
+export function submitJudgementToBackend(itemId, judgement, successCallback) {
   return (dispatch) => {
     dispatch(recordJudgement(itemId, judgement));
     return fetch('/judgements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: { id: itemId, label: judgement },
+      body: JSON.stringify({ id: itemId, label: judgement }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -149,10 +172,14 @@ export function submitJudgementToBackend(itemId, judgement) {
         }
         return response.json();
       })
-      .then(() => {
-        dispatch(recordJudgementSuccess(itemId));
-        dispatch(getNextBatch());
+      .then((json) => {
+        if ('error' in json) {
+          throw new Error(json['error'])
+        } else {
+          dispatch(recordJudgementSuccess(itemId));
+          successCallback();
+        }
       })
-      .catch(error => dispatch(recordJudgementFailure(itemId, `Error recording judgement: ${error.message}`)));
+      .catch(error => dispatch(recordJudgementFailure(itemId, error.message)));
   };
 }

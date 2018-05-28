@@ -13,6 +13,8 @@ import {
   RECORD_JUDGEMENT_FAILURE,
   SHOW_NEXT_ITEM,
   LABELLING_COMPLETE,
+  SET_BOUNDING_BOX_CLASS,
+  CHANGE_SEQUENCE_INPUT,
 } from '../actions';
 
 const task = (state = {
@@ -55,8 +57,31 @@ const task = (state = {
 
 const judgements = (state = {
   submitting: false,
+  sequenceInput: '',
 }, action) => {
   switch (action.type) {
+    case CHANGE_SEQUENCE_INPUT:
+      return {
+        ...state,
+        sequenceInput: action.sequenceInput,
+      }
+    case RECORD_JUDGEMENT:
+      return {
+        ...state,
+        submitting: true,
+      }
+    case RECORD_JUDGEMENT_SUCCESS:
+      return {
+        ...state,
+        errorMsg: null,
+        submitting: false,
+      }
+    case RECORD_JUDGEMENT_FAILURE:
+      return {
+        ...state,
+        submitting: false,
+        errorMsg: action.errorMsg,
+      }
     default:
       return state
   }
@@ -83,9 +108,9 @@ const stats = (state = {
       return {
         ...state,
         fetching: false,
-        history: action.history,
-        labelled: action.labelled,
-        unlabelled: action.unlabelled,
+        history: action.stats.history,
+        labelled: action.stats.labelled,
+        unlabelled: action.stats.unlabelled,
         errorMsg: null,
       }
     case FETCH_STATS_FAILURE:
@@ -105,15 +130,21 @@ const items = (state = {
   entropy: 0,
   done: false,
   stage: 'TRAIN',
-  yPrediction: [],
+  prediction: [],
   errorMsg: null,
   currentIndex: null,
+  currentBoundingBoxClass: null, // Only relevant for bounding box task
 }, action) => {
   switch (action.type) {
     case SHOW_NEXT_ITEM:
       return {
         ...state,
         currentIndex: state.currentIndex + 1,
+      }
+    case SET_BOUNDING_BOX_CLASS:
+      return {
+        ...state,
+        currentBoundingBoxClass: action.boundingBoxClass,
       }
     case FETCH_ITEMS:
       return {
@@ -128,7 +159,7 @@ const items = (state = {
         items: state.items.concat(action.items.batch),
         done: action.items.done,
         entropy: action.items.entropy,
-        yPrediction: state.yPrediction.concat(action.items.y_prediction),
+        prediction: action.items.y_prediction ? state.prediction.concat(action.items.y_prediction) : [],
         stage: action.items.stage,
         errorMsg: null,
       };

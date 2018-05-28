@@ -8,29 +8,38 @@ import TaskDescriptionView from './TaskDescriptionView';
 import Footer from './Footer';
 
 class LabelApp extends React.Component {
-  onJudgement(judgement) {
-    let currentItem = this.props.items[this.props.currentIndex];
-    this.props.onJudgement(currentItem['path'], judgement);
-  }
-
   render() {
     let taskView = null;
+    let currentPrediction = null;
+
     if (this.props.currentIndex != null) {
       let currentItem = this.props.items[this.props.currentIndex];
+      if (this.props.currentIndex < this.props.prediction.length) {
+        currentPrediction = this.props.prediction[this.props.currentIndex];
+      }
 
       if (this.props.task.dataType === 'images') {
         taskView = (
-          <ImageTaskView currentItem={currentItem}/>
+          <ImageTaskView
+            currentItem={currentItem}
+            currentPrediction={currentPrediction}
+          />
         );
       } else if (this.props.task.dataType === 'text') {
         taskView = (
-          <TextTaskView currentItem={currentItem}/>
+          <TextTaskView
+            currentItem={currentItem}
+            currentPrediction={currentPrediction}
+          />
         );
       }
     }
+
+    let style = this.props.done ? { display: "none" } : {}
     return (
       <div>
-        <div id="wrap">
+        <DonePage done={this.props.done}/>
+        <div id="wrap" style={style}>
 					<NavigationBar />
           <TaskDescriptionView
             title={this.props.task.title}
@@ -41,7 +50,7 @@ class LabelApp extends React.Component {
           </div>
         </div>
 
-        <Footer onJudgement={this.onJudgement} />
+        <Footer task={this.props.task} currentPrediction={currentPrediction} />
       </div>
     );
   }
@@ -50,16 +59,14 @@ class LabelApp extends React.Component {
 const mapStateToProps = state => ({
   task: state.task,
   items: state.items.items,
+  prediction: state.items.prediction,
   currentIndex: state.items.currentIndex,
   done: state.items.done,
-  errorMsg: state.judgements.errorMsg || state.stats.errorMsg || state.items.errorMsg,
-  fetching: state.judgements.fetching || state.stats.fetching || state.items.fetching,
+  fetching: state.items.fetching,
 });
 
 
 const mapDispatchToProps = dispatch => ({
-  onJudgement: (judgement) => {
-  }
 });
 
 export default connect(

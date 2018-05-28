@@ -12,7 +12,7 @@ import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-r
 
 import LabelAppContainer from './containers/LabelApp';
 import DemoAppContainer from './containers/DemoApp';
-import { getTask, getNextBatch } from './actions';
+import { getTask, getNextBatch, getStats } from './actions';
 import reducer from './reducers';
 
 const history = createHistory();
@@ -48,3 +48,4 @@ render();
 store.subscribe(render);
 store.dispatch(getTask());
 store.dispatch(getNextBatch());
+store.dispatch(getStats());

@@ -4,7 +4,7 @@ class TextTaskView extends React.Component {
   render() {
     return (
       <div id="text-classification-text">
-        {this.props.text}
+        {this.props.currentItem['text']}
       </div>
     );
   }

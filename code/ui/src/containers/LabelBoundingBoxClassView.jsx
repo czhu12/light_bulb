@@ -1,7 +1,5 @@
 import { connect } from 'react-redux';
 import React from 'react';
-import { submitJudgement } from '../actions';
-
 const CLASSIFICATION_COLORS = [
 "#2ecc71",
 "#9b59b6",
@@ -21,7 +19,7 @@ const CLASSIFICATION_COLORS = [
 "#e67e22",
 ]
 
-class LabelClassificationView extends React.Component {
+class LabelBoundingBoxClassView extends React.Component {
   render() {
     let classificationView = this.props.task.classes.map((cls, index) => {
       let style = { background: CLASSIFICATION_COLORS[index] }
@@ -31,7 +29,7 @@ class LabelClassificationView extends React.Component {
             style={style}
             data-judgement={cls}
             className="judgement-button center"
-            onClick={this.props.onJudgement.bind(null, cls)}
+            onClick={this.props.onSetBoundingBoxClass.bind(null, cls)}
           >
             {cls}
           </h3>
@@ -48,16 +46,17 @@ class LabelClassificationView extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  currentBoundingBoxClass: state.items.currentBoundingBoxClass,
 });
 
 
 const mapDispatchToProps = dispatch => ({
-  onJudgement: (cls) => {
-    dispatch(submitJudgement(cls))
+  onSetBoundingBoxClass: (boundingBoxClass) => {
+    dispatch(setBoundingBoxClass(boundingBoxClass))
   }
 });
 
 export default connect(
   mapStateToProps,
   mapDispatchToProps,
-)(LabelClassificationView);
+)(LabelBoundingBoxClassView);

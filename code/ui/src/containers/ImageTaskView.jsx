@@ -1,7 +1,7 @@
 import React from 'react';
 
 class ImageTaskView extends React.Component {
-  componentDidMount() {
+  updateCanvas() {
     const canvas = this.refs.canvas;
     const ctx = canvas.getContext("2d");
     let img = new Image();
@@ -9,6 +9,14 @@ class ImageTaskView extends React.Component {
     img.onload = function() {
       ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
     }
+  }
+
+  componentDidMount() {
+    this.updateCanvas()
+  }
+
+  componentDidUpdate() {
+    this.updateCanvas()
   }
 
   render() {

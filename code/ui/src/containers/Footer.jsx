@@ -3,23 +3,40 @@ import React from 'react';
 
 import LabelSequenceView from './LabelSequenceView';
 import LabelClassificationView from './LabelClassificationView';
+import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
 
 class Footer extends React.Component {
   render() {
     let labelView = null;
-    if (this.props.task.labelType === 'classification') {
+    if (
+      this.props.task.labelType === 'classification' ||
+      this.props.task.labelType === 'binary'
+    ) {
       labelView = (
-        <LabelClassificationView task={this.props.task} />
+        <LabelClassificationView
+          task={this.props.task}
+          currentPrediction={this.props.currentPrediction}
+        />
       );
-    } else if (this.props.task.labelType === 'binary') {
+    } else if (
+      this.props.task.labelType === 'sequence' ||
+      this.props.task.labelType === 'seq2seq'
+    ) {
       labelView = (
-        <LabelClassificationView task={this.props.task} />
+        <LabelSequenceView
+          task={this.props.task}
+          currentPrediction={this.props.currentPrediction}
+        />
       );
-    } else if (this.props.task.labelType === 'sequence') {
+    } else if (this.props.task.labelType === 'object_detection') {
       labelView = (
-        <LabelSequenceView task={this.props.task} />
+        <BoundingBoxImageTaskView
+          task={this.props.task}
+          currentPrediction={this.props.currentPrediction}
+        />
       );
     }
+
     return (
       <div id="footer">
         {labelView}
@@ -29,7 +46,6 @@ class Footer extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  task: state.task,
 });
 
 
