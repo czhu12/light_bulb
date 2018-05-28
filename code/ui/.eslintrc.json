@@ -1,0 +1,14 @@
+{
+    "extends": [
+        "airbnb",
+        "plugin:jest/recommended"
+    ],
+    "plugins": [
+        "jest",
+        "react-with-styles"
+    ],
+    "env": {
+        "browser": true,
+        "jest/globals": true
+    }
+}

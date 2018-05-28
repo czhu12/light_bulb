@@ -3,13 +3,17 @@ import plac
 import yaml
 from flask import Flask, request, send_from_directory, render_template, jsonify, send_file
 from label_app import LabelApp
-from label_app import CLASSIFICATION_COLORS
 from label import LabelError
 from mimetypes import MimeTypes
 from threading import Thread
 from utils import utils
 
-app = Flask(__name__, static_url_path='/static')
+#app = Flask(__name__, static_folder='ui/static', template_folder='ui/public')
+app = Flask(__name__, static_folder='ui/build/static', template_folder='ui/build')
+
+@app.route('/react')
+def react():
+    return render_template('index.html')
 
 @app.route('/')
 def index():
@@ -20,8 +24,33 @@ def index():
         description=label_app.description,
         label_helper=label_app.label_helper,
         label_type=label_app.label_type,
-        classification_colors=CLASSIFICATION_COLORS,
     )
+
+@app.route('/task', methods=['GET'])
+def task():
+    """
+    Returns:
+        task: {
+            title,
+            description,
+        }
+    """
+    valid_tokens = []
+    if hasattr(label_app.label_helper, 'valid_tokens'):
+        valid_tokens = label_app.label_helper.valid_tokens
+
+    classes = None
+    if hasattr(label_app.label_helper, 'classes'):
+        classes = label_app.label_helper.classes
+
+    return jsonify({
+        'title': label_app.title,
+        'description': label_app.description,
+        'label_type': label_app.label_type,
+        'data_type': label_app.data_type,
+        'classes': classes,
+        'valid_tokens': valid_tokens,
+    })
 
 @app.route('/judgements', methods=['POST'])
 def create_judgement():
@@ -162,6 +191,10 @@ def predict():
         texts = json["texts"]
         predictions = label_app.predict(texts)
     return jsonify({'predictions': predictions})
+
+@app.route('/css/index.css')
+def root():
+    return send_from_directory('ui/src', 'index.css')
 
 @plac.annotations(
     config=("Path to config file", "option", "c", str),
