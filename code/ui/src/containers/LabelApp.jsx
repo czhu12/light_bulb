@@ -5,6 +5,7 @@ import NavigationBar from './NavigationBar';
 import TextTaskView from './TextTaskView';
 import ImageTaskView from './ImageTaskView';
 import TaskDescriptionView from './TaskDescriptionView';
+import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
 import Footer from './Footer';
 
 class LabelApp extends React.Component {
@@ -18,7 +19,14 @@ class LabelApp extends React.Component {
         currentPrediction = this.props.prediction[this.props.currentIndex];
       }
 
-      if (this.props.task.dataType === 'images') {
+      if (this.props.task.dataType === 'images' && this.props.task.labelType === 'object_detection') {
+        taskView = (
+          <BoundingBoxImageTaskView
+            currentItem={currentItem}
+            currentPrediction={currentPrediction}
+          />
+        );
+      } else if (this.props.task.dataType === 'images') {
         taskView = (
           <ImageTaskView
             currentItem={currentItem}

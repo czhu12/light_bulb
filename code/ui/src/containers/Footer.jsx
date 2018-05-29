@@ -3,7 +3,7 @@ import React from 'react';
 
 import LabelSequenceView from './LabelSequenceView';
 import LabelClassificationView from './LabelClassificationView';
-import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
+import LabelBoundingBoxClassView from './LabelBoundingBoxClassView';
 
 class Footer extends React.Component {
   render() {
@@ -30,7 +30,7 @@ class Footer extends React.Component {
       );
     } else if (this.props.task.labelType === 'object_detection') {
       labelView = (
-        <BoundingBoxImageTaskView
+        <LabelBoundingBoxClassView
           task={this.props.task}
           currentPrediction={this.props.currentPrediction}
         />

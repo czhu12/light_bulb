@@ -1,5 +1,6 @@
 import { connect } from 'react-redux';
 import React from 'react';
+import { setBoundingBoxClass } from '../actions';
 const CLASSIFICATION_COLORS = [
 "#2ecc71",
 "#9b59b6",
