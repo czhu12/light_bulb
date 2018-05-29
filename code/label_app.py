@@ -88,7 +88,8 @@ class LabelApp:
         entropy = np.sum(scores * np.log(scores) / np.log(2), axis=-1)
         if len(entropy.shape) > 1:
             entropy = entropy.mean(1)
-        max_entropy_indexes = np.argpartition(-entropy, size)[:size]
+        num = min(size, len(entropy) - 1)
+        max_entropy_indexes = np.argpartition(-entropy, num)[:num]
         response = (
             sampled_df.iloc[max_entropy_indexes],
             max_entropy_indexes.tolist(),
