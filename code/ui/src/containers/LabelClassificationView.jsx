@@ -2,7 +2,7 @@ import { connect } from 'react-redux';
 import React from 'react';
 import { submitJudgement } from '../actions';
 
-const CLASSIFICATION_COLORS = [
+export const CLASSIFICATION_COLORS = [
 "#2ecc71",
 "#9b59b6",
 "#f1c40f",

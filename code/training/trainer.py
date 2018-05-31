@@ -15,6 +15,9 @@ THRESHOLD = 0.95
 TRAINING_STOPPED = "TRAINING_STOPPED"
 TRAINING_STEP_FINISHED = "TRAINING_STEP_FINISHED"
 
+BACKOFF_FACTOR = 1.5
+MAX_SLEEP_TIME = 30
+
 class TrainingObserver():
     def notify(self, event, data):
         raise NotImplementedError()
@@ -154,8 +157,12 @@ class Trainer():
                         history.history['acc'][0],
                     ))
                     trained = True
+                    sleep_time = 1.
                 except ValueError as e:
+                    sleep_time *= BACKOFF_FACTOR
+                    sleep_time = min(sleep_time, MAX_SLEEP_TIME)
                     self.logger.error(e)
+                    self.logger.error("Backing off interval time...")
 
                 # Evaluate
                 try:

@@ -85,3 +85,6 @@ class ObjectDetectionLabel(Label):
     def __init__(self, **kwargs):
         super(ObjectDetectionLabel, self).__init__(kwargs)
         self.classes = kwargs['classes']
+
+    def decode(self, encoded):
+        return encoded

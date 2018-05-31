@@ -1,160 +1,199 @@
 import { connect } from 'react-redux';
 import React from 'react';
+import { submitJudgement } from '../actions';
+import { CLASSIFICATION_COLORS } from './LabelClassificationView';
 
 class BoundingBoxImageTaskView extends React.Component {
-  //drawBox(ctx, startX, startY, width, height, color) {
-  //  //console.log(ctx);
-  //  //console.log(startX);
-  //  //console.log(startY);
-  //  //console.log(width);
-  //  //console.log(height);
-  //  //console.log(color);
-  //  ctx.strokeStyle = color;
-  //  ctx.strokeRect(startX, startY, width, height);
-  //}
-
-  //updateCanvas() {
-  //  const canvas = this.refs.canvas;
-  //  const ctx = canvas.getContext("2d");
-  //  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  //  let boxes = this.state.boxes;
-  //  let isDown = this.state.isDown;
-  //  //if (imgSrc !== img.src) {
-  //  //  boxes = [];
-  //  //  isDown = false;
-  //  //  this.setState({
-  //  //    ...this.state,
-  //  //    boxes,
-  //  //    isDown,
-  //  //  })
-  //  //}
-
-  //  ctx.drawImage(this.state.img, 0, 0, canvas.width, canvas.height);
-  //  for (let i = 0; i < boxes.length; i++) {
-  //    let boxStartX = boxes[i].startX;
-  //    let boxStartY = boxes[i].startY;
-  //    let boxWidth = boxes[i].width;
-  //    let boxHeight = boxes[i].height;
-  //    let color = boxes[i].color;
-  //    this.drawBox(ctx, boxStartX, boxStartY, boxWidth, boxHeight, color);
-  //  }
-
-  //  // Draw the current box
-  //  if (isDown) {
-  //    let width = this.state.mouseX - this.state.startX;
-  //    let height = this.state.mouseY - this.state.startY;
-  //    this.drawBox(
-  //      ctx,
-  //      this.state.startX,
-  //      this.state.startY,
-  //      width,
-  //      height,
-  //      this.state.currentColor,
-  //    );
-  //  }
-  //}
-
-  onMouseDown(e) {
-  //  if (!this.state) return;
-  //  let state = {
-  //    ...this.state,
-  //    startX: parseInt(e.clientX - this.state.offsetX, 10),
-  //    startY: parseInt(e.clientY - this.state.offsetY, 10),
-  //    isDown: true,
-  //  };
-  //  console.log(state);
-  //  this.setState(state);
+  constructor(props) {
+    super(props);
+    let img = new Image();
+    this.state = {
+      boxes: [],
+      isDown: false,
+      img,
+    }
   }
 
-  onMouseMove(e) {
-  //  if (!this.state) return;
-  //  if (!this.state.isDown) {
-  //    return;
-  //  }
-  //  this.setState({
-  //    ...this.state,
-  //    mouseX: parseInt(e.clientX - this.state.offsetX, 10),
-  //    mouseY: parseInt(e.clientY - this.state.offsetY, 10),
-  //  })
+  drawBox(ctx, startX, startY, width, height, color) {
+    ctx.strokeStyle = color;
+    ctx.lineWidth = 5;
+    ctx.strokeRect(startX, startY, width, height);
+  }
+
+  getFileName(src) {
+    let split = src.split('/');
+    return split[split.length - 1];
+  }
+
+  updateCanvas() {
+    const canvas = this.refs.canvas;
+    const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    let boxes = this.state.boxes;
+    let isDown = this.state.isDown;
+    let imgSrc = `/images?image_path=${this.props.currentItem['path']}`
+    let fileName = this.getFileName(imgSrc);
+    let existingFileName = this.getFileName(this.state.img.src);
+
+    if (fileName !== existingFileName) {
+      this.state.img.src = imgSrc;
+      this.state.img.onload = () => {
+        ctx.drawImage(this.state.img, 0, 0, canvas.width, canvas.height);
+      }
+    } else {
+      ctx.drawImage(this.state.img, 0, 0, canvas.width, canvas.height);
+    }
+
+    for (let i = 0; i < boxes.length; i++) {
+      let boxStartX = boxes[i].startX;
+      let boxStartY = boxes[i].startY;
+      let boxWidth = boxes[i].width;
+      let boxHeight = boxes[i].height;
+      let color = boxes[i].color;
+      this.drawBox(ctx, boxStartX, boxStartY, boxWidth, boxHeight, color);
+    }
+
+    let canvasOffset = canvas.getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
+    if (isDown) {
+      let width = this.state.mouseX - this.state.startX;
+      let height = this.state.mouseY - this.state.startY;
+      this.drawBox(
+        ctx,
+        this.state.startX - offsetX,
+        this.state.startY - offsetY,
+        width,
+        height,
+        this._currentColor(),
+      );
+    }
+  }
+
+  _currentColor() {
+    console.log(this.props);
+    let colorIndex = this.props.classes.indexOf(this.props.currentBoundingBoxClass);
+    return CLASSIFICATION_COLORS[colorIndex];
+  }
+
+  onMouseDown(e) {
+    if (!this.state) return;
+    let startX = parseInt(e.clientX, 10);
+    let startY = parseInt(e.clientY, 10);
+    let state = {
+      ...this.state,
+      startX,
+      startY,
+      isDown: true,
+    };
+    this.setState(state);
   }
 
   onMouseUp(e) {
-  //  if (!this.state) return;
-  //  let mouseX = parseInt(e.clientX - this.state.offsetX, 10);
-  //  let mouseY = parseInt(e.clientX - this.state.offsetY, 10);
-  //  let width = mouseX - this.state.startX;
-  //  let height = mouseY - this.state.startY;
+    if (!this.state) return;
+    let mouseX = parseInt(e.clientX, 10);
+    let mouseY = parseInt(e.clientY, 10);
+    let width = mouseX - this.state.startX;
+    let height = mouseY - this.state.startY;
 
-  //  let boxes = this.state.boxes.slice();
-  //  boxes.push({
-  //    startX: this.state.startX,
-  //    startY: this.state.startY,
-  //    currentColor: this.state.currentColor,
-  //    width: width,
-  //    height: height,
-  //    currentClass: this.props.currentBoundingBoxClass,
-  //  })
+    let boxes = this.state.boxes.slice();
+    const canvas = this.refs.canvas;
+    let canvasOffset = canvas.getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
 
-  //  this.setState({
-  //    ...this.state,
-  //    boxes: boxes,
-  //    mouseX: mouseX,
-  //    mouseY: mouseY,
-  //    isDown: false,
-  //  })
+    boxes.push({
+      startX: this.state.startX - offsetX,
+      startY: this.state.startY - offsetY,
+      color: this._currentColor(),
+      width: width,
+      height: height,
+      currentClass: this.props.currentBoundingBoxClass,
+    })
+
+    this.setState({
+      ...this.state,
+      boxes: boxes,
+      mouseX: mouseX,
+      mouseY: mouseY,
+      isDown: false,
+    })
+  }
+
+  onMouseMove(e) {
+    if (!this.state) return;
+    if (!this.state.isDown) {
+      return;
+    }
+    let mouseX = parseInt(e.clientX, 10);
+    let mouseY = parseInt(e.clientY, 10);
+    this.setState({
+      ...this.state,
+      mouseX,
+      mouseY,
+    })
   }
 
   onMouseOut(e) {
-  //  if (!this.state) return;
-  //  this.setState({
-  //    ...this.state,
-  //    isDown: false,
-  //  })
+    if (!this.state) return;
+    this.setState({
+      ...this.state,
+      isDown: false,
+    })
   }
 
-  //componentDidUpdate() {
-  //  this.updateCanvas();
-  //}
+  componentDidUpdate() {
+    this.updateCanvas();
+  }
 
-  //onJudgement() {
-  //  this.props.submitJudgement(JSON.stringify(this.state.boxes));
-  //}
+  buildJudgement() {
+    const canvas = this.refs.canvas;
+    let canvasOffset = canvas.getBoundingClientRect();
+    let offsetX = canvasOffset.left;
+    let offsetY = canvasOffset.top;
 
-  //componentDidUnmount() {
-  //  window.removeEventListener("keypress", this.onJudgement);
-  //}
+    return JSON.stringify(this.state.boxes.map((box) => {
+      return {
+        ...box,
+        startX: box.startX - offsetX,
+        startY: box.startY - offsetY,
+      }
+    }));
+  }
+
+  onKeyPress(e) {
+    if (e.key === 'Enter') {
+      this.props.submitJudgement(JSON.stringify(this.state.boxes));
+      this.setState({
+        ...this.state,
+        isDown: false,
+        boxes: [],
+      })
+    }
+  }
+
+  onKeyDown(e) {
+    if (e.key === "Backspace") {
+      let boxes = this.state.boxes.slice(0);
+      boxes.splice(-1,1)
+      this.setState({
+        ...this.state,
+        isDown: false,
+        boxes,
+      });
+    }
+  }
+
+  componentDidUnmount() {
+    window.removeEventListener("keypress", this.onKeyPress.bind(this));
+    window.removeEventListener("keydown", this.onKeyDown.bind(this));
+  }
 
   componentDidMount() {
-    console.log("HELLO WORLD");
-    const canvas = this.refs.canvas;
-    const ctx = canvas.getContext("2d");
-    console.log(canvas);
-    console.log(ctx);
-    console.log(canvas.offset());
-    const canvasOffset = canvas.offset();
-    let img = new Image();
-    let imgSrc = `/images?image_path=${this.props.currentItem['path']}`
-    img.src = imgSrc;
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-    }
-
-    this.setState({
-      scrollX: canvas.scrollLeft,
-      scrollY: canvas.scrollTop,
-      isDown: false,
-      startX: 0,
-      startY: 0,
-      boxes: [],
-      currentColor: '#2ecc71',
-      currentClass: 'player',
-      offsetX: canvasOffset.left,
-      offsetY: canvasOffset.top,
-      img: img,
-    })
-
-  //  this.updateCanvas();
+    this.updateCanvas();
+    window.addEventListener("keypress", this.onKeyPress.bind(this));
+    window.addEventListener("keydown", this.onKeyDown.bind(this));
   }
 
   render() {
@@ -177,10 +216,14 @@ class BoundingBoxImageTaskView extends React.Component {
 
 const mapStateToProps = state => ({
   currentBoundingBoxClass: state.items.currentBoundingBoxClass,
+  classes: state.task.classes,
 });
 
 
 const mapDispatchToProps = dispatch => ({
+  submitJudgement: (serializedBoxes) => {
+    dispatch(submitJudgement(serializedBoxes));
+  },
 });
 
 export default connect(
