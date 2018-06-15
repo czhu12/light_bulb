@@ -184,3 +184,73 @@ export function submitJudgementToBackend(itemId, judgement, successCallback) {
       .catch(error => dispatch(recordJudgementFailure(itemId, error.message)));
   };
 }
+
+export const SUBMIT_DATA = 'DATA/SUBMIT';
+export const submitData = (data) => ({
+  type: SUBMIT_DATA,
+  data,
+});
+
+export const SUBMIT_DATA_SUCCESS = 'DATA/SUBMIT/SUCCESS';
+export const submitDataSuccess = (response) => ({
+  type: SUBMIT_DATA_SUCCESS,
+  response,
+});
+
+export const SUBMIT_DATA_FAILURE = 'DATA/SUBMIT/FAILURE';
+export const submitDataFailure = (error) => ({
+  type: SUBMIT_DATA_FAILURE,
+  errorMsg: error,
+});
+
+export const CHANGE_DEMO_SCORE_URL = 'CHANGE_DEMO_SCORE_URL';
+export const changeDemoScoreUrl = (url) => ({
+  type: CHANGE_DEMO_SCORE_URL,
+  url,
+});
+
+export const CHANGE_DEMO_SCORE_URL_SEQUENCE = 'CHANGE_DEMO_SCORE_URL_SEQUENCE';
+export const changeDemoScoreUrlSequence = (urlSequence) => ({
+  type: CHANGE_DEMO_SCORE_URL_SEQUENCE,
+  urlSequence,
+});
+
+export const CHANGE_DEMO_SCORE_TEXT = 'CHANGE_DEMO_SCORE_TEXT';
+export const changeDemoScoreText = (text) => ({
+  type: CHANGE_DEMO_SCORE_TEXT,
+  text,
+});
+
+export function submitDataToScore() {
+  return (dispatch, getState) => {
+    let state = getState();
+    let body = null;
+    if (state.task.dataType === 'images') {
+      body = { type: 'images', urls: [state.demo.urlSequence] }
+    } else if (state.task.dataType === 'text') {
+      body = { type: 'text', texts: [state.demo.text] }
+    }
+
+    dispatch(submitData(body));
+
+    return fetch('/predict', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        if ('error' in json) {
+          throw new Error(json['error'])
+        } else {
+          dispatch(submitDataSuccess(json));
+        }
+      })
+      .catch(error => dispatch(submitDataFailure(error.message)));
+  }
+}

@@ -24,9 +24,6 @@ class RNNModel(BaseModel):
     def reinitialize_model(self):
         self.model.set_weights(self.initial_weights)
 
-    def predict(self, x):
-        return None
-
     def representation_learning(self, x_train, epochs=1):
         # Representation learning for text?
         return self
@@ -75,3 +72,9 @@ class RNNModel(BaseModel):
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
             return self.model.predict(x_scores)
+
+    def predict(self, x):
+        x_scores = self.vectorize_text(x_texts)
+        with self.graph.as_default():
+            return self.model.predict(x_scores)
+

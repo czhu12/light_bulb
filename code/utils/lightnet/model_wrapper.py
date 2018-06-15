@@ -1,12 +1,16 @@
 import lightnet as ln
 import torch
 from utils.utils import download_file
+from typing import List
+from collections import namedtuple
+
+History = namedtuple('History', ['history'])
 
 CONF_THRESH = 0.001
 NMS_THRESH = 0.4
 DEFAULT_SIZE = (416, 416)
 
-LEARNING_RATE = 0.0001
+LEARNING_RATE = 0.001
 MOMENTUM = 0.9
 DECAY = 0.0005
 BATCH = 64
@@ -32,31 +36,36 @@ class Trainer(ln.engine.Engine):
     batch_size = BATCH
     mini_batch_size = MINI_BATCH
 
-    def __init__(self, model, dataloader, max_batches=10):
+    def __init__(self, model, dataloader, max_batches=10, **kwargs):
         self.max_batches = max_batches
         optim = torch.optim.SGD(
-            model.parameters(),
+            model.layers[3].parameters(),
             lr=LEARNING_RATE/BATCH,
             momentum=MOMENTUM,
             dampening=0,
             weight_decay=DECAY*BATCH
         )
-        super(VOCTrainingEngine, self).__init__(model, optim, dataloader, **kwargs)
+        self.cuda = False
+        super(Trainer, self).__init__(model, optim, dataloader, **kwargs)
 
     def start(self):
+        print("Starting...")
         self.add_rate('resize_rate', RS_STEPS, RS_RATES, RESIZE)
         self.dataloader.change_input_dim()
 
     def process_batch(self, data):
+        print("Process Batch...")
         data, target = data
         if self.cuda:
             data = data.cuda()
         data = torch.autograd.Variable(data, requires_grad=True)
 
         loss = self.network(data, target)
+        print("Loss: {}".format(loss.data[0]))
         loss.backward()
 
     def train_batch(self):
+        print("Train Batch...")
         self.optimizer.step()
         self.optimizer.zero_grad()
         if self.batch % self.resize_rate == 0:
@@ -67,16 +76,13 @@ class Trainer(ln.engine.Engine):
             self.network.save_weights(os.path.join(self.backup_folder, f'final.pt'))
             return True
 
-class YoloModel(ln.engine.Engine):
+class YoloModel():
     """Wrapper around lightnet.models.Yolo."""
     def __init__(self, classes: List[str], input_dim=DEFAULT_SIZE):
         self.classes = classes
         self.input_dim = input_dim
         self.model = _build_yolo_model(classes, input_dim)
         self.cuda = False
-
-    def score(self):
-        pass
 
     def evaluate(self):
         output = self.model._forward()
@@ -94,3 +100,8 @@ class YoloModel(ln.engine.Engine):
         )
         trainer = Trainer(self.model, dataloader, max_batches=10)
         trainer()
+        return History({'loss': [1, 2], 'acc': [1, 2]})
+
+    def score(self, dataset):
+        self.model.eval()
+        return self.model(dataset)

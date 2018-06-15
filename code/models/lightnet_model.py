@@ -1,12 +1,13 @@
 from typing import List
 import brambox.boxes as bbb
 import lightnet as ln
-import utils.lightnet as lightnet_utils
+from utils.lightnet.model_wrapper import YoloModel
+from utils.lightnet.brambox_dataset import BramboxDataset
 
 class LightnetModel():
     def __init__(self, classes=[]):
         self.classes = classes
-        self.model = lightnet_utils.model_wrapper.YoloModel(classes)
+        self.model = YoloModel(classes)
 
     def load_existing_model(self, path):
         self.model.load_weights(path)
@@ -28,20 +29,20 @@ class LightnetModel():
             Ex: https://gitlab.com/EAVISE/lightnet/blob/master/examples/yolo-voc/train.py#L134-178
                 https://gitlab.com/EAVISE/lightnet/blob/master/lightnet/engine/engine.py#L83-115
         """
-        dataset = lightnet_utils.brambox_dataset.BramboxDataset(x_train, y_train)
+        dataset = BramboxDataset.build_default(x_train, y_train)
+        return self.model.train(dataset)
 
     def representation_learning(self, x_train: List[str], epochs=1):
         """Representation learning makes no sense for this task, does it?"""
         pass
 
     def score(self, x: List[str]):
-        raise NotImplementedError()
+        dataset = BramboxDataset.build_default(x)
+        return self.model.score(dataset)
 
     def predict(self, x: List[str]):
-        raise NotImplementedError()
+        """Predict and score do the same thing."""
+        return self.score(x)
 
     def evaluate(self, x_train: List[str], y_train: List[bbb.Box]):
         raise NotImplementedError()
-
-
-

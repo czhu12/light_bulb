@@ -15,7 +15,7 @@ from labeller import ModelLabeller
 from label import Label
 from operator import itemgetter
 
-logger = logging.getLogger()
+logger = logging.getLogger('label_app')
 logger.setLevel(logging.DEBUG)
 
 ch = logging.StreamHandler(sys.stdout)

@@ -106,9 +106,6 @@ class CNNModel(BaseModel):
                 metrics=['accuracy'])
         return model, autoencoder
 
-    def predict(self, x):
-        return None
-
     def representation_learning(self, x_train, epochs=1):
         with self.graph.as_default():
             self.data_generator.fit(x_train)
@@ -144,6 +141,10 @@ class CNNModel(BaseModel):
     def score(self, x):
         with self.graph.as_default():
             return self.model.predict(x)
+
+    def predict(self, x):
+        with self.graph.as_default():
+            return self.model.predict(x)[:, 1] > 0.5
 
     def evaluate(self, x_test, y_test):
         with self.graph.as_default():

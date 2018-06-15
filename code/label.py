@@ -87,4 +87,24 @@ class ObjectDetectionLabel(Label):
         self.classes = kwargs['classes']
 
     def decode(self, encoded):
-        return encoded
+        boxes = json.loads(encoded)
+        boxes = [{
+            'class_label': box['currentClass'],
+            'object_id': self.classes.index(box['currentClass']),
+            'x_top_left': box['startX'],
+            'y_top_left': box['startY'],
+            'width': box['width'],
+            'height': box['height'],
+        } for box in boxes]
+
+        return json.dumps(boxes)
+
+    def validate(self, boxes, label):
+        boxes = json.loads(boxes)
+        assert all(['startX' in box for box in boxes]), f"startX not in {boxes}"
+        assert all(['startY' in box for box in boxes]), f"startY not in {boxes}"
+        assert all(['width' in box for box in boxes]), f"width not in {boxes}"
+        assert all(['height' in box for box in boxes]), f"height not in {boxes}"
+        assert all(['currentClass' in box for box in boxes]), f"currentClass not in {boxes}"
+
+        return True

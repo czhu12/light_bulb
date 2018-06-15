@@ -8,6 +8,10 @@ from nltk import word_tokenize
 from PIL import Image
 import requests
 from io import BytesIO
+import os
+import logging
+
+logger = logging.getLogger()
 
 
 def unfreeze_layers(net):

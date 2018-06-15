@@ -2,7 +2,7 @@ task:
   title: Draw bounding boxes around the players
 dataset:
   directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/object_detection/
-  data_type: images
+  data_type: object_detection
   judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/object_detection/labels.csv
 label:
   type: object_detection

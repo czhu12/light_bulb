@@ -5,9 +5,14 @@ from utils import utils
 import chardet
 from utils import glove_utils
 from threading import Lock
-#from datasets.object_detection_dataset import ObjectDetectionDataset
-from models.cnn_model import CNNModel
-from models.rnn_model import RNNModel
+
+import copy
+import logging
+import json
+from PIL import Image
+from brambox.boxes.annotations import Annotation
+import lightnet.data as lnd
+from typing import List
 
 MIN_TRAIN_EXAMPLES = 10
 MIN_TEST_EXAMPLES = 20
@@ -28,10 +33,10 @@ class Dataset:
             return ImageDataset(config)
         elif config['data_type'] == Dataset.TEXT_TYPE:
             return TextDataset(config)
+        elif config['data_type'] == Dataset.OBJECT_DETECTION_TYPE:
+            return ObjectDetectionDataset(config)
         else:
             pass
-        #elif config['data_type'] == Dataset.OBJECT_DETECTION_TYPE:
-            #return ObjectDetectionDataset(config)
 
     def __init__(self, config):
         self.data_type = config.get('data_type')
@@ -245,3 +250,48 @@ class ImageDataset(Dataset):
             x_train = []
             ids = []
         return x_train, ids
+
+
+# Object detection
+def serialize_brambox(box) -> str:
+    return json.dumps({
+        'class_label': box.class_label,
+        'object_id': box.object_id,
+        'x_top_left': box.x_top_left,
+        'y_top_left': box.y_top_left,
+        'width': box.width,
+        'height': box.height,
+    })
+
+def deserialize_bramboxes(encoding: str) -> List[Annotation]:
+    boxes = json.loads(encoding)
+    return [deserialize_brambox(box) for box in boxes]
+
+def deserialize_brambox(obj: str) -> Annotation:
+    box = Annotation()
+    box.class_label = obj['class_label']
+    box.object_id = 0
+    box.x_top_left = obj['x_top_left']
+    box.y_top_left = obj['y_top_left']
+    box.width = obj['width']
+    box.height = obj['height']
+    return box
+
+class ObjectDetectionDataset(ImageDataset):
+    @property
+    def test_set(self):
+        if len(self.test_data) == 0:
+            return [], []
+        test_data = self.test_data
+        paths = train_data['path'].values
+        boxes = [deserialize_bramboxes(label) for label in train_data['label'].values]
+        return paths, boxes
+
+    @property
+    def train_set(self):
+        if len(self.train_data) == 0:
+            return [], []
+        train_data = self.train_data
+        paths = train_data['path'].values
+        boxes = [deserialize_bramboxes(label) for label in train_data['label'].values]
+        return paths, boxes

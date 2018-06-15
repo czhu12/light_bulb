@@ -11,10 +11,16 @@ import {
   RECORD_JUDGEMENT,
   RECORD_JUDGEMENT_SUCCESS,
   RECORD_JUDGEMENT_FAILURE,
+  SUBMIT_DATA,
+  SUBMIT_DATA_FAILURE,
+  SUBMIT_DATA_SUCCESS,
   SHOW_NEXT_ITEM,
   LABELLING_COMPLETE,
   SET_BOUNDING_BOX_CLASS,
   CHANGE_SEQUENCE_INPUT,
+  CHANGE_DEMO_SCORE_TEXT,
+  CHANGE_DEMO_SCORE_URL_SEQUENCE,
+  CHANGE_DEMO_SCORE_URL,
 } from '../actions';
 
 const task = (state = {
@@ -179,6 +185,49 @@ const items = (state = {
   }
 }
 
+const demo = (state = {
+  submitting: false,
+  errorMsg: null,
+  scores: null,
+  text: '',
+  urlSequence: '',
+  url: '',
+  predictions: [],
+}, action) => {
+  switch (action.type) {
+    case SUBMIT_DATA:
+      return {
+        ...state,
+        submitting: true,
+      }
+    case SUBMIT_DATA_FAILURE:
+      return {
+        ...state,
+        submitting: false,
+        errorMsg: action.errorMsg,
+      }
+    case SUBMIT_DATA_SUCCESS:
+      return {
+        ...state,
+        predictions: action.response.predictions,
+        url: state.urlSequence,
+        submitting: false,
+      }
+    case CHANGE_DEMO_SCORE_TEXT:
+      return {
+        ...state,
+        text: action.text,
+      }
+    case CHANGE_DEMO_SCORE_URL_SEQUENCE:
+      return {
+        ...state,
+        urlSequence: action.urlSequence,
+      }
+    default:
+      return state
+  }
+}
+
 export default {
-  task, judgements, stats, items,
+  task, judgements, stats, items, demo,
 };

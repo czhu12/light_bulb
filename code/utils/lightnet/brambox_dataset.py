@@ -1,8 +1,10 @@
 """This dataset represents a single training or test set"""
-from typing import List, Tuple
-import brambox.boxes as bbb
+import copy
+from typing import List, Tuple, Optional
+from brambox.boxes.annotations import Annotation
 import lightnet.data as lnd
 from torchvision import transforms as torch_transforms
+from PIL import Image
 
 DEFAULT_SIZE = (416, 416)
 JITTER = 0.2
@@ -13,7 +15,7 @@ VAL = 1.5
 
 class BramboxDataset(lnd.Dataset):
     @staticmethod
-    def build_default(image_paths: List[str], annotations: List[bbb.Box], input_dimension=DEFAULT_SIZE):
+    def build_default(image_paths: List[str], annotations: Optional[List[Annotation]]=None, input_dimension=DEFAULT_SIZE):
         lb = lnd.transform.Letterbox(dimension=input_dimension)
         rf = lnd.transform.RandomFlip(FLIP)
         rc = lnd.transform.RandomCrop(JITTER, True, 0.1)
@@ -23,17 +25,19 @@ class BramboxDataset(lnd.Dataset):
         annotation_transforms = lnd.transform.Compose([rc, rf, lb])
         return BramboxDataset(image_paths, annotations, input_dimension, image_transforms, annotation_transforms)
 
-    def __init__(self, image_paths: List[str], annotations: List[bbb.Box], input_dimension=DEFAULT_SIZE, image_transforms=None, annotation_transforms=None):
+    def __init__(self, image_paths: List[str], annotations: Optional[List[Annotation]], input_dimension=DEFAULT_SIZE, image_transforms=None, annotation_transforms=None):
         """
         Args:
             image_paths: list of image paths
-            annotations (List): (bbb.Box) list of brambox bounding boxes
+            annotations (List): (Annotation) list of brambox bounding boxes
             input_dimension (tuple): (width,height) tuple with default dimensions of the network
             img_transform (torchvision.transforms.Compose): Transforms to perform on the images
             annotation_transforms (torchvision.transforms.Compose): Transforms to perform on the annotations
         """
         super().__init__(input_dimension)
-        assert len(image_paths) == len(annotations)
+        if annotations != None:
+            assert len(image_paths) == len(annotations)
+
         self.image_transforms = image_transforms
         self.annotation_transforms = annotation_transforms
         self.image_paths = image_paths
@@ -57,12 +61,15 @@ class BramboxDataset(lnd.Dataset):
 
         # Load
         img = Image.open(self.image_paths[index])
-        anno = copy.deepcopy(self.annos[index])
+        annotation = None
+
+        if self.annotations != None:
+            annotation = copy.deepcopy(self.annotations[index])
 
         # Transform
         if self.image_transforms is not None:
             img = self.image_transforms(img)
-        if self.annotation_transforms is not None:
+        if self.annotation_transforms is not None and self.annotations != None:
             annotation = self.annotation_transforms(annotation)
 
         return img, annotation

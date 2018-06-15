@@ -72,7 +72,6 @@ class BoundingBoxImageTaskView extends React.Component {
   }
 
   _currentColor() {
-    console.log(this.props);
     let colorIndex = this.props.classes.indexOf(this.props.currentBoundingBoxClass);
     return CLASSIFICATION_COLORS[colorIndex];
   }
@@ -164,7 +163,7 @@ class BoundingBoxImageTaskView extends React.Component {
 
   onKeyPress(e) {
     if (e.key === 'Enter') {
-      this.props.submitJudgement(JSON.stringify(this.state.boxes));
+      this.props.submitJudgement(this.state.boxes);
       this.setState({
         ...this.state,
         isDown: false,
@@ -221,7 +220,17 @@ const mapStateToProps = state => ({
 
 
 const mapDispatchToProps = dispatch => ({
-  submitJudgement: (serializedBoxes) => {
+  submitJudgement: (boxes) => {
+    boxes = boxes.map((box) => {
+      return {
+        ..box,
+        startX: box.startX / 750,
+        startY: box.startY / 500,
+        width: box.width / 750,
+        height: box.height / 500,
+      }
+    });
+    let serializedBoxes = JSON.stringify(boxes);
     dispatch(submitJudgement(serializedBoxes));
   },
 });

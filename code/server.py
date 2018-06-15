@@ -136,9 +136,12 @@ def get_image():
 @app.route("/demo")
 def demo():
     return render_template(
-        'demo.html',
-        data_type=config_obj['dataset']['data_type'],
+        'index.html',
+        data_type=label_app.data_type,
         title=label_app.title,
+        description=label_app.description,
+        label_helper=label_app.label_helper,
+        label_type=label_app.label_type,
     )
 
 @app.route("/score", methods=['POST', 'PUT', 'GET'])
@@ -146,7 +149,7 @@ def score():
     """
     Image Classification:
     {
-        "type": "image",
+        "type": "images",
         "urls": ["https://my-url.com/image.jpg"],
     }
     Text Classification:
@@ -162,12 +165,12 @@ def score():
     """
     json = request.get_json()
 
-    type = json['type']
-    if type == "images":
+    _type = json['type']
+    if _type == "images":
         urls = json["urls"]
         x_train, images = utils.download_urls(urls)
         scores = label_app.score(x_train)
-    elif type == "text":
+    elif _type == "text" or _type == "sequence":
         texts = json["texts"]
         scores = label_app.score(texts)
     return jsonify({'scores': scores.tolist()})
@@ -201,7 +204,7 @@ def predict():
     elif _type == "text" or _type == "sequence":
         texts = json["texts"]
         predictions = label_app.predict(texts)
-    return jsonify({'predictions': predictions})
+    return jsonify({'predictions': predictions.tolist()})
 
 @app.route('/css/index.css')
 def root():
