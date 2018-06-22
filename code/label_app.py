@@ -85,7 +85,7 @@ class LabelApp:
             x_data = sampled_df['text'].values
 
         scores = self.model.score(x_data)
-        entropy = np.sum(scores * np.log(scores) / np.log(2), axis=-1)
+        entropy = np.sum(scores * np.log(1 / scores), axis=-1)
         if len(entropy.shape) > 1:
             entropy = entropy.mean(1)
         num = min(size, len(entropy) - 1)
