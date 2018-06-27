@@ -8,12 +8,7 @@ from mimetypes import MimeTypes
 from threading import Thread
 from utils import utils
 
-#app = Flask(__name__, static_folder='ui/static', template_folder='ui/public')
 app = Flask(__name__, static_folder='ui/build/static', template_folder='ui/build')
-
-@app.route('/react')
-def react():
-    return render_template('index.html')
 
 @app.route('/')
 def index():
@@ -25,6 +20,10 @@ def index():
         label_helper=label_app.label_helper,
         label_type=label_app.label_type,
     )
+
+@app.route('/dataset')
+def dataset():
+    return render_template('index.html')
 
 @app.route('/task', methods=['GET'])
 def task():
@@ -79,7 +78,16 @@ def batch():
         })
 
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
-    batch, indexes, stage, x_data, entropy = label_app.next_batch()
+
+    kwargs = {}
+    if request.args.get('force_stage'):
+        kwargs['force_stage'] = request.args.get('force_stage')
+
+    if request.args.get('sample_size'):
+        kwargs['size'] = int(request.args.get('sample_size'))
+
+    batch, stage, x_data, entropies = label_app.next_batch(**kwargs)
+
     y_prediction = None
     if prediction and len(x_data) > 0:
         y_prediction = label_app.predict(x_data)
@@ -87,7 +95,7 @@ def batch():
     batch = batch.fillna('NaN')
     json_batch = jsonify({
         "batch": list(batch.T.to_dict().values()),
-        "entropy": entropy,
+        "entropy": entropies,
         "stage": stage,
         "y_prediction": y_prediction,
         "done": False,

@@ -93,10 +93,11 @@ export const changeSequenceInput = (sequenceInput) => ({
   sequenceInput,
 });
 
-export function getNextBatch() {
+// Params: force_stage, sample_size, prediction
+export function getNextBatch(params) {
   return (dispatch) => {
     dispatch(fetchItems());
-    const query = new URLSearchParams({ prediction: false })
+    const query = new URLSearchParams(params)
 
     return fetch(`/batch?${query.toString()}`).then((response) => {
       if (!response.ok) {

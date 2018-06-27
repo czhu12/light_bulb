@@ -9,6 +9,7 @@
     "eslint-plugin-react-with-styles": "^1.1.1",
     "history": "^4.7.2",
     "jest-cli": "^20.0.4",
+    "lodash": "^4.17.10",
     "prop-types": "^15.5.10",
     "react": "^15.6.1",
     "react-dom": "^15.6.1",

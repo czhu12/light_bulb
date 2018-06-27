@@ -32,5 +32,3 @@ class BaseModel():
     def evaluate(self, x_test, y_test):
         raise NotImplementedError()
 
-
-

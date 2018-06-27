@@ -12,6 +12,7 @@ import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-r
 
 import LabelAppContainer from './containers/LabelApp';
 import DemoAppContainer from './containers/DemoApp';
+import DatasetContainer from './containers/DatasetApp';
 import { getTask, getNextBatch, getStats } from './actions';
 import reducer from './reducers';
 
@@ -38,6 +39,7 @@ const render = () => ReactDOM.render(
       <div>
         <Route exact path="/" component={LabelAppContainer} />
         <Route exact path="/demo" component={DemoAppContainer} />
+        <Route exact path="/dataset" component={DatasetContainer} />
       </div>
     </ConnectedRouter>
   </Provider>,
@@ -47,5 +49,10 @@ const render = () => ReactDOM.render(
 render();
 store.subscribe(render);
 store.dispatch(getTask());
-store.dispatch(getNextBatch());
+// TODO: Fix this hack
+if (window.location.href.indexOf('dataset') !== -1) {
+  store.dispatch(getNextBatch({sample_size: 100, force_stage: 'TRAIN'}));
+} else {
+  store.dispatch(getNextBatch());
+}
 store.dispatch(getStats());

@@ -85,3 +85,7 @@ body {
 .flex-grow-1 {
   flex-grow: 1;
 }
+
+.card-dataset {
+  margin: 30px;
+}

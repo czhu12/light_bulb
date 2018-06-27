@@ -67,15 +67,18 @@ class LabelApp:
     def is_done(self):
         return len(self.dataset.unlabelled) == 0
 
-    def next_batch(self, size=10):
+    def next_batch(self, size=10, force_stage=None):
         if self.is_done:
             raise ValueError("Tried to sample a batch when there is nothing else to sample")
 
         logger.debug("Sampling a batch for {} set.".format(self.dataset.current_stage))
         self.dataset.set_current_stage()
-        if self.dataset.current_stage == Dataset.TEST:
+
+        current_stage = force_stage if force_stage else self.dataset.current_stage
+
+        if current_stage == Dataset.TEST:
             sampled_df = self.dataset.sample(size)
-            return sampled_df, 0, self.dataset.current_stage, [], 0 # TODO: This needs to be fixed
+            return sampled_df, current_stage, [], [0.5] * len(sampled_df) # TODO: This needs to be fixed
 
         # Generate training data
         sampled_df = self.dataset.sample(size * 5)
@@ -92,10 +95,9 @@ class LabelApp:
         max_entropy_indexes = np.argpartition(-entropy, num)[:num]
         response = (
             sampled_df.iloc[max_entropy_indexes],
-            max_entropy_indexes.tolist(),
-            self.dataset.current_stage,
+            current_stage,
             x_data[max_entropy_indexes],
-            float(entropy[max_entropy_indexes].mean()),
+            entropy[max_entropy_indexes].tolist(),
         )
         return response
 

@@ -127,9 +127,9 @@ const stats = (state = {
 const items = (state = {
   fetching: false,
   items: [],
-  entropy: 0,
+  entropy: [],
   done: false,
-  stage: 'TRAIN',
+  stages: [],
   prediction: [],
   errorMsg: null,
   currentIndex: null,
@@ -158,9 +158,9 @@ const items = (state = {
         currentIndex: state.currentIndex == null ? 0 : state.currentIndex,
         items: state.items.concat(action.items.batch),
         done: action.items.done,
-        entropy: action.items.entropy,
+        entropy: state.entropy.concat(action.items.entropy),
         prediction: action.items.y_prediction ? state.prediction.concat(action.items.y_prediction) : [],
-        stage: action.items.stage,
+        stages: state.stages.concat(Array(action.items.batch.length).fill(action.items.stage)),
         errorMsg: null,
       };
     case FETCH_ITEMS_FAILURE:
