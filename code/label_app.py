@@ -34,10 +34,11 @@ class LabelApp:
         model_directory = config['model_directory']
         label_helper = Label.load_from(config['label'])
         user = config['user']
+        model_config = config['model']
 
-        return LabelApp(task, dataset, model_directory, label_helper, user)
+        return LabelApp(task, dataset, model_directory, label_helper, user, model_config)
 
-    def __init__(self, task, dataset, model_directory, label_helper, user, model_labelling=True):
+    def __init__(self, task, dataset, model_directory, label_helper, user, model_config, model_labelling=True):
         self.task = task
         self.dataset = dataset
         self.data_type = self.dataset.data_type
@@ -45,7 +46,7 @@ class LabelApp:
         self.label_helper = label_helper
         self.label_type = label_helper.label_type
 
-        self.model = model_builder.ModelBuilder(dataset, self.label_helper).build()
+        self.model = model_builder.ModelBuilder(dataset, self.label_helper, model_config).build()
 
         self.trainer = Trainer(model_directory, self.model, self.dataset, logger=logger)
         self.trainer.load_existing()
@@ -88,9 +89,14 @@ class LabelApp:
             x_data = sampled_df['text'].values
 
         scores = self.model.score(x_data)
-        entropy = np.sum(scores * np.log(1 / scores), axis=-1)
-        if len(entropy.shape) > 1:
-            entropy = entropy.mean(1)
+        entropy_func = lambda scores: np.sum(scores * np.log(1 / scores), axis=-1)
+        if type(scores) == list:
+            entropy = np.array([entropy_func(score).mean() for score in scores])
+        else:
+            entropy = entropy_func(scores)
+
+        assert len(entropy.shape) == 1
+
         num = min(size, len(entropy) - 1)
         max_entropy_indexes = np.argpartition(-entropy, num)[:num]
         response = (

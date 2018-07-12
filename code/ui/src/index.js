@@ -51,7 +51,7 @@ store.subscribe(render);
 store.dispatch(getTask());
 // TODO: Fix this hack
 if (window.location.href.indexOf('dataset') !== -1) {
-  store.dispatch(getNextBatch({sample_size: 100, force_stage: 'TRAIN'}));
+  store.dispatch(getNextBatch({sample_size: 100, force_stage: 'TRAIN', prediction: 'true'}));
 } else {
   store.dispatch(getNextBatch());
 }

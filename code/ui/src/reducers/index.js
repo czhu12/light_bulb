@@ -130,7 +130,7 @@ const items = (state = {
   entropy: [],
   done: false,
   stages: [],
-  prediction: [],
+  predictions: [],
   errorMsg: null,
   currentIndex: null,
   currentBoundingBoxClass: null, // Only relevant for bounding box task
@@ -159,7 +159,7 @@ const items = (state = {
         items: state.items.concat(action.items.batch),
         done: action.items.done,
         entropy: state.entropy.concat(action.items.entropy),
-        prediction: action.items.y_prediction ? state.prediction.concat(action.items.y_prediction) : [],
+        predictions: action.items.y_prediction ? state.predictions.concat(action.items.y_prediction) : [],
         stages: state.stages.concat(Array(action.items.batch.length).fill(action.items.stage)),
         errorMsg: null,
       };

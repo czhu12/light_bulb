@@ -1,0 +1,14 @@
+task:
+  title: SEO Logs
+dataset:
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/seo_logs
+  data_type: text
+  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/seo_logs/labels.csv
+label:
+  type: binary
+model:
+  custom: true
+  module: sequence_tagging.sequence_tagger_wrapper.SequenceTaggerWrapper
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/vendor/model
+model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/seo_logs/models/
+user: chris
