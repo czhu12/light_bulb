@@ -78,6 +78,7 @@ def batch():
         })
 
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
+    reverse_entropy = request.args.get('reverse_entropy') and request.args.get('reverse_entropy') == 'true'
 
     kwargs = {}
     if request.args.get('force_stage'):
@@ -85,6 +86,7 @@ def batch():
 
     if request.args.get('sample_size'):
         kwargs['size'] = int(request.args.get('sample_size'))
+    kwargs['reverse_entropy'] = reverse_entropy
 
     batch, stage, x_data, entropies = label_app.next_batch(**kwargs)
 

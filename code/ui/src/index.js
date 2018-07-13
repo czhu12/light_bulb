@@ -9,6 +9,7 @@ import createHistory from 'history/createBrowserHistory';
 import { Route } from 'react-router';
 
 import { ConnectedRouter, routerReducer, routerMiddleware } from 'react-router-redux';
+import queryString from 'query-string';
 
 import LabelAppContainer from './containers/LabelApp';
 import DemoAppContainer from './containers/DemoApp';
@@ -51,7 +52,12 @@ store.subscribe(render);
 store.dispatch(getTask());
 // TODO: Fix this hack
 if (window.location.href.indexOf('dataset') !== -1) {
-  store.dispatch(getNextBatch({sample_size: 100, force_stage: 'TRAIN', prediction: 'true'}));
+  store.dispatch(getNextBatch({
+    sample_size: 100,
+    force_stage: 'TRAIN',
+    prediction: 'true',
+    reverse_entropy: queryString.parse(location.search)['reverse_entropy'],
+  }));
 } else {
   store.dispatch(getNextBatch());
 }

@@ -68,7 +68,7 @@ class LabelApp:
     def is_done(self):
         return len(self.dataset.unlabelled) == 0
 
-    def next_batch(self, size=10, force_stage=None):
+    def next_batch(self, size=10, force_stage=None, reverse_entropy=False):
         if self.is_done:
             raise ValueError("Tried to sample a batch when there is nothing else to sample")
 
@@ -98,12 +98,15 @@ class LabelApp:
         assert len(entropy.shape) == 1
 
         num = min(size, len(entropy) - 1)
-        max_entropy_indexes = np.argpartition(-entropy, num)[:num]
+        if reverse_entropy:
+            entropy_indexes = np.argpartition(entropy, num)[:num]
+        else:
+            entropy_indexes = np.argpartition(-entropy, num)[:num]
         response = (
-            sampled_df.iloc[max_entropy_indexes],
+            sampled_df.iloc[entropy_indexes],
             current_stage,
-            x_data[max_entropy_indexes],
-            entropy[max_entropy_indexes].tolist(),
+            x_data[entropy_indexes],
+            entropy[entropy_indexes].tolist(),
         )
         return response
 
