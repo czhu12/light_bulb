@@ -21,3 +21,16 @@ generate_ner: .virt
 
 ner_tagging: .virt
 	$(PYTHON) code/server.py --config config/ner_sequence.yml
+
+dataset:
+	mkdir dataset
+
+vendor:
+	mkdir dataset
+
+setup_seo_labelling: .virt dataset
+	curl -o vendor/sequence_tagger-0.1.0-py3-none-any.whl http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/sequence_tagger-0.1.0-py3-none-any.whl
+	curl -o vendor/all_seo_logs.tar.gz http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/all_seo_logs.tar.gz
+	curl -o vendor/pretrained_ner_model.tar.gz http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/pretrained_ner_model.tar.gz
+	tar -xf vendor/all_seo_logs.tar.gz -C dataset/
+	tar -xf vendor/pretrained_ner_model.tar.gz -C vendor
