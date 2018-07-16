@@ -223,7 +223,7 @@ const mapDispatchToProps = dispatch => ({
   submitJudgement: (boxes) => {
     boxes = boxes.map((box) => {
       return {
-        ..box,
+        ...box,
         startX: box.startX / 750,
         startY: box.startY / 500,
         width: box.width / 750,

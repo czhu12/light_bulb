@@ -56,7 +56,7 @@ if (window.location.href.indexOf('dataset') !== -1) {
     sample_size: 100,
     force_stage: 'TRAIN',
     prediction: 'true',
-    reverse_entropy: queryString.parse(location.search)['reverse_entropy'],
+    reverse_entropy: queryString.parse(window.location.search)['reverse_entropy'],
   }));
 } else {
   store.dispatch(getNextBatch());

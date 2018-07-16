@@ -5,7 +5,20 @@ dataset:
   data_type: text
   judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/seo_logs/labels.csv
 label:
-  type: binary
+  type: sequence
+  length_equality: true
+  valid_tokens:
+    - O
+    - B-LOC
+    - I-LOC
+    - B-CON
+    - I-CON
+    - B-TIME
+    - I-TIME
+    - B-PRICE
+    - I-PRICE
+    - B-OCC
+    - I-OCC
 model:
   custom: true
   module: sequence_tagging.sequence_tagger_wrapper.SequenceTaggerWrapper

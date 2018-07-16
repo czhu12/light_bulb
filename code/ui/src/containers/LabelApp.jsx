@@ -15,8 +15,8 @@ class LabelApp extends React.Component {
 
     if (this.props.currentIndex != null) {
       let currentItem = this.props.items[this.props.currentIndex];
-      if (this.props.currentIndex < this.props.prediction.length) {
-        currentPrediction = this.props.prediction[this.props.currentIndex];
+      if (!this.props.predictions && (this.props.currentIndex < this.props.predictions.length)) {
+        currentPrediction = this.props.predictions[this.props.currentIndex];
       }
 
       if (this.props.task.dataType === 'images' && this.props.task.labelType === 'object_detection') {
@@ -67,7 +67,7 @@ class LabelApp extends React.Component {
 const mapStateToProps = state => ({
   task: state.task,
   items: state.items.items,
-  prediction: state.items.prediction,
+  predictions: state.items.predictions,
   currentIndex: state.items.currentIndex,
   done: state.items.done,
   fetching: state.items.fetching,
