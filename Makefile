@@ -3,7 +3,11 @@ PYTHON ?= $(VIRTUALENV)/bin/python
 
 .PHONY: start requirements.txt
 
-all: .virt
+all: .virt code/ui/build/index.html
+
+code/ui/build/index.html:
+	cd code/ui; yarn install
+	cd code/ui; yarn build
 
 .virt:
 	python3 -m venv $@
@@ -28,7 +32,7 @@ dataset:
 vendor:
 	mkdir vendor
 
-setup_seo_labelling: .virt dataset vendor
+setup_seo_labelling: dataset vendor
 	curl -o vendor/sequence_tagger-0.1.0-py3-none-any.whl http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/sequence_tagger-0.1.0-py3-none-any.whl
 	curl -o vendor/all_seo_logs.tar.gz http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/all_seo_logs.tar.gz
 	curl -o vendor/pretrained_ner_model.tar.gz http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/pretrained_ner_model.tar.gz
