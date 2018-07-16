@@ -1,7 +1,7 @@
 task:
   title: SEO Logs
 dataset:
-  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/seo_logs
+  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/all_seo_logs/seo_logs_0
   data_type: text
   judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/seo_logs/labels.csv
 label:
