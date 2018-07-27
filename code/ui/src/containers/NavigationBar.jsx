@@ -1,6 +1,8 @@
 import { connect } from 'react-redux';
 import React from 'react';
 
+import { setIsBatchView } from '../actions';
+
 class NavigationBar extends React.Component {
   render() {
     let totalItems = this.props.unlabelled + this.props.labelled.total;
@@ -10,6 +12,23 @@ class NavigationBar extends React.Component {
       maxAccuracy = Math.round(
         Math.max(...this.props.history.map((step) => step['test']['acc'])) * 100
       )
+    }
+
+    let toggleBatchView = null;
+    // TODO: Turn this on again when batch view is ready.
+    if (false && this.props.task.dataType === 'images' &&
+      (this.props.task.labelType === 'binary' ||
+      this.props.task.labelType === 'classification')) {
+      toggleBatchView = (
+        <div className="btn-group btn-group-toggle" data-toggle="buttons">
+          <label onClick={this.props.onClickSingle} className={this.props.task.isBatchView ? "btn btn-secondary active" : "btn btn-secondary"}>
+            <input type="radio" name="options" autocomplete="off" checked /> Single
+          </label>
+          <label onClick={this.props.onClickBatch} className={this.props.task.isBatchView ? "btn btn-secondary" : "btn btn-secondary active"}>
+            <input type="radio" name="options" autocomplete="off" /> Batch
+          </label>
+        </div>
+      );
     }
 
     return (
@@ -22,6 +41,7 @@ class NavigationBar extends React.Component {
           <div className="navbar-nav">
             <a className="nav-item nav-link">Labelled: <b id="labelled-counts-text">{labelled} / {totalItems}</b></a>
             <a className="nav-item nav-link">Accuracy: <b id="accuracy-text">{maxAccuracy}%</b></a>
+            { toggleBatchView }
           </div>
         </div>
       </nav>
@@ -30,6 +50,7 @@ class NavigationBar extends React.Component {
 }
 
 const mapStateToProps = state => ({
+  task: state.task,
   unlabelled: state.stats.unlabelled,
   labelled: state.stats.labelled,
   history: state.stats.history,
@@ -39,6 +60,14 @@ const mapStateToProps = state => ({
 
 
 const mapDispatchToProps = dispatch => ({
+  onClickBatch: (e) => {
+    e.preventDefault();
+    dispatch(setIsBatchView(true));
+  },
+  onClickSingle: (e) => {
+    e.preventDefault();
+    dispatch(setIsBatchView(false));
+  },
 });
 
 export default connect(

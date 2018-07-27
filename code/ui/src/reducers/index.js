@@ -21,6 +21,7 @@ import {
   CHANGE_DEMO_SCORE_TEXT,
   CHANGE_DEMO_SCORE_URL_SEQUENCE,
   CHANGE_DEMO_SCORE_URL,
+  SET_IS_BATCH_VIEW,
 } from '../actions';
 
 const task = (state = {
@@ -32,6 +33,7 @@ const task = (state = {
   validTokens: [],
   fetching: false,
   errorMsg: null,
+  isBatchView: false,
 }, action) => {
   switch (action.type) {
     case FETCH_TASK:
@@ -55,6 +57,11 @@ const task = (state = {
         ...state,
         fetching: false,
         errorMsg: action.errorMsg,
+      }
+    case SET_IS_BATCH_VIEW:
+      return {
+        ...state,
+        isBatchView: action.isBatchView,
       }
     default:
       return state

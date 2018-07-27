@@ -44,4 +44,3 @@ torch==0.4.0
 torchvision==0.2.1
 urllib3==1.22
 Werkzeug==0.14.1
-vendor/sequence_tagger-0.1.0-py3-none-any.whl

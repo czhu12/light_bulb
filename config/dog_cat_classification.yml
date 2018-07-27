@@ -1,10 +1,10 @@
 task:
   title: Is this a cat?
 dataset:
-  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/cat_or_dog
+  directory: dataset/cat_or_dog
   data_type: images
-  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/cat_or_dog/labels.csv
+  judgements_file: outputs/cat_or_dog/labels.csv
 label:
   type: binary
-model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/outputs/cat_or_dog/models/
+model_directory: outputs/cat_or_dog/models/
 user: chris

@@ -34,7 +34,10 @@ class LabelApp:
         model_directory = config['model_directory']
         label_helper = Label.load_from(config['label'])
         user = config['user']
-        model_config = config['model']
+        if 'model' in config:
+            model_config = config['model']
+        else:
+            model_config = {}
 
         return LabelApp(task, dataset, model_directory, label_helper, user, model_config)
 

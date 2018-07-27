@@ -21,7 +21,7 @@ class ImageTaskView extends React.Component {
 
   render() {
     return (
-      <canvas ref="canvas" id="canvas" width="750" height="500">
+      <canvas ref="canvas" id="canvas" width="600" height="350">
         Your browser does not support the HTML5 canvas tag.
       </canvas>
     );

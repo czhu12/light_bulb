@@ -1,4 +1,5 @@
 import pdb
+import os
 import plac
 import yaml
 from flask import Flask, request, send_from_directory, render_template, jsonify, send_file
@@ -131,7 +132,7 @@ def get_image():
     image_path = request.args.get('image_path')
     mime = MimeTypes()
     mimetype, _ = mime.guess_type(image_path)
-    return send_file(image_path, mimetype=mimetype)
+    return send_file(os.path.join('..', image_path), mimetype=mimetype)
 
 @app.route("/demo")
 def demo():

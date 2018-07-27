@@ -4,6 +4,7 @@ import DonePage from './DonePage';
 import NavigationBar from './NavigationBar';
 import TextTaskView from './TextTaskView';
 import ImageTaskView from './ImageTaskView';
+import ImageTaskBatchView from './ImageTaskBatchView';
 import TaskDescriptionView from './TaskDescriptionView';
 import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
 import Footer from './Footer';
@@ -19,7 +20,14 @@ class LabelApp extends React.Component {
         currentPrediction = this.props.predictions[this.props.currentIndex];
       }
 
-      if (this.props.task.dataType === 'images' && this.props.task.labelType === 'object_detection') {
+      if (this.props.task.isBatchView) {
+        taskView = (
+          <ImageTaskBatchView
+            items={this.props.items}
+            predictions={this.props.predictions}
+          />
+        );
+      } else if (this.props.task.dataType === 'images' && this.props.task.labelType === 'object_detection') {
         taskView = (
           <BoundingBoxImageTaskView
             currentItem={currentItem}
@@ -44,6 +52,12 @@ class LabelApp extends React.Component {
     }
 
     let style = this.props.done ? { display: "none" } : {}
+    let footer = null;
+
+    if (!this.props.task.isBatchView) {
+      footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
+    }
+
     return (
       <div>
         <DonePage done={this.props.done}/>
@@ -57,8 +71,7 @@ class LabelApp extends React.Component {
             {taskView}
           </div>
         </div>
-
-        <Footer task={this.props.task} currentPrediction={currentPrediction} />
+        { footer }
       </div>
     );
   }

@@ -254,3 +254,9 @@ export function submitDataToScore() {
       .catch(error => dispatch(submitDataFailure(error.message)));
   }
 }
+
+export const SET_IS_BATCH_VIEW = 'SET_IS_BATCH_VIEW';
+export const setIsBatchView = (isBatchView) => ({
+  type: SET_IS_BATCH_VIEW,
+  isBatchView,
+});
