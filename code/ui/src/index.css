@@ -10,6 +10,7 @@ body {
   height: auto;
   /* Negative indent footer by its height */
   margin: 0 auto -130px;
+  overflow-y: auto;
   /* Pad bottom by footer height */
   padding: 0 0 130px;
 }
@@ -21,6 +22,13 @@ body {
 
 #item-image {
   height: 60%;
+}
+
+#task-view {
+  max-height: 400px;
+  overflow-y: auto;
+  margin-left: 20px;
+  margin-right: 20px;
 }
 
 .sequence-input {

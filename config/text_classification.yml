@@ -1,10 +1,11 @@
 task:
   title: Is this text positive?
 dataset:
-  directory: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/text_classification/
+  directory: dataset/text_classification/
   data_type: text
-  judgements_file: /Users/chris_zhu/Documents/Github/labelling-tool/dataset/labels.csv
+  judgements_file: outputs/text_classification/labels.csv
 label:
   type: binary
-model_directory: /Users/chris_zhu/Documents/Github/labelling-tool/models/text_classification/
+model:
+  directory: outputs/text_classification/models/
 user: chris

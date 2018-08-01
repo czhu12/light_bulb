@@ -49,6 +49,7 @@ class TrainingHistory:
         ts3 = self.history[-1]['test']['loss']
         ts2 = self.history[-2]['test']['loss']
         ts1 = self.history[-3]['test']['loss']
+        # Or if training out paces test for 3 timesteps
         should_keep_training = ts1 > ts2 and ts2 > ts3
 
         # Don't save model if we need to keep training

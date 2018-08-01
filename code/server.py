@@ -8,6 +8,9 @@ from label import LabelError
 from mimetypes import MimeTypes
 from threading import Thread
 from utils import utils
+from dataset import MIN_TRAIN_EXAMPLES
+from dataset import MIN_TEST_EXAMPLES
+from dataset import MIN_UNSUPERVISED_EXAMPLES
 
 app = Flask(__name__, static_folder='ui/build/static', template_folder='ui/build')
 
@@ -19,7 +22,7 @@ def index():
         title=label_app.title,
         description=label_app.description,
         label_helper=label_app.label_helper,
-        label_type=label_app.label_type,
+        label_type=label_app.label_helper.label_type,
     )
 
 @app.route('/dataset')
@@ -46,10 +49,14 @@ def task():
     return jsonify({
         'title': label_app.title,
         'description': label_app.description,
-        'label_type': label_app.label_type,
+        'label_type': label_app.label_helper.label_type,
         'data_type': label_app.data_type,
         'classes': classes,
         'valid_tokens': valid_tokens,
+        "min_train": MIN_TRAIN_EXAMPLES,
+        "min_test": MIN_TEST_EXAMPLES,
+        "min_unsup": MIN_UNSUPERVISED_EXAMPLES,
+        "config": label_app.config,
     })
 
 @app.route('/judgements', methods=['POST'])
@@ -142,7 +149,7 @@ def demo():
         title=label_app.title,
         description=label_app.description,
         label_helper=label_app.label_helper,
-        label_type=label_app.label_type,
+        label_type=label_app.label_helper.label_type,
     )
 
 @app.route("/score", methods=['POST', 'PUT', 'GET'])

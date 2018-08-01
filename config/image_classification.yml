@@ -1,7 +1,11 @@
 task:
-  title: Is this a good crop?
+  title: Is this a cat?
 dataset:
-  directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/images/
+  directory: dataset/image_classification/
   data_type: images
-  judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/labels.csv
+  judgements_file: outputs/image_classification/labels.csv
+label:
+  type: binary
+model:
+  directory: outputs/image_classification/models/
 user: chris

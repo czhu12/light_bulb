@@ -16,7 +16,7 @@ class NavigationBar extends React.Component {
 
     let toggleBatchView = null;
     // TODO: Turn this on again when batch view is ready.
-    if (false && this.props.task.dataType === 'images' &&
+    if (this.props.task.dataType === 'images' &&
       (this.props.task.labelType === 'binary' ||
       this.props.task.labelType === 'classification')) {
       toggleBatchView = (
@@ -30,6 +30,12 @@ class NavigationBar extends React.Component {
         </div>
       );
     }
+    let isTraining = null;
+    if (this.props.labelled.train > this.props.task.minTrain) {
+      isTraining = (<span className="text-success">Yes</span>)
+    } else {
+      isTraining = (<span className="text-danger">No</span>)
+    }
 
     return (
       <nav className="navbar navbar-toggleable-md navbar-light bg-faded navbar-expand-md">
@@ -41,7 +47,7 @@ class NavigationBar extends React.Component {
           <div className="navbar-nav">
             <a className="nav-item nav-link">Labelled: <b id="labelled-counts-text">{labelled} / {totalItems}</b></a>
             <a className="nav-item nav-link">Accuracy: <b id="accuracy-text">{maxAccuracy}%</b></a>
-            { toggleBatchView }
+            <a className="nav-item nav-link">Training: <b id="accuracy-text">{isTraining}</b></a>
           </div>
         </div>
       </nav>

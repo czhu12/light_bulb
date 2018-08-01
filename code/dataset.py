@@ -56,10 +56,6 @@ class Dataset:
     def save(self):
         self.save_lock.acquire()
         try:
-            directory = os.path.dirname(self.judgements_file)
-            if not os.path.exists(directory):
-                os.makedirs(directory)
-            # Make directory if it doesn't exist
             self.labelled.to_csv(self.judgements_file, index=False)
         finally:
             self.save_lock.release()
@@ -217,7 +213,7 @@ class ImageDataset(Dataset):
 
         if len(set(image_paths)) == 0:
             raise ValueError(
-                "No jpg or png files found in {}. Probably pointing at a wrong directory?".format(directory),
+                "No images (jpg or png) files found in {}.".format(self.directory),
             )
         unlabelled_paths = set(image_paths) - set(self.dataset['path'].values)
         new_dataset = pd.DataFrame([{'path': path, 'labelled': False} for path in unlabelled_paths], columns=self.__class__.COLUMNS)
@@ -229,7 +225,7 @@ class ImageDataset(Dataset):
             return [], []
         test_data = self.test_data
         x_train = utils.load_images(test_data['path'].values, self.input_shape)
-        y_train = utils.one_hot_encode(test_data['label'].values)
+        y_train = test_data['label'].values
         return x_train, y_train
 
     @property
@@ -238,7 +234,7 @@ class ImageDataset(Dataset):
             return [], []
         train_data = self.train_data
         x_train = utils.load_images(train_data['path'].values, self.input_shape)
-        y_train = utils.one_hot_encode(train_data['label'].values)
+        y_train = train_data['label'].values
         return x_train, y_train
 
     def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):

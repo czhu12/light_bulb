@@ -1,0 +1,17 @@
+task:
+  title: Is this text positive?
+dataset:
+  directory: dataset/text_classification/
+  data_type: text
+  judgements_file: outputs/text_multiclass_classification/labels.csv
+label:
+  type: classification
+  classes:
+    - Very Good
+    - Good
+    - Neutral
+    - Bad
+    - Very Bad
+model:
+    directory: outputs/text_multiclass_classification/models/
+user: chris

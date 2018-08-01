@@ -13,6 +13,7 @@ from sklearn.model_selection import train_test_split
 class CNNModel(BaseModel):
     def __init__(
         self,
+        num_classes,
         input_shape=(128, 128),
         hyperparameters={
             'loss': 'binary_crossentropy',
@@ -23,6 +24,7 @@ class CNNModel(BaseModel):
     ):
         super(CNNModel, self).__init__()
         self.input_shape = input_shape
+        self.num_classes = num_classes
         self.model, self.autoencoder = self.initialize_model(input_shape, hyperparameters)
         self.data_generator = self.initialize_data_generator()
 
@@ -81,7 +83,7 @@ class CNNModel(BaseModel):
         x = Dense(128)(x)
         x = BatchNormalization()(x)
         x = Activation('relu')(x)
-        x = Dense(2)(x)
+        x = Dense(self.num_classes)(x)
         x = Activation('softmax')(x)
         classifier = Model(input, x)
         classifier.summary()

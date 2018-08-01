@@ -1,0 +1,16 @@
+task:
+  title: What kind of animal is this?
+dataset:
+  directory: dataset/image_classification/
+  data_type: images
+  judgements_file: outputs/image_multiclass_classification/labels.csv
+label:
+  type: classification
+  classes:
+    - Dog
+    - Cat
+    - Giraffe
+    - Dolphin
+model:
+  directory: outputs/image_multiclass_classification/models/
+user: chris

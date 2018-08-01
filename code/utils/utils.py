@@ -32,7 +32,7 @@ def load_images(image_paths, input_shape):
 
     return imagenet_utils.preprocess_input(images)
 
-def one_hot_encode(y):
+def one_hot_encode(y, num_classes):
     return keras.utils.to_categorical(y)
 
 def download_urls(urls, target_size=(128, 128)):

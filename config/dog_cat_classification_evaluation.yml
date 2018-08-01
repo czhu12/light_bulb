@@ -1,8 +1,0 @@
-task:
-  title: Is this a cat?
-dataset:
-  directory: /Users/chriszhu/Documents/Github/labelling-tool/dataset/cat_or_dog/
-  data_type: images
-  judgements_file: /Users/chriszhu/Documents/Github/labelling-tool/dataset/dog_cat_classification_evaluation.csv
-model_directory: /Users/chriszhu/Documents/Github/labelling-tool/models/dog_cat_classification_evaluation/
-user: chris

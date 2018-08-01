@@ -34,6 +34,9 @@ const task = (state = {
   fetching: false,
   errorMsg: null,
   isBatchView: false,
+  minTrain: 0,
+  minTest: 0,
+  minUnsup: 0,
 }, action) => {
   switch (action.type) {
     case FETCH_TASK:
@@ -51,6 +54,9 @@ const task = (state = {
         classes: action.task.classes,
         validTokens: action.task.valid_tokens,
         fetching: false,
+        minTrain: action.task.min_train,
+        minTest: action.task.min_test,
+        minUnsup: action.task.min_unsup,
       }
     case FETCH_TASK_FAILURE:
       return {

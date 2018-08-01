@@ -1,27 +1,26 @@
-### Instructions for airbnb query generation
+Labelling tool.
 
-1. Install dependencies
+Here is a basic configuration for how to set up a labelling tool.
 ```
-brew install python3.6 # if you don't already have python3.6 installed
-make
-```
-
-2. Generate query inspiration prompts
-```
-make generate_query_inspirations
-```
-
-3. Start task for query generation
-```
-make query_generation
-```
-
-4. Generate NER labelling data
-```
-make generate_ner
-```
-
-5. Start task for query generation
-```
-make ner_tagging
+task:
+  title: Is this a cat?
+  description: |
+    <table style="width:50%;margin: 0 auto;text-align:center;">
+      <tr>
+        <th>YES</th>
+        <th>NO</th>
+      </tr>
+      <tr>
+        <td>Yes its a cat.</td>
+        <td>No its not a cat.</td>
+      </tr>
+    </table>
+dataset:
+  directory: dataset/cat_or_dog
+  data_type: images
+  judgements_file: outputs/cat_or_dog/labels.csv
+label:
+  type: binary
+model_directory: outputs/cat_or_dog/models/
+user: chris
 ```

@@ -1,4 +1,6 @@
+import json
 from nltk import word_tokenize
+from utils import utils
 
 class LabelError(Exception):
     def __init__(self, message):
@@ -20,7 +22,7 @@ class Label(object):
         if config['type'] == Label.CLASSIFICATION:
             return ClassificationLabel(config)
         if config['type'] == Label.BINARY:
-            return BinaryClassificationLabel(config)
+            return ClassificationLabel({**config, 'classes': ['YES', 'NO']})
         if config['type'] == Label.SEQUENCE:
             return SequenceLabel(**config)
         if config['type'] == Label.OBJECT_DETECTION:
@@ -35,26 +37,25 @@ class Label(object):
     def validate(self, data, label):
         return True
 
+    def to_training(self, y):
+        return y
+
 class ClassificationLabel(Label):
     def __init__(self, config):
         super(ClassificationLabel, self).__init__(config)
         self.classes = config['classes']
+        self.label_map = { c: i for i, c in enumerate(self.classes) }
 
     def decode(self, encoded):
-        return encoded
-
-class BinaryClassificationLabel(ClassificationLabel):
-    LABEL_MAP = { 'YES': 1., 'NO': 0. }
-    def __init__(self, config):
-        super(BinaryClassificationLabel, self).__init__({**config, **{'classes': ['YES', 'NO']}})
-
-    def decode(self, encoded):
-        if encoded not in BinaryClassificationLabel.LABEL_MAP:
+        if encoded not in self.label_map:
             raise LabelError("{} not in {}".format(
                 encoded,
-                BinaryClassificationLabel.LABEL_MAP,
+                self.label_map,
             ))
-        return BinaryClassificationLabel.LABEL_MAP[encoded]
+        return self.label_map[encoded]
+
+    def to_training(self, y):
+        return utils.one_hot_encode(y, len(self.classes))
 
 class SequenceLabel(Label):
     def __init__(self, length_equality=False, valid_tokens=[], delimiter=' ', **kwargs):

@@ -2,18 +2,19 @@ from queue import Queue
 import numpy as np
 import yaml
 import time
+from operator import itemgetter
 
 import pdb
 
 from utils import utils
 from utils import model_builder
+from utils.config_parser import ConfigParser
 import logging
 import sys
 from dataset import Dataset
 from training.trainer import Trainer
 from labeller import ModelLabeller
 from label import Label
-from operator import itemgetter
 
 logger = logging.getLogger('label_app')
 logger.setLevel(logging.DEBUG)
@@ -25,33 +26,32 @@ logger.addHandler(ch)
 
 class LabelApp:
     @staticmethod
-    def load_from(config):
-        with open(config) as f:
+    def load_from(config_path):
+        with open(config_path) as f:
             config = yaml.load(f)
+            parser = ConfigParser(config)
+            parser._create_directories()
 
-        task = Task.load_from(config['task'])
-        dataset = Dataset.load_from(config['dataset'])
-        model_directory = config['model_directory']
-        label_helper = Label.load_from(config['label'])
+        task = Task.load_from(parser.task)
+        dataset = Dataset.load_from(parser.dataset)
+        model_config = config['model']
+        label_helper = Label.load_from(parser.label)
         user = config['user']
-        if 'model' in config:
-            model_config = config['model']
-        else:
-            model_config = {}
 
-        return LabelApp(task, dataset, model_directory, label_helper, user, model_config)
+        return LabelApp(task, dataset, label_helper, user, model_config, parser)
 
-    def __init__(self, task, dataset, model_directory, label_helper, user, model_config, model_labelling=True):
+    def __init__(self, task, dataset, label_helper, user, model_config, config, model_labelling=True):
+        self.config = config.config
         self.task = task
         self.dataset = dataset
         self.data_type = self.dataset.data_type
 
         self.label_helper = label_helper
-        self.label_type = label_helper.label_type
 
+        model_directory = model_config['directory']
         self.model = model_builder.ModelBuilder(dataset, self.label_helper, model_config).build()
 
-        self.trainer = Trainer(model_directory, self.model, self.dataset, logger=logger)
+        self.trainer = Trainer(model_directory, self.model, self.dataset, self.label_helper, logger=logger)
         self.trainer.load_existing()
 
         self.labeller = ModelLabeller(self.model, self.dataset, logger=logger)
@@ -119,6 +119,10 @@ class LabelApp:
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
         self.label_helper.validate(data, label)
+        print(label)
+        print(label)
+        print(label)
+        print(label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
         self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user)

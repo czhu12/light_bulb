@@ -67,7 +67,7 @@ class LabelApp extends React.Component {
             title={this.props.task.title}
             description={this.props.task.description}
           />
-          <div className="center">
+          <div className="center" id="task-view">
             {taskView}
           </div>
         </div>

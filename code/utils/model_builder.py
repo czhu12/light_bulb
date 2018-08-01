@@ -21,16 +21,25 @@ class ModelBuilder:
             return self.build_custom_model()
         # Right now there is an assumption that
         if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.BINARY:
-            return CNNModel(input_shape=(128, 128))
-        if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
-            return LightnetModel()
+            return CNNModel(2, input_shape=(128, 128))
+
+        if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.CLASSIFICATION:
+            return CNNModel(len(self.label.classes), input_shape=(128, 128))
+
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
-            return RNNModel()
+            return RNNModel(2)
+
+        if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
+            return RNNModel(len(self.label.classes))
+
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.SEQUENCE:
             return SequenceModel(
                 valid_outputs=self.label.valid_tokens,
                 seq2seq=False,
                 character_mode=False,
             )
+
+        if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
+            return LightnetModel()
 
         return StubModel()

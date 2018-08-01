@@ -2,7 +2,7 @@ import time
 import os
 import logging
 import threading
-from training_history import TrainingHistory
+from training.training_history import TrainingHistory
 import glob
 import pickle
 from utils.model_evaluation import Evaluator
@@ -28,6 +28,7 @@ class Trainer():
             model_directory,
             model,
             dataset,
+            label_helper,
             history=TrainingHistory(),
             logger=logging.getLogger()
         ):
@@ -36,6 +37,7 @@ class Trainer():
         self.dataset = dataset
         self.history = history
         self.model_directory = model_directory
+        self.label_helper = label_helper
         self.logger = logger
 
     def notify_listeners(self, event, data):
@@ -87,8 +89,6 @@ class Trainer():
 
         name = 'model-acc-{}-loss-{}-samples-{}'.format(accuracy, loss, num_labels)
         directory = "{}/{}".format(self.model_directory, name)
-        if not os.path.exists(directory):
-            os.makedirs(directory)
 
         self.save_model(directory)
         self.save_training_history(directory)
@@ -119,6 +119,7 @@ class Trainer():
                 )
             )
         x_test, y_test = self.dataset.test_set
+        y_test = self.label_helper.to_training(y_test)
         return self.model.evaluate(x_test, y_test)
 
     def train_step(self):
@@ -130,6 +131,7 @@ class Trainer():
                 )
             )
         x_train, y_train = self.dataset.train_set
+        y_train = self.label_helper.to_training(y_train)
         self.logger.debug("Training on {} samples.".format(len(x_train)))
         return self.model.train(x_train, y_train)
 
@@ -163,7 +165,6 @@ class Trainer():
                     sleep_time = min(sleep_time, MAX_SLEEP_TIME)
                     self.logger.error(e)
                     self.logger.error("Backing off interval time...")
-                    raise e
 
                 # Evaluate
                 try:

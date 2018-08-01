@@ -8,11 +8,12 @@ from utils.glove_utils import LanguageModel
 from keras.callbacks import EarlyStopping
 
 class RNNModel(BaseModel):
-    def __init__(self, config={'word_vectors': False, 'model_type': 'lstm'}):
+    def __init__(self, num_classes, config={'word_vectors': False, 'model_type': 'lstm'}):
         # maxlen should be computed based on statistic of text lengths.
         super(RNNModel, self).__init__()
         self.lang = LanguageModel()
         self.dim_embedding_size = 128
+        self.num_classes = num_classes
         self.model = self.get_model()
 
         ## TODO: Download word vectors.
@@ -37,7 +38,7 @@ class RNNModel(BaseModel):
         model.add(self.lang.embedding_layer)
         model.add(Bidirectional(LSTM(100)))
         model.add(Dropout(0.2))
-        model.add(Dense(2, activation='softmax'))
+        model.add(Dense(self.num_classes, activation='softmax'))
         model.summary()
 
         # try using different optimizers and different optimizer configs
@@ -46,7 +47,6 @@ class RNNModel(BaseModel):
 
     def train(self, x_texts, y_train, validation_split=0, epochs=1):
         x_train = self.vectorize_text(x_texts)
-        y_train = utils.one_hot_encode(y_train)
         if validation_split > 0.:
             callbacks = [EarlyStopping(patience=3)]
         else:
@@ -64,7 +64,6 @@ class RNNModel(BaseModel):
 
     def evaluate(self, x_texts, y_test):
         x_test = self.vectorize_text(x_texts)
-        y_test = utils.one_hot_encode(y_test)
         with self.graph.as_default():
             return self.model.evaluate(x_test, y_test)
 
