@@ -1,16 +1,20 @@
 import pdb
-import os
 import sys
 import string
 import logging
 import numpy as np
 from keras.preprocessing.text import Tokenizer
 from keras.preprocessing.sequence import pad_sequences
-from keras.layers import Embedding
 from nltk.tokenize import word_tokenize
 import requests
-from subprocess import call
-from utils.utils import download_file
+from nltk.tokenize.toktok import ToktokTokenizer
+
+import re
+import spacy
+import html
+from spacy.symbols import ORTH
+from concurrent.futures import ProcessPoolExecutor
+
 
 EMBEDDING_DIM = 50
 MAX_NUM_WORDS = 20000
@@ -21,42 +25,33 @@ PAD_TOKEN = '<pad>'
 
 logger = logging.getLogger()
 
-def download_glove_vectors(remote_path='http://nlp.stanford.edu/data/glove.6B.zip'):
-    if os.path.exists('./vendor/glove/glove.6B'):
-        logger.debug("Already downloaded glove vectors")
-        return './vendor/glove/glove.6B/glove.6B.50d.txt'
-
-    downloaded_filepath = download_file(remote_path, './vendor/glove')
-    call(['unzip', downloaded_filepath, '-d', './vendor/glove/glove.6B'])
-    logger.debug("Unzipped to './vendor/glove/glove.6B'")
-
-    return './vendor/glove/glove.6B/glove.6B.50d.txt'
-
-
-class Vocabulary(object):
-    def __init__(self, vocabulary):
-        self.vocab = [PAD_TOKEN, EOS_TOKEN, UNKNOWN_TOKEN] + vocabulary
-        self.num_words = len(self.vocab)
-        self.word2index = { v: i for i, v in enumerate(self.vocab) }
-        self.embedding_layer = Embedding(
-                len(vocab),
-                EMBEDDING_DIM,
-                trainable=True)
+class WordVectorizer():
+    def __init__(self, index2word):
+        self.index2word = index2word
+        self.word2index = { word: index for index, word in enumerate(index2word) }
+        self.tokenizer = ToktokTokenizer()
 
     def _embedding(self, word, word2index):
         if word in word2index:
             return word2index[word]
         return word2index[UNKNOWN_TOKEN]
 
-    def _sequence_ids(self, texts, character=False):
-        sequences = []
+    def _tokenize(self, texts, character=False):
+        tokenized_texts = []
         for text in texts:
             if character:
                 words = list(text) + [EOS_TOKEN]
             else:
-                words = word_tokenize(text.lower()) + [EOS_TOKEN]
+                words = self.tokenizer.tokenize(text.lower()) + [EOS_TOKEN]
+            tokenized_texts.append(words)
 
-            ids = [self._embedding(word, self.word2index) for word in words]
+        return tokenized_texts
+
+    def _sequence_ids(self, texts, character=False):
+        sequences = []
+        for tokens in self._tokenize(texts, character):
+
+            ids = [self._embedding(token, self.word2index) for token in tokens]
             sequences.append(ids)
         return sequences
 
@@ -118,39 +113,6 @@ class Vocabulary(object):
 
         return pad_sequences(sequences, maxlen=maxlen), lengths
 
-class LanguageModel(Vocabulary):
-    def __init__(self):
-        path = download_glove_vectors()
-        self.load_glove_vectors(path)
-
-    def load_glove_vectors(self, path):
-        embeddings_index = {}
-        f = open(path)
-        for line in f:
-            values = line.split()
-            word = values[0]
-            coefs = np.asarray(values[1:], dtype='float32')
-            embeddings_index[word] = coefs
-        f.close()
-        num_words = len(embeddings_index) + 3
-        embedding_matrix = np.zeros((num_words, EMBEDDING_DIM))
-        word2index = { PAD_TOKEN: 0, UNKNOWN_TOKEN: 1, EOS_TOKEN: 2 }
-
-        for index, (word, embedding) in enumerate(embeddings_index.items()):
-            embedding_matrix[index + 3] = embedding
-            word2index[word] = index + 3
-
-        self.embedding_layer = Embedding(
-                num_words,
-                EMBEDDING_DIM,
-                weights=[embedding_matrix],
-                trainable=False,
-                mask_zero=True)
-
-        self.vocab = list(embeddings_index.keys())
-        self.num_words = num_words
-        self.embedding_matrix = embedding_matrix
-        self.word2index = word2index
 
     def text_embedding(self, texts):
         sequences = self._sequence_ids(texts)
@@ -161,6 +123,65 @@ class LanguageModel(Vocabulary):
             embeddings.append(embedding)
         assert len(embeddings) == len(texts)
         return text_embeddings
+
+def flatten(l):
+    return [item for sublist in l for item in sublist]
+
+def fixup(x):
+    x = x.replace('#39;', "'").replace('amp;', '&').replace('#146;', "'")\
+        .replace('nbsp;', ' ').replace('#36;', '$').replace('\\n', "\n")\
+        .replace('quot;', "'").replace('<br />', "\n").replace('\\"', '"')\
+        .replace('<unk>','u_n').replace(' @.@ ','.').replace(' @-@ ','-').replace('\\', ' \\ ')
+    return re.sub(r' +', ' ', html.unescape(x))
+
+class Tokenizer():
+    re_rep      = re.compile(r'(\S)(\1{3,})')
+    re_word_rep = re.compile(r'(\b\w+\W+)(\1{3,})')
+    re_br       = re.compile(r'<\s*br\s*/?>', re.IGNORECASE)
+
+    def __init__(self, lang='en'):
+        self.tok = spacy.load(lang)
+        for w in ('<eos>','<bos>','<unk>'):
+            self.tok.tokenizer.add_special_case(w, [{ORTH: w}])
+
+    def spacy_tok(self,x):
+        return [t.text for t in self.tok.tokenizer(self.re_br.sub("\n", x))]
+
+    @staticmethod
+    def replace_rep(m):
+        TK_REP = 'tk_rep'
+        c,cc = m.groups()
+        return f' {TK_REP} {len(cc)+1} {c} '
+
+    @staticmethod
+    def replace_wrep(m):
+        TK_WREP = 'tk_wrep'
+        c,cc = m.groups()
+        return f' {TK_WREP} {len(cc.split())+1} {c} '
+
+    @staticmethod
+    def do_caps(ss):
+        TOK_UP = ' t_up '
+        res = [[TOK_UP, s.lower()] if (s.isupper() and (len(s) > 2)) else [s.lower()] for s in re.findall(r'\w+|\W+', ss)]
+        return ''.join(sum(res, []))
+
+    def proc_text(self, s):
+        s = self.re_rep.sub(Tokenizer.replace_rep, s)
+        s = self.re_word_rep.sub(Tokenizer.replace_wrep, s)
+        s = Tokenizer.do_caps(s)
+        s = re.sub(r'([/#])', r' \1 ', s)
+        s = re.sub(' {2,}', ' ', s)
+        return self.spacy_tok(s)
+
+    @staticmethod
+    def proc_all(ss, lang='en'):
+        tok = Tokenizer(lang)
+        return [tok.proc_text(s) for s in ss]
+
+    @staticmethod
+    def proc_all_mp(ss, lang='en', ncpus=32):
+        with ProcessPoolExecutor(ncpus) as e:
+            return sum(e.map(Tokenizer.proc_all, ss, [lang] * len(ss)), [])
 
 if __name__ == "__main__":
     lang = LanguageModel()

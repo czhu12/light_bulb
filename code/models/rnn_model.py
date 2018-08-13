@@ -1,51 +1,84 @@
 import pdb
 import keras
+import tqdm
 from models.base_model import BaseModel
 from utils import utils
-from keras.models import Sequential
-from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional
-from utils.glove_utils import LanguageModel
+from keras.models import Sequential, Model
+from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional, Input, Lambda
+from keras import backend as K
+from utils.text_utils import WordVectorizer
+from utils import utils
 from keras.callbacks import EarlyStopping
 
 class RNNModel(BaseModel):
-    def __init__(self, num_classes, config={'word_vectors': False, 'model_type': 'lstm'}):
-        # maxlen should be computed based on statistic of text lengths.
+    def __init__(self, num_classes, embedding_size, index2word):
         super(RNNModel, self).__init__()
-        self.lang = LanguageModel()
-        self.dim_embedding_size = 128
         self.num_classes = num_classes
-        self.model = self.get_model()
+        self.vocab_size = len(index2word)
+        self.embedding_size = embedding_size
+        self.lang = WordVectorizer(index2word)
+        self.encoder = self.get_encoder()
+        self.encoder.summary()
 
-        ## TODO: Download word vectors.
-        #if config['word_vectors']:
-        #    keras.utils.get_file('http://nlp.stanford.edu/data/glove.6B.zip')
+        self.language_model = self.get_lm_decoder(self.encoder, self.vocab_size)
+        self.language_model.summary()
 
-        self.initial_weights = self.model.get_weights()
+        self.model = self.get_decoder(self.encoder, num_classes)
+        self.model.summary()
 
-    def reinitialize_model(self):
-        self.model.set_weights(self.initial_weights)
+    def get_encoder(self):
+        vec_input = Input(shape=(None,))
+        x = Embedding(self.vocab_size, self.embedding_size)(vec_input)
+        x = LSTM(128, return_sequences=True)(x)
+        x = LSTM(128, return_sequences=True)(x)
+        x = LSTM(128, return_sequences=True)(x)
+        model = Model(vec_input, x)
+        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+        return model
 
-    def representation_learning(self, x_train, epochs=1):
-        # Representation learning for text?
-        return self
+    def get_decoder(self, encoder, num_classes):
+        # batch x seq_len x 128
+        vec_input = Input(shape=(None,))
+        x = encoder(vec_input)
+        x = Lambda(lambda x: x[:, -1, :], output_shape=(128,))(x)
+        decode = Dense(num_classes, activation='softmax')(x)
+        model = Model(vec_input, decode)
+        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+        return model
+
+    def get_lm_decoder(self, encoder, num_classes):
+        # batch x seq_len x 128
+        vec_input = Input(shape=(None,))
+        x = encoder(vec_input)
+        decode = Dense(num_classes, activation='softmax')(x)
+        model = Model(vec_input, decode)
+        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+        return model
+
+    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=8, verbose=False):
+        batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
+        with self.graph.as_default():
+            iterable = tqdm.tqdm(batches) if verbose else batches
+            total_loss = 0.
+            for batch in iterable:
+                # Compute x_batch and y_batch
+                x_text = [' '.join(text[:-1]) for text in self.lang._tokenize(batch)]
+                y_text = [' '.join(text[1:]) for text in self.lang._tokenize(batch)]
+                x_train, x_lengths = self.lang.texts_to_sequence(x_text)
+                y_train, y_lengths = self.lang.texts_to_sequence(y_text)
+                target = utils.one_hot_encode(y_train, self.vocab_size)
+                # Train language model.
+                result = self.language_model.fit(x_train, target, batch_size=batch_size, verbose=0)
+                total_loss += result.history['loss'][-1]
+                if verbose: print(result.history['loss'][-1])
+        return (total_loss, 0.)
 
     def vectorize_text(self, x_texts):
         x_train, lengths = self.lang.texts_to_sequence(x_texts)
         return x_train
 
-    def get_model(self):
-        model = Sequential()
-        model.add(self.lang.embedding_layer)
-        model.add(Bidirectional(LSTM(100)))
-        model.add(Dropout(0.2))
-        model.add(Dense(self.num_classes, activation='softmax'))
-        model.summary()
-
-        # try using different optimizers and different optimizer configs
-        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
-        return model
-
-    def train(self, x_texts, y_train, validation_split=0, epochs=1):
+    def fit(self, x_texts, y_train, validation_split=0, epochs=1):
+        y_train = utils.one_hot_encode(y_train, self.num_classes)
         x_train = self.vectorize_text(x_texts)
         if validation_split > 0.:
             callbacks = [EarlyStopping(patience=3)]
@@ -53,7 +86,7 @@ class RNNModel(BaseModel):
             callbacks = None
 
         with self.graph.as_default():
-            return self.model.fit(
+            history = self.model.fit(
                 x_train,
                 y_train,
                 validation_split=validation_split,
@@ -61,8 +94,10 @@ class RNNModel(BaseModel):
                 epochs=epochs,
                 verbose=0,
             )
+            return history.history
 
     def evaluate(self, x_texts, y_test):
+        y_test = utils.one_hot_encode(y_test, self.num_classes)
         x_test = self.vectorize_text(x_texts)
         with self.graph.as_default():
             return self.model.evaluate(x_test, y_test)
@@ -76,4 +111,3 @@ class RNNModel(BaseModel):
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
             return self.model.predict(x_scores)
-

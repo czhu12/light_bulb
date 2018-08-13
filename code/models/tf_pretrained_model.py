@@ -14,7 +14,7 @@ class TFPretrainedModel():
         klass = getattr(module, klass_name)
         self.model = klass(directory)
 
-    def train(self, x_train, y_train, validation_split=0., epochs=1):
+    def fit(self, x_train, y_train, validation_split=0., epochs=1):
         return self.model.train(x_train, y_train)
 
     def score(self, x):

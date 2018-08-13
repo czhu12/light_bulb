@@ -1,5 +1,4 @@
 import numpy as np
-from utils import ap
 
 class TrainingHistory:
     def __init__(self):
@@ -76,27 +75,3 @@ class TrainingHistory:
 
     def __getitem__(self, key):
         return self.history[key]
-
-    def plot(self):
-        test_loss = ap.markers['o']
-        test_acc = ap.markers['s']
-        p_loss = ap.AFigure(plot_labels=True)
-        p_loss.plot(
-            np.arange(len(self.history)),
-            [step['test']['loss'] for step in self.history],
-            marker='_o',
-        )
-
-        p_acc = ap.AFigure(plot_labels=True)
-        p_acc.plot(
-            np.arange(len(self.history)),
-            [step['test']['acc'] for step in self.history],
-            marker='_s',
-        )
-
-        return """
-        Test Loss
-        {}
-        Test Accuracy
-        {}
-        """.format(p_loss.draw(), p_acc.draw())

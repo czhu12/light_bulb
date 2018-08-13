@@ -5,7 +5,7 @@ class StubModel(BaseModel):
     def representation_learning(self, x_train):
         pass
 
-    def train(self, x_train, y_train):
+    def fit(self, x_train, y_train):
         pass
 
     def evaluate(self, x_train, y_train):

@@ -3,7 +3,7 @@ import os
 import glob
 from utils import utils
 import chardet
-from utils import glove_utils
+from utils import text_utils
 from threading import Lock
 
 import copy
@@ -59,6 +59,10 @@ class Dataset:
             self.labelled.to_csv(self.judgements_file, index=False)
         finally:
             self.save_lock.release()
+
+    @property
+    def all(self):
+        return self.dataset
 
     @property
     def stats(self):

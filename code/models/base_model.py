@@ -11,7 +11,7 @@ class BaseModel():
         with self.graph.as_default():
             self.model.save(path)
 
-    def train(self, x_train, y_train, validation_split=0., epochs=1):
+    def fit(self, x_train, y_train, validation_split=0., epochs=1):
         raise NotImplementedError()
 
     def representation_learning(self, x_train, epochs=1):

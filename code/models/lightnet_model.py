@@ -16,7 +16,7 @@ class LightnetModel():
         with self.graph.as_default():
             self.model.save(path)
 
-    def train(self, x_train: List[str], y_train: List[bbb.Box]):
+    def fit(self, x_train: List[str], y_train: List[bbb.Box]):
         """
         x_train: List of paths
         y_train: List of bramboxes

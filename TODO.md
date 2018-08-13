@@ -1,4 +1,14 @@
-Add Skip
+Add pretrained language model:
+1. Add pytorch as dep
+2. Use pytorch to do text classification
+3. A model has a representation training option, and a train option.
+  - Training loop:
+    - Train against labelled data. Fine tune end to end.
+      - Stop representation learning once convergence is reached? Should we do a train test split?
+    - Train language model. Fine tune the language model only.
+
+
+Add Skip option?
 Stop Training When Training outpaces test
 
 Features:

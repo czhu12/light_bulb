@@ -38,10 +38,11 @@ scikit-learn==0.19.1
 scipy==1.0.1
 six==1.11.0
 sklearn==0.0
+spacy==2.0.12
 tensorboard==1.8.0
 tensorflow==1.8.0
 termcolor==1.1.0
-torch==0.4.0
+torch==0.3.1
 torchvision==0.2.1
 urllib3==1.22
 Werkzeug==0.14.1

@@ -13,7 +13,7 @@ import logging
 import sys
 from dataset import Dataset
 from training.trainer import Trainer
-from labeller import ModelLabeller
+from labelling.labeller import ModelLabeller
 from label import Label
 
 logger = logging.getLogger('label_app')
@@ -119,10 +119,6 @@ class LabelApp:
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
         self.label_helper.validate(data, label)
-        print(label)
-        print(label)
-        print(label)
-        print(label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
         self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user)

@@ -9,6 +9,7 @@ from keras.layers import Dense, Dropout, Activation, Flatten, BatchNormalization
 from keras import optimizers
 from keras.callbacks import EarlyStopping
 from sklearn.model_selection import train_test_split
+from utils import utils
 
 class CNNModel(BaseModel):
     def __init__(
@@ -112,9 +113,11 @@ class CNNModel(BaseModel):
         with self.graph.as_default():
             self.data_generator.fit(x_train)
             results = self.autoencoder.fit(x_train, x_train, epochs=epochs, verbose=0)
-            return results
+            return results.history['loss'][0]
 
-    def train(self, x_train, y_train, validation_split=0., epochs=1):
+    def fit(self, x_train, y_train, validation_split=0., epochs=1):
+        y_train = utils.one_hot_encode(y_train, self.num_classes)
+
         x_train, x_val, y_train, y_val = train_test_split(
             x_train,
             y_train,
@@ -138,7 +141,7 @@ class CNNModel(BaseModel):
                 verbose=0,
             )
 
-            return results
+            return (results.history['loss'][0], results.history['acc'][0])
 
     def score(self, x):
         with self.graph.as_default():
@@ -149,5 +152,7 @@ class CNNModel(BaseModel):
             return self.model.predict(x)[:, 1] > 0.5
 
     def evaluate(self, x_test, y_test):
+        y_test = utils.one_hot_encode(y_test, self.num_classes)
         with self.graph.as_default():
-            return self.model.evaluate(x_test, y_test)
+            results = self.model.evaluate(x_test, y_test, verbose=0)
+            return results[0], results[1]

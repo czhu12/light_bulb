@@ -3,7 +3,7 @@ from keras import layers
 from keras.models import Sequential
 from nltk import word_tokenize
 import string
-from utils.glove_utils import LanguageModel
+from utils.text_utils import WordVectorizer
 import random
 import numpy as np
 
@@ -29,7 +29,7 @@ class SequenceModel(BaseModel):
         self.character_mode = character_mode
         self.valid_outputs = valid_outputs
 
-        self.lang = LanguageModel()
+        self.lang = WordVectorizer()
         self.model = self.get_model()
         # seq2seq or TimeDistributed(RNN)
 
@@ -45,7 +45,7 @@ class SequenceModel(BaseModel):
             model.compile(loss='categorical_crossentropy', optimizer='SGD', metrics=['acc'])
             return model
 
-    def train(self, x_seq, y_seq, validation_split=0., epochs=1):
+    def fit(self, x_seq, y_seq, validation_split=0., epochs=1):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
             x_train, lengths = self.lang.texts_to_sequence(x_seq)

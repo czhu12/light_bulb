@@ -55,7 +55,8 @@ class ClassificationLabel(Label):
         return self.label_map[encoded]
 
     def to_training(self, y):
-        return utils.one_hot_encode(y, len(self.classes))
+        return y
+        #return utils.one_hot_encode(y, len(self.classes))
 
 class SequenceLabel(Label):
     def __init__(self, length_equality=False, valid_tokens=[], delimiter=' ', **kwargs):

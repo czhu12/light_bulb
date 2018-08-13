@@ -120,6 +120,7 @@ class Trainer():
             )
         x_test, y_test = self.dataset.test_set
         y_test = self.label_helper.to_training(y_test)
+        self.logger.debug("Evaluating on {} samples.".format(len(x_test)))
         return self.model.evaluate(x_test, y_test)
 
     def train_step(self):
@@ -133,7 +134,7 @@ class Trainer():
         x_train, y_train = self.dataset.train_set
         y_train = self.label_helper.to_training(y_train)
         self.logger.debug("Training on {} samples.".format(len(x_train)))
-        return self.model.train(x_train, y_train)
+        return self.model.fit(x_train, y_train)
 
     def print_stats(self):
         stats = self.dataset.stats
@@ -151,13 +152,9 @@ class Trainer():
 
                 # Train
                 try:
-                    self.logger.debug("Training model.")
-                    history = self.train_step()
+                    loss, acc = self.train_step()
 
-                    self.logger.debug("Training: Loss: {} Acc: {}.".format(
-                        history.history['loss'][0],
-                        history.history['acc'][0],
-                    ))
+                    self.logger.debug("Training: Loss: {} Acc: {}.".format(loss, acc))
                     trained = True
                     sleep_time = 1.
                 except ValueError as e:
@@ -181,8 +178,8 @@ class Trainer():
                 if trained and evaluated:
                     self.history.add_train_eval_step(
                         len(self.dataset.train_data), # Length of this dataset might have more labels
-                        history.history['acc'][0],
-                        history.history['loss'][0],
+                        loss,
+                        acc,
                         evaluation[1],
                         evaluation[0],
                     )
@@ -204,12 +201,9 @@ class Trainer():
                 if self.ready_to_represent(self.dataset):
                     self.logger.debug("Starting representation training.")
                     x_train, _ = self.dataset.unlabelled_set(MIN_UNSUPERVISED_EXAMPLES)
-                    results = self.model.representation_learning(x_train)
+                    loss = self.model.representation_learning(x_train)
+                    self.logger.debug("Finished representation training. Loss: {}".format(loss))
             except ValueError as e:
                 self.logger.error(e)
-
-            if len(self.history) > 0 and trained:
-                print("Thread ID: {}".format(threading.get_ident()))
-                print(self.history.plot())
 
             time.sleep(sleep_time)
