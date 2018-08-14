@@ -2,6 +2,7 @@ import plac
 import os
 import pdb
 import numpy as np
+from collections import Counter
 from subprocess import call
 from utils.utils import download_file
 from keras.layers import Embedding
@@ -10,47 +11,27 @@ from nltk.tokenize.toktok import ToktokTokenizer
 
 def download_glove_vectors(remote_path='http://nlp.stanford.edu/data/glove.6B.zip'):
     if os.path.exists('./vendor/glove/glove.6B'):
-        logger.debug("Already downloaded glove vectors")
         return './vendor/glove/glove.6B/glove.6B.50d.txt'
 
     downloaded_filepath = download_file(remote_path, './vendor/glove')
     call(['unzip', downloaded_filepath, '-d', './vendor/glove/glove.6B'])
-    logger.debug("Unzipped to './vendor/glove/glove.6B'")
 
     return './vendor/glove/glove.6B/glove.6B.50d.txt'
 
 class Vocab:
-    def __init__(self, embedding_size):
+    def __init__(self, embedding_size, wikitext_path, max_vocab_size=25000):
         self.embedding_size = embedding_size
-    def load_glove_vectors(self, path):
-        embeddings_index = {}
-        f = open(path)
-        for line in f:
-            values = line.split()
-            word = values[0]
-            coefs = np.asarray(values[1:], dtype='float32')
-            embeddings_index[word] = coefs
-        f.close()
-        word2index = { '<pad>': 0, '<unk>': 1, '<eos>': 2 }
-        num_words = len(embeddings_index) + len(word2index)
-        embedding_matrix = np.zeros((num_words, self.embedding_size))
+        self.wikitext_path = wikitext_path
+        self.tokenizer = ToktokTokenizer()
+        test_counts = self.process_tokens(os.path.join(wikitext_path, 'wiki.test.tokens'))
+        train_counts = self.process_tokens(os.path.join(wikitext_path, 'wiki.train.tokens'))
+        valid_counts = self.process_tokens(os.path.join(wikitext_path, 'wiki.valid.tokens'))
+        counts = test_counts + train_counts + valid_counts
+        self.vocab = [word for word, count in counts.most_common(max_vocab_size) if count > 1]
+        self.vocab = ['<pad>', '<eos>'] + self.vocab
 
-        for index, (word, embedding) in enumerate(embeddings_index.items()):
-            embedding_matrix[len(word2index)] = embedding
-            word2index[word] = len(word2index)
-
-        self.embedding_layer = Embedding(
-            num_words,
-            200,
-            weights=[embedding_matrix],
-            trainable=False,
-            mask_zero=True,
-        )
-
-        self.vocab = list(word2index.keys())
-        self.num_words = num_words
-        self.embedding_matrix = embedding_matrix
-        self.word2index = word2index
+    def process_tokens(self, path):
+        return Counter(self.tokenizer.tokenize(open(path, 'r').read()))
 
 def create_data(lines, bptt=70):
     tokenizer = ToktokTokenizer()
@@ -72,8 +53,7 @@ def main(wikitext2_path, save_dir):
     text_batches = create_data(lines, bptt=bptt)
     # Modelling part
     embedding_size = 200
-    vocab = Vocab(embedding_size)
-    vocab.load_glove_vectors('vendor/glove/glove.6B/glove.6B.{}d.txt'.format(embedding_size))
+    vocab = Vocab(embedding_size, wikitext2_path)
     model = RNNModel(2, embedding_size, vocab.vocab)
     model.representation_learning(text_batches, verbose=True)
     pdb.set_trace()
