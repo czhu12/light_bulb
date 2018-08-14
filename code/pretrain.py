@@ -67,8 +67,8 @@ def main(wikitext2_path, save_dir, mode='train'):
     if mode == 'train':
         model.representation_learning(text_batches, verbose=True, epochs=3)
         os.makedirs(save_dir)
-        model.save(model_path)
-        pickle.dump(vocab.vocab, open(vocab_path, 'wb'))
+        model.save(save_dir)
+        pickle.dump(vocab, open(vocab_path, 'wb'))
     else:
         print("Evaluation is not implemented yet.")
 
