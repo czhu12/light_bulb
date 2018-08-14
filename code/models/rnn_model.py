@@ -59,19 +59,22 @@ class RNNModel(BaseModel):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
         with self.graph.as_default():
             iterable = tqdm.tqdm(batches) if verbose else batches
-            total_loss = 0.
-            for batch in iterable:
-                # Compute x_batch and y_batch
-                x_text = [' '.join(text[:-1]) for text in self.lang._tokenize(batch)]
-                y_text = [' '.join(text[1:]) for text in self.lang._tokenize(batch)]
-                x_train, x_lengths = self.lang.texts_to_sequence(x_text)
-                y_train, y_lengths = self.lang.texts_to_sequence(y_text)
-                target = utils.one_hot_encode(y_train, self.vocab_size)
-                # Train language model.
-                result = self.language_model.fit(x_train, target, batch_size=batch_size, verbose=0)
-                total_loss += result.history['loss'][-1]
-                if verbose: print(result.history['loss'][-1])
-        return (total_loss, 0.)
+            total_losses = []
+            for epoch in range(epochs):
+                total_loss = 0.
+                for batch in iterable:
+                    # Compute x_batch and y_batch
+                    x_text = [' '.join(text[:-1]) for text in self.lang._tokenize(batch)]
+                    y_text = [' '.join(text[1:]) for text in self.lang._tokenize(batch)]
+                    x_train, x_lengths = self.lang.texts_to_sequence(x_text)
+                    y_train, y_lengths = self.lang.texts_to_sequence(y_text)
+                    target = utils.one_hot_encode(y_train, self.vocab_size)
+                    # Train language model.
+                    result = self.language_model.fit(x_train, target, batch_size=batch_size, verbose=0)
+                    total_loss += result.history['loss'][-1]
+                total_losses.append(total_loss)
+                print(total_loss)
+        return (total_losses, 0.)
 
     def vectorize_text(self, x_texts):
         x_train, lengths = self.lang.texts_to_sequence(x_texts)

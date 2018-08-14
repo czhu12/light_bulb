@@ -55,7 +55,7 @@ def main(wikitext2_path, save_dir):
     embedding_size = 200
     vocab = Vocab(embedding_size, wikitext2_path)
     model = RNNModel(2, embedding_size, vocab.vocab)
-    model.representation_learning(text_batches, verbose=True)
+    model.representation_learning(text_batches, verbose=True, epochs=10)
     pdb.set_trace()
 
 if __name__ == '__main__':
