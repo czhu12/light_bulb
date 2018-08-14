@@ -21,7 +21,7 @@ def download_glove_vectors(remote_path='http://nlp.stanford.edu/data/glove.6B.zi
     return './vendor/glove/glove.6B/glove.6B.50d.txt'
 
 class Vocab:
-    def __init__(self, wikitext_path, max_vocab_size=25000):
+    def __init__(self, wikitext_path, max_vocab_size=100000):
         self.wikitext_path = wikitext_path
         self.tokenizer = ToktokTokenizer()
         test_counts = self.process_tokens(os.path.join(wikitext_path, 'wiki.test.tokens'))
@@ -65,11 +65,12 @@ def main(wikitext2_path, save_dir, mode='train'):
         model = RNNModel(2, embedding_size, vocab)
 
     if mode == 'train':
-        model.representation_learning(text_batches, verbose=True, epochs=3)
+        model.representation_learning(text_batches, verbose=True, epochs=30)
         os.makedirs(save_dir)
         model.save(save_dir)
         pickle.dump(vocab, open(vocab_path, 'wb'))
     else:
+        model.representation_learning(text_batches, evaluate=True)
         print("Evaluation is not implemented yet.")
 
 if __name__ == '__main__':

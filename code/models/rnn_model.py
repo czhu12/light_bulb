@@ -64,7 +64,7 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=64, verbose=False):
+    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=32, verbose=False):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
         total_losses = []
         with self.graph.as_default():
@@ -80,9 +80,11 @@ class RNNModel(BaseModel):
                     target = utils.one_hot_encode(y_train, self.vocab_size)
                     # Train language model.
                     result = self.language_model.fit(x_train, target, batch_size=batch_size, verbose=0)
-                    total_loss += result.history['loss'][-1]
-                total_losses.append(total_loss)
-                print(total_loss)
+                    total_loss += 1 / len(iterable) * result.history['loss'][-1]
+
+                if verbose: print("Epoch: {} | Loss: {}".format(epoch, total_loss))
+
+                total_losses.append(total_loss / len(batch))
         return (total_losses, 0.)
 
     def vectorize_text(self, x_texts):
