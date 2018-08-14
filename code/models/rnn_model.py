@@ -1,9 +1,10 @@
 import pdb
+import os
 import keras
 import tqdm
 from models.base_model import BaseModel
 from utils import utils
-from keras.models import Sequential, Model
+from keras.models import Sequential, Model, load_model
 from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional, Input, Lambda
 from keras import backend as K
 from utils.text_utils import WordVectorizer
@@ -23,8 +24,16 @@ class RNNModel(BaseModel):
         self.language_model = self.get_lm_decoder(self.encoder, self.vocab_size)
         self.language_model.summary()
 
-        self.model = self.get_decoder(self.encoder, num_classes)
-        self.model.summary()
+        self.classifier = self.get_classifier_decoder(self.encoder, num_classes)
+        self.classifier.summary()
+
+    def save(self, directory):
+        self.language_model.save_weights(os.path.join(directory, 'language_model.h5'))
+        self.classifier.save_weights(os.path.join(directory, 'classifier.h5'))
+
+    def load(self, directory):
+        self.language_model.load_weights(os.path.join(directory, 'language_model.h5'))
+        self.classifier.load_weights(os.path.join(directory, 'classifier.h5'))
 
     def get_encoder(self):
         vec_input = Input(shape=(None,))
@@ -36,7 +45,7 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def get_decoder(self, encoder, num_classes):
+    def get_classifier_decoder(self, encoder, num_classes):
         # batch x seq_len x 128
         vec_input = Input(shape=(None,))
         x = encoder(vec_input)
@@ -55,12 +64,12 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=8, verbose=False):
+    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=64, verbose=False):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
+        total_losses = []
         with self.graph.as_default():
-            iterable = tqdm.tqdm(batches) if verbose else batches
-            total_losses = []
             for epoch in range(epochs):
+                iterable = tqdm.tqdm(batches) if verbose else batches
                 total_loss = 0.
                 for batch in iterable:
                     # Compute x_batch and y_batch
@@ -89,7 +98,7 @@ class RNNModel(BaseModel):
             callbacks = None
 
         with self.graph.as_default():
-            history = self.model.fit(
+            history = self.classifier.fit(
                 x_train,
                 y_train,
                 validation_split=validation_split,
@@ -103,14 +112,14 @@ class RNNModel(BaseModel):
         y_test = utils.one_hot_encode(y_test, self.num_classes)
         x_test = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.model.evaluate(x_test, y_test)
+            return self.classifier.evaluate(x_test, y_test)
 
     def score(self, x_texts):
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.model.predict(x_scores)
+            return self.classifier.predict(x_scores)
 
     def predict(self, x):
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.model.predict(x_scores)
+            return self.classifier.predict(x_scores)

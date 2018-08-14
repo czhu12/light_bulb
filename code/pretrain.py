@@ -2,10 +2,12 @@ import plac
 import os
 import pdb
 import numpy as np
+import pickle
 from collections import Counter
 from subprocess import call
 from utils.utils import download_file
 from keras.layers import Embedding
+from keras.models import load_model
 from models.rnn_model import RNNModel
 from nltk.tokenize.toktok import ToktokTokenizer
 
@@ -19,8 +21,7 @@ def download_glove_vectors(remote_path='http://nlp.stanford.edu/data/glove.6B.zi
     return './vendor/glove/glove.6B/glove.6B.50d.txt'
 
 class Vocab:
-    def __init__(self, embedding_size, wikitext_path, max_vocab_size=25000):
-        self.embedding_size = embedding_size
+    def __init__(self, wikitext_path, max_vocab_size=25000):
         self.wikitext_path = wikitext_path
         self.tokenizer = ToktokTokenizer()
         test_counts = self.process_tokens(os.path.join(wikitext_path, 'wiki.test.tokens'))
@@ -46,18 +47,30 @@ def create_data(lines, bptt=70):
 # Train a language model
 @plac.annotations(
     wikitext2_path=("Path to wikitext-2 directory.", "option", "d", str),
-    save_dir=("Location to save pretrained model", "option", "o", str))
-def main(wikitext2_path, save_dir):
+    save_dir=("Location to save pretrained model", "option", "o", str),
+    mode=("Mode [`eval` or `train`]", "option", "m", str))
+def main(wikitext2_path, save_dir, mode='train'):
     lines = open(os.path.join(wikitext2_path, 'wiki.train.tokens'), 'r').readlines()
     bptt = 150
     text_batches = create_data(lines, bptt=bptt)
     # Modelling part
     embedding_size = 200
-    vocab = Vocab(embedding_size, wikitext2_path)
-    model = RNNModel(2, embedding_size, vocab.vocab)
-    model.representation_learning(text_batches, verbose=True, epochs=10)
-    model.save(save_dir)
-    pdb.set_trace()
+    vocab_path = os.path.join(save_dir, 'vocab.p')
+    if os.path.exists(save_dir):
+        model = RNNModel(2, embedding_size, vocab)
+        model.load(save_dir)
+        vocab = pickle.load(vocab_path)
+    else:
+        vocab = Vocab(wikitext2_path).vocab
+        model = RNNModel(2, embedding_size, vocab)
+
+    if mode == 'train':
+        model.representation_learning(text_batches, verbose=True, epochs=3)
+        os.makedirs(save_dir)
+        model.save(model_path)
+        pickle.dump(vocab.vocab, open(vocab_path, 'wb'))
+    else:
+        print("Evaluation is not implemented yet.")
 
 if __name__ == '__main__':
     plac.call(main)
