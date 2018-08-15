@@ -32,7 +32,7 @@ class Vocab:
         self.vocab = ['<pad>', '<eos>'] + self.vocab
 
     def process_tokens(self, path):
-        return Counter(self.tokenizer.tokenize(open(path, 'r').read()))
+        return Counter(self.tokenizer.tokenize(open(path, 'r').read().lower()))
 
 def create_data(lines, bptt=70):
     tokenizer = ToktokTokenizer()
