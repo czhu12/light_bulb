@@ -12,11 +12,6 @@ from utils import utils
 from keras.callbacks import EarlyStopping
 from keras.utils import multi_gpu_model
 
-from tensorflow.python.client import device_lib
-
-def get_available_gpus():
-    local_device_protos = device_lib.list_local_devices()
-    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 class RNNModel(BaseModel):
     def __init__(self, num_classes, embedding_size, index2word):
@@ -78,13 +73,13 @@ class RNNModel(BaseModel):
         bptt=100,
         batch_size=32,
         verbose=False,
-        multigpu=False,
+        num_gpus=False,
     ):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
         total_losses = []
-        if multigpu:
-            num_gpus = len(get_available_gpus())
-            batch_size = batch_size * len(get_available_gpus())
+        if num_gpus > 1:
+            if verbose: print("Computing number of GPUs...")
+            batch_size = batch_size * num_gpus
             model = multi_gpu_model(self.language_model, gpus=num_gpus)
         else:
             model = self.language_model

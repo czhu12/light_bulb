@@ -48,8 +48,9 @@ def create_data(lines, bptt=70):
 @plac.annotations(
     wikitext2_path=("Path to wikitext-2 directory.", "option", "d", str),
     save_dir=("Location to save pretrained model", "option", "o", str),
+    num_gpus=("Number of GPU's to use", "option", "n", int),
     mode=("Mode [`eval` or `train`]", "option", "m", str))
-def main(wikitext2_path, save_dir, mode='train'):
+def main(wikitext2_path, save_dir, num_gpus, mode='train'):
     lines = open(os.path.join(wikitext2_path, 'wiki.train.tokens'), 'r').readlines()
     bptt = 150
     text_batches = create_data(lines, bptt=bptt)
@@ -69,7 +70,7 @@ def main(wikitext2_path, save_dir, mode='train'):
             text_batches,
             verbose=True,
             epochs=30,
-            multigpu=True,
+            num_gpus=num_gpus,
         )
         os.makedirs(save_dir)
         model.save(save_dir)
