@@ -49,8 +49,9 @@ def create_data(lines, bptt=70):
     wikitext2_path=("Path to wikitext-2 directory.", "option", "d", str),
     save_dir=("Location to save pretrained model", "option", "o", str),
     num_gpus=("Number of GPU's to use", "option", "n", int),
+    epochs=("Number of epochs to train for", "option", "e", int),
     mode=("Mode [`eval` or `train`]", "option", "m", str))
-def main(wikitext2_path, save_dir, num_gpus, mode='train'):
+def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, mode='train'):
     lines = open(os.path.join(wikitext2_path, 'wiki.train.tokens'), 'r').readlines()
     bptt = 150
     text_batches = create_data(lines, bptt=bptt)
@@ -66,15 +67,20 @@ def main(wikitext2_path, save_dir, num_gpus, mode='train'):
         model = RNNModel(2, embedding_size, vocab)
 
     if mode == 'train':
-        model.representation_learning(
-            text_batches,
-            verbose=True,
-            epochs=30,
-            num_gpus=num_gpus,
-        )
-        os.makedirs(save_dir)
-        model.save(save_dir)
-        pickle.dump(vocab, open(vocab_path, 'wb'))
+        try:
+            model.representation_learning(
+                text_batches,
+                verbose=True,
+                epochs=epochs,
+                num_gpus=num_gpus,
+            )
+            os.makedirs(save_dir)
+            model.save(save_dir)
+            pickle.dump(vocab, open(vocab_path, 'wb'))
+        except KeyboardInterrupt:
+            print("Saving model...")
+            model.save(save_dir)
+            pickle.dump(vocab, open(vocab_path, 'wb'))
     else:
         model.representation_learning(text_batches, evaluate=True)
         print("Evaluation is not implemented yet.")
