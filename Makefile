@@ -32,6 +32,9 @@ dataset:
 vendor:
 	mkdir vendor
 
+run:
+	$(PYTHON) code/server.py --config $1
+
 setup_seo_labelling: dataset vendor
 	curl -o vendor/sequence_tagger-0.1.0-py3-none-any.whl http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/sequence_tagger-0.1.0-py3-none-any.whl
 	curl -o vendor/all_seo_logs.tar.gz http://sssp.d.musta.ch/ai-lab-knowledge-graph/data/all_seo_logs.tar.gz

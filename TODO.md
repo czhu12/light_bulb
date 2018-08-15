@@ -2,7 +2,6 @@ Add Skip
 Stop Training When Training outpaces test
 
 Features:
-  1. Be able to have more than one label
   2. Add eta times to the features
   3. Classify sequences
   4. Be able to upload a pretrained model. This one kind of works
