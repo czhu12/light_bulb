@@ -65,7 +65,12 @@ def main(wikitext2_path, save_dir, mode='train'):
         model = RNNModel(2, embedding_size, vocab)
 
     if mode == 'train':
-        model.representation_learning(text_batches, verbose=True, epochs=30)
+        model.representation_learning(
+            text_batches,
+            verbose=True,
+            epochs=30,
+            multigpu=True,
+        )
         os.makedirs(save_dir)
         model.save(save_dir)
         pickle.dump(vocab, open(vocab_path, 'wb'))

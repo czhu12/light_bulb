@@ -10,6 +10,13 @@ from keras import backend as K
 from utils.text_utils import WordVectorizer
 from utils import utils
 from keras.callbacks import EarlyStopping
+from keras.utils import multi_gpu_model
+
+from tensorflow.python.client import device_lib
+
+def get_available_gpus():
+    local_device_protos = device_lib.list_local_devices()
+    return [x.name for x in local_device_protos if x.device_type == 'GPU']
 
 class RNNModel(BaseModel):
     def __init__(self, num_classes, embedding_size, index2word):
@@ -64,9 +71,24 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def representation_learning(self, x_texts, epochs=1, bptt=100, batch_size=32, verbose=False):
+    def representation_learning(
+        self,
+        x_texts,
+        epochs=1,
+        bptt=100,
+        batch_size=32,
+        verbose=False,
+        multigpu=False,
+    ):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
         total_losses = []
+        if multigpu:
+            num_gpus = len(get_available_gpus())
+            batch_size = batch_size * len(get_available_gpus())
+            model = multi_gpu_model(self.language_model, gpus=num_gpus)
+        else:
+            model = self.language_model
+
         with self.graph.as_default():
             for epoch in range(epochs):
                 iterable = tqdm.tqdm(batches) if verbose else batches
@@ -79,7 +101,7 @@ class RNNModel(BaseModel):
                     y_train, y_lengths = self.lang.texts_to_sequence(y_text)
                     target = utils.one_hot_encode(y_train, self.vocab_size)
                     # Train language model.
-                    result = self.language_model.fit(x_train, target, batch_size=batch_size, verbose=0)
+                    result = model.fit(x_train, target, batch_size=batch_size, verbose=0)
                     total_loss += 1 / len(iterable) * result.history['loss'][-1]
 
                 if verbose: print("Epoch: {} | Loss: {}".format(epoch, total_loss))
