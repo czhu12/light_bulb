@@ -78,9 +78,10 @@ class RNNModel(BaseModel):
         batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
         total_losses = []
         if num_gpus > 1:
-            if verbose: print("Computing number of GPUs...")
             batch_size = batch_size * num_gpus
             model = multi_gpu_model(self.language_model, gpus=num_gpus)
+            model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+            print("Set batch size to {}".format(batch_size))
         else:
             model = self.language_model
 
