@@ -80,6 +80,7 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, max_vocab_size=100000, 
             pickle.dump(vocab, open(vocab_path, 'wb'))
         except KeyboardInterrupt:
             print("Saving model...")
+            os.makedirs(save_dir)
             model.save(save_dir)
             pickle.dump(vocab, open(vocab_path, 'wb'))
     else:
