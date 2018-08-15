@@ -50,8 +50,9 @@ def create_data(lines, bptt=70):
     save_dir=("Location to save pretrained model", "option", "o", str),
     num_gpus=("Number of GPU's to use", "option", "n", int),
     epochs=("Number of epochs to train for", "option", "e", int),
+    max_vocab_size=("Max vocab size allowed", "option", "v", int),
     mode=("Mode [`eval` or `train`]", "option", "m", str))
-def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, mode='train'):
+def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, max_vocab_size=100000, mode='train'):
     lines = open(os.path.join(wikitext2_path, 'wiki.train.tokens'), 'r').readlines()
     bptt = 150
     text_batches = create_data(lines, bptt=bptt)
@@ -63,7 +64,7 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, mode='train'):
         model.load(save_dir)
         vocab = pickle.load(vocab_path)
     else:
-        vocab = Vocab(wikitext2_path).vocab
+        vocab = Vocab(wikitext2_path, max_vocab_size=max_vocab_size).vocab
         model = RNNModel(2, embedding_size, vocab)
 
     if mode == 'train':
