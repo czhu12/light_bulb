@@ -89,9 +89,9 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, bptt=100, max_vocab_siz
                 batch_size=batch_size,
                 bptt=bptt,
             )
-            save_model_and_vocab(model, vocab, save_dir)
+            save_model_and_vocab(model, vocab, vocab_path, save_dir)
         except KeyboardInterrupt:
-            save_model_and_vocab(model, vocab, save_dir)
+            save_model_and_vocab(model, vocab, vocab_path, save_dir)
     else:
         model.representation_learning(text_batches, evaluate=True)
         print("Evaluation is not implemented yet.")
