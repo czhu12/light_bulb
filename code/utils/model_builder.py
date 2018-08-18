@@ -10,7 +10,6 @@ from models.rnn_model import RNNModel
 from models.sequence_model import SequenceModel
 from models.stub_model import StubModel
 from models.tf_pretrained_model import TFPretrainedModel
-from models.lightnet_model import LightnetModel
 from keras.models import load_model
 #from models.language_model import LM_TextClassifier, LanguageModel
 from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
@@ -126,6 +125,7 @@ class ModelBuilder:
             )
 
         if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
+            from models.lightnet_model import LightnetModel
             return LightnetModel()
 
         return StubModel()

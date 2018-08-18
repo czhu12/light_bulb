@@ -1,5 +1,3 @@
-git+https://gitlab.com/chriszhu12/brambox.git
-git+https://gitlab.com/chriszhu12/lightnet.git
 absl-py==0.2.0
 astor==0.6.2
 bleach==1.5.0
