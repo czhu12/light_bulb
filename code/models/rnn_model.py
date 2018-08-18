@@ -113,7 +113,7 @@ class RNNModel(BaseModel):
 
                 if verbose: print("Epoch: {} | Loss: {}".format(epoch, total_loss))
 
-                total_losses.append(total_loss / len(batch))
+                total_losses.append(total_loss / len(tokens_batch))
         return (total_losses, 0.)
 
     def vectorize_text(self, x_texts):
