@@ -83,6 +83,7 @@ class RNNModel(BaseModel):
         batch_size=32,
         verbose=False,
         num_gpus=1,
+        on_epoch_done=None,
     ):
         all_chunks = self._create_bptt_data(x_texts, bptt)
 
@@ -114,6 +115,8 @@ class RNNModel(BaseModel):
                 if verbose: print("Epoch: {} | Loss: {}".format(epoch, total_loss))
 
                 total_losses.append(total_loss / len(tokens_batch))
+                if on_epoch_done: on_epoch_done(self)
+
         return (total_losses, 0.)
 
     def vectorize_text(self, x_texts):

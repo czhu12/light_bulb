@@ -88,7 +88,9 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, bptt=100, max_vocab_siz
                 num_gpus=num_gpus,
                 batch_size=batch_size,
                 bptt=bptt,
+                on_epoch_done: lambda m: save_model_and_vocab(m, vocab, vocab_path, save_dir)
             )
+
             save_model_and_vocab(model, vocab, vocab_path, save_dir)
         except KeyboardInterrupt:
             save_model_and_vocab(model, vocab, vocab_path, save_dir)
