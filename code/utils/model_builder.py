@@ -13,7 +13,10 @@ from models.tf_pretrained_model import TFPretrainedModel
 from models.lightnet_model import LightnetModel
 from keras.models import load_model
 #from models.language_model import LM_TextClassifier, LanguageModel
-from utils.text_utils import Tokenizer
+from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
+
+from nltk.corpus import words
+
 
 def flatten(l):
     return [item for sublist in l for item in sublist]
@@ -106,11 +109,13 @@ class ModelBuilder:
         if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.CLASSIFICATION:
             return CNNModel(len(self.label.classes), input_shape=(128, 128))
 
+        word_list = [word.lower() for word in words.words()] + [UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN]
+
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
-            return RNNModel(2)
+            return RNNModel(2, word_list)
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
-            return RNNModel(len(self.label.classes))
+            return RNNModel(len(self.label.classes), word_list)
             #return LM_TextClassifier(lm, len(self.label.classes))
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.SEQUENCE:

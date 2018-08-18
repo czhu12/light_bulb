@@ -36,23 +36,26 @@ class WordVectorizer():
             return word2index[word]
         return word2index[UNKNOWN_TOKEN]
 
-    def _tokenize(self, texts, character=False):
+    def _tokenize(self, texts, character=False, include_stop_token=False):
         tokenized_texts = []
         for text in texts:
             if character:
-                words = list(text) + [EOS_TOKEN]
+                words = list(text)
             else:
-                words = self.tokenizer.tokenize(text.lower()) + [EOS_TOKEN]
+                words = self.tokenizer.tokenize(text.lower())
+
+            if include_stop_token:
+                words += [EOS_TOKEN]
             tokenized_texts.append(words)
 
         return tokenized_texts
 
-    def _sequence_ids(self, texts, character=False):
+    def _sequence_ids(self, texts, character=False, include_stop_token=False):
         sequences = []
-        for tokens in self._tokenize(texts, character):
-
+        for tokens in self._tokenize(texts, character, include_stop_token=include_stop_token):
             ids = [self._embedding(token, self.word2index) for token in tokens]
             sequences.append(ids)
+
         return sequences
 
     def decode_one_hot_sequence_predictions(self, y_scores, lengths, valid_tokens=None):
@@ -101,11 +104,11 @@ class WordVectorizer():
 
         return y_one_hot
 
-    def texts_to_sequence(self, texts, maxlen=None, character=False):
+    def texts_to_sequence(self, texts, maxlen=None, character=False, include_stop_token=False):
         """
         Sequences is padded of size (batch, maxlen).
         """
-        sequences = self._sequence_ids(texts, character)
+        sequences = self._sequence_ids(texts, character, include_stop_token=include_stop_token)
         lengths = [len(ids) for ids in sequences]
 
         if not maxlen:

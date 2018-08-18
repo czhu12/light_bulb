@@ -14,8 +14,9 @@ from keras.utils import multi_gpu_model
 
 
 class RNNModel(BaseModel):
-    def __init__(self, num_classes, embedding_size, index2word):
+    def __init__(self, num_classes, index2word, embedding_size=200, hidden_size=256):
         super(RNNModel, self).__init__()
+        self.hidden_size = 256
         self.num_classes = num_classes
         self.vocab_size = len(index2word)
         self.embedding_size = embedding_size
@@ -40,18 +41,17 @@ class RNNModel(BaseModel):
     def get_encoder(self):
         vec_input = Input(shape=(None,))
         x = Embedding(self.vocab_size, self.embedding_size)(vec_input)
-        x = LSTM(128, return_sequences=True)(x)
-        x = LSTM(128, return_sequences=True)(x)
-        x = LSTM(128, return_sequences=True)(x)
+        x = LSTM(self.hidden_size, return_sequences=True)(x)
+        x = LSTM(self.hidden_size, return_sequences=True)(x)
+        x = LSTM(self.hidden_size, return_sequences=True)(x)
         model = Model(vec_input, x)
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def get_classifier_decoder(self, encoder, num_classes):
-        # batch x seq_len x 128
         vec_input = Input(shape=(None,))
         x = encoder(vec_input)
-        x = Lambda(lambda x: x[:, -1, :], output_shape=(128,))(x)
+        x = Lambda(lambda x: x[:, -1, :], output_shape=(self.hidden_size,))(x)
         decode = Dense(num_classes, activation='softmax')(x)
         model = Model(vec_input, decode)
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])

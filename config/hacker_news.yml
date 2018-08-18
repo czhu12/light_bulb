@@ -1,7 +1,7 @@
 task:
   title: What type of post is this?
 dataset:
-  directory: outputs/hacker_news/
+  directory: dataset/hacker_news/
   data_type: text
   judgements_file: outputs/hacker_news/labels.csv
 label:
