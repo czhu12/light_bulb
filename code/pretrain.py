@@ -45,6 +45,16 @@ def create_data(lines, bptt):
 
     return chunks
 
+def save_model_and_vocab(model, vocab, vocab_path, save_dir):
+    print("Saving model and vocab...")
+    try:
+        os.makedirs(save_dir)
+    except: pass
+
+    model.save(save_dir)
+    pickle.dump(vocab, open(vocab_path, 'wb'))
+    print("Saved model and vocab.")
+
 # Train a language model
 @plac.annotations(
     wikitext2_path=("Path to wikitext-2 directory.", "option", "d", str),
@@ -79,14 +89,9 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, bptt=100, max_vocab_siz
                 batch_size=batch_size,
                 bptt=bptt,
             )
-            os.makedirs(save_dir)
-            model.save(save_dir)
-            pickle.dump(vocab, open(vocab_path, 'wb'))
+            save_model_and_vocab(model, vocab, save_dir)
         except KeyboardInterrupt:
-            print("Saving model...")
-            os.makedirs(save_dir)
-            model.save(save_dir)
-            pickle.dump(vocab, open(vocab_path, 'wb'))
+            save_model_and_vocab(model, vocab, save_dir)
     else:
         model.representation_learning(text_batches, evaluate=True)
         print("Evaluation is not implemented yet.")
