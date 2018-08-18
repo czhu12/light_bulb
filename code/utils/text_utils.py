@@ -50,9 +50,9 @@ class WordVectorizer():
 
         return tokenized_texts
 
-    def _sequence_ids(self, texts, character=False, include_stop_token=False):
+    def _sequence_ids(self, tokenized, character=False, include_stop_token=False):
         sequences = []
-        for tokens in self._tokenize(texts, character, include_stop_token=include_stop_token):
+        for tokens in tokenized:
             ids = [self._embedding(token, self.word2index) for token in tokens]
             sequences.append(ids)
 
@@ -108,7 +108,8 @@ class WordVectorizer():
         """
         Sequences is padded of size (batch, maxlen).
         """
-        sequences = self._sequence_ids(texts, character, include_stop_token=include_stop_token)
+        tokenized = self._tokenize(texts, character, include_stop_token=include_stop_token)
+        sequences = self._sequence_ids(tokenized, character, include_stop_token=include_stop_token)
         lengths = [len(ids) for ids in sequences]
 
         if not maxlen:

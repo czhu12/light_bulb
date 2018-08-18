@@ -11,6 +11,8 @@ from utils.text_utils import WordVectorizer
 from utils import utils
 from keras.callbacks import EarlyStopping
 from keras.utils import multi_gpu_model
+from keras.preprocessing.sequence import pad_sequences
+from nltk.tokenize.toktok import ToktokTokenizer
 
 
 class RNNModel(BaseModel):
@@ -66,6 +68,13 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
+    def _create_bptt_data(self, x_texts, bptt):
+        tokenizer = ToktokTokenizer()
+        all_text = ' \n '.join(x_texts)
+        tokenized = tokenizer.tokenize(all_text)
+        chunks = [tokenized[i:i + bptt + 1] for i in range(0, len(tokenized), bptt + 1)]
+        return chunks
+
     def representation_learning(
         self,
         x_texts,
@@ -73,9 +82,11 @@ class RNNModel(BaseModel):
         bptt=100,
         batch_size=32,
         verbose=False,
-        num_gpus=False,
+        num_gpus=1,
     ):
-        batches = [x_texts[i:i + batch_size] for i in range(0, len(x_texts), batch_size)]
+        all_chunks = self._create_bptt_data(x_texts, bptt)
+
+        batches = [all_chunks[i:i + batch_size] for i in range(0, len(all_chunks), batch_size)]
         total_losses = []
         if num_gpus > 1:
             batch_size = batch_size * num_gpus
@@ -89,13 +100,13 @@ class RNNModel(BaseModel):
             for epoch in range(epochs):
                 iterable = tqdm.tqdm(batches) if verbose else batches
                 total_loss = 0.
-                for batch in iterable:
+                for tokens_batch in iterable:
                     # Compute x_batch and y_batch
-                    x_text = [' '.join(text[:-1]) for text in self.lang._tokenize(batch)]
-                    y_text = [' '.join(text[1:]) for text in self.lang._tokenize(batch)]
-                    x_train, x_lengths = self.lang.texts_to_sequence(x_text)
-                    y_train, y_lengths = self.lang.texts_to_sequence(y_text)
+                    x_text = pad_sequences(self.lang._sequence_ids(tokens_batch))
+                    x_train = x_text[:, :-1]
+                    y_train = x_text[:, 1:]
                     target = utils.one_hot_encode(y_train, self.vocab_size)
+
                     # Train language model.
                     result = model.fit(x_train, target, batch_size=batch_size, verbose=0)
                     total_loss += 1 / len(iterable) * result.history['loss'][-1]
