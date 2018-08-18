@@ -62,9 +62,9 @@ def main(wikitext2_path, save_dir, num_gpus=1, epochs=5, bptt=100, max_vocab_siz
     # Modelling part
     vocab_path = os.path.join(save_dir, 'vocab.p')
     if os.path.exists(save_dir):
+        vocab = pickle.load(vocab_path)
         model = RNNModel(2, vocab)
         model.load(save_dir)
-        vocab = pickle.load(vocab_path)
     else:
         vocab = Vocab(wikitext2_path, max_vocab_size=max_vocab_size).vocab
         model = RNNModel(2, vocab)
