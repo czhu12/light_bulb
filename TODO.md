@@ -1,3 +1,5 @@
+Add a feature to be able to hash the relevant parts of the config file and save it somewhere.
+
 Add pretrained language model:
 1. Add pytorch as dep
 2. Use pytorch to do text classification

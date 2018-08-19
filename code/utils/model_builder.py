@@ -1,4 +1,5 @@
 import torch
+import pdb
 import pickle
 import numpy as np
 from torch.autograd import Variable
@@ -13,8 +14,6 @@ from models.tf_pretrained_model import TFPretrainedModel
 from keras.models import load_model
 #from models.language_model import LM_TextClassifier, LanguageModel
 from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
-
-from nltk.corpus import words
 
 
 def flatten(l):
@@ -108,13 +107,17 @@ class ModelBuilder:
         if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.CLASSIFICATION:
             return CNNModel(len(self.label.classes), input_shape=(128, 128))
 
-        word_list = [word.lower() for word in words.words()] + [UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN]
+        word_list = pickle.load(open("vendor/keras_language_model/vocab.p", "rb"))
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
-            return RNNModel(2, word_list)
+            rnn_model = RNNModel(2, word_list)
+            rnn_model.load_lm('vendor/keras_language_model')
+            return rnn_model
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
-            return RNNModel(len(self.label.classes), word_list)
+            rnn_model = RNNModel(len(self.label.classes), word_list)
+            rnn_model.load_lm('vendor/keras_language_model')
+            return rnn_model
             #return LM_TextClassifier(lm, len(self.label.classes))
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.SEQUENCE:

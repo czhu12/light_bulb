@@ -26,19 +26,35 @@ class RNNModel(BaseModel):
         self.encoder = self.get_encoder()
         self.encoder.summary()
 
-        self.language_model = self.get_lm_decoder(self.encoder, self.vocab_size)
+        self.lm_decoder = self.get_lm_decoder(self.vocab_size)
+        vec_input = Input(shape=(None,))
+        output = self.lm_decoder(self.encoder(vec_input))
+        self.language_model = Model(vec_input, output)
+        self.language_model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         self.language_model.summary()
 
-        self.classifier = self.get_classifier_decoder(self.encoder, num_classes)
+        self.classifier_decoder = self.get_classifier_decoder(num_classes)
+        vec_input = Input(shape=(None,))
+        output = self.classifier_decoder(self.encoder(vec_input))
+        self.classifier = Model(vec_input, output)
+        self.classifier.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         self.classifier.summary()
 
     def save(self, directory):
-        self.language_model.save_weights(os.path.join(directory, 'language_model.h5'))
-        self.classifier.save_weights(os.path.join(directory, 'classifier.h5'))
+        self.encoder.save_weights(os.path.join(directory, 'encoder.h5'))
+        self.lm_decoder.save_weights(os.path.join(directory, 'lm_decoder.h5'))
+        self.classifier_decoder.save_weights(os.path.join(directory, 'classifier_decoder.h5'))
+
+    def load_lm(self, directory):
+        self.encoder.load_weights(os.path.join(directory, 'encoder.h5'))
+        self.lm_decoder.load_weights(os.path.join(directory, 'lm_decoder.h5'))
 
     def load(self, directory):
-        self.language_model.load_weights(os.path.join(directory, 'language_model.h5'))
-        self.classifier.load_weights(os.path.join(directory, 'classifier.h5'))
+        self.encoder.load_weights(os.path.join(directory, 'encoder.h5'))
+        self.lm_decoder.load_weights(os.path.join(directory, 'lm_decoder.h5'))
+        classifier_decoder_path = os.path.join(directory, 'classifier_decoder.h5')
+        if os.path.exists(classifier_decoder_path):
+            self.classifier_decoder.load_weights(classifier_decoder_path)
 
     def get_encoder(self):
         vec_input = Input(shape=(None,))
@@ -50,22 +66,18 @@ class RNNModel(BaseModel):
         model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def get_classifier_decoder(self, encoder, num_classes):
-        vec_input = Input(shape=(None,))
-        x = encoder(vec_input)
-        x = Lambda(lambda x: x[:, -1, :], output_shape=(self.hidden_size,))(x)
+    def get_classifier_decoder(self, num_classes):
+        vec_input = Input(shape=(None, self.hidden_size,))
+        x = Lambda(lambda x: x[:, -1, :], output_shape=(self.hidden_size,))(vec_input)
         decode = Dense(num_classes, activation='softmax')(x)
         model = Model(vec_input, decode)
-        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
-    def get_lm_decoder(self, encoder, num_classes):
+    def get_lm_decoder(self, num_classes):
         # batch x seq_len x 128
-        vec_input = Input(shape=(None,))
-        x = encoder(vec_input)
-        decode = Dense(num_classes, activation='softmax')(x)
+        vec_input = Input(shape=(None, self.hidden_size,))
+        decode = Dense(num_classes, activation='softmax')(vec_input)
         model = Model(vec_input, decode)
-        model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
         return model
 
     def _create_bptt_data(self, x_texts, bptt):
@@ -85,6 +97,8 @@ class RNNModel(BaseModel):
         num_gpus=1,
         on_epoch_done=None,
     ):
+        # Unfreeze language model.
+        utils.unfreeze_layers(self.language_model)
         all_chunks = self._create_bptt_data(x_texts, bptt)
 
         batches = [all_chunks[i:i + batch_size] for i in range(0, len(all_chunks), batch_size)]
@@ -119,11 +133,9 @@ class RNNModel(BaseModel):
 
         return (total_losses, 0.)
 
-    def vectorize_text(self, x_texts):
-        x_train, lengths = self.lang.texts_to_sequence(x_texts)
-        return x_train
-
     def fit(self, x_texts, y_train, validation_split=0, epochs=1):
+        utils.freeze_layers(self.language_model)
+        # Freeze language model
         y_train = utils.one_hot_encode(y_train, self.num_classes)
         x_train = self.vectorize_text(x_texts)
         if validation_split > 0.:
@@ -140,7 +152,11 @@ class RNNModel(BaseModel):
                 epochs=epochs,
                 verbose=0,
             )
-            return history.history
+            return history.history['loss'][0], history.history['acc'][0]
+
+    def vectorize_text(self, x_texts):
+        x_train, lengths = self.lang.texts_to_sequence(x_texts)
+        return x_train
 
     def evaluate(self, x_texts, y_test):
         y_test = utils.one_hot_encode(y_test, self.num_classes)
