@@ -58,6 +58,10 @@ class LabelApp extends React.Component {
       footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
     }
 
+    let fetchingView = this.props.fetching ?
+      (<div className="center"><i id="items-loading" className="fa fa-spinner fa-spin" aria-hidden="true"></i></div>) :
+        null;
+
     return (
       <div>
         <DonePage done={this.props.done}/>
@@ -70,6 +74,7 @@ class LabelApp extends React.Component {
           <div className="center" id="task-view">
             {taskView}
           </div>
+          {fetchingView}
         </div>
         { footer }
       </div>

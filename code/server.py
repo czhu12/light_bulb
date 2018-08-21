@@ -181,7 +181,7 @@ def score():
     elif _type == "text" or _type == "sequence":
         texts = json["texts"]
         scores = label_app.score(texts)
-    return jsonify({'scores': scores.tolist()})
+    return jsonify({'scores': scores.tolist(), 'labels': label_app.label_helper.classes})
 
 @app.route("/predict", methods=['POST', 'PUT', 'GET'])
 def predict():
@@ -212,7 +212,7 @@ def predict():
     elif _type == "text" or _type == "sequence":
         texts = json["texts"]
         predictions = label_app.predict(texts)
-    return jsonify({'predictions': predictions.tolist()})
+    return jsonify({'predictions': predictions.tolist(), **json})
 
 @app.route('/css/index.css')
 def root():

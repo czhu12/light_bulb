@@ -1,3 +1,4 @@
+import { zip } from 'lodash';
 import { connect } from 'react-redux';
 import React from 'react';
 import NavigationBar from './NavigationBar';
@@ -8,8 +9,22 @@ class DemoApp extends React.Component {
   render() {
     let demoView = null;
     let firstPrediction = null;
+    let predictionClasses = null;
     if (this.props.demo.predictions.length > 0) {
       firstPrediction = this.props.demo.predictions[0];
+      let argMaxIndex = firstPrediction.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
+      // Argmax from https://gist.github.com/engelen/fbce4476c9e68c52ff7e5c2da5c24a28
+      let classesAndScores = zip(this.props.task.classes, firstPrediction)
+      predictionClasses = classesAndScores.map((classAndScore, index) => {
+        let cls = classAndScore[0];
+        let score = classAndScore[1];
+        score = Math.round(score * 100)
+        if (index === argMaxIndex) {
+          return (<b><span style={{paddingRight: "5px"}}>{cls} ({score}%)</span></b>);
+        } else {
+          return (<span style={{paddingRight: "5px"}}>{cls} ({score}%)</span>);
+        }
+      });
     }
 
     if (this.props.task.dataType === 'images') {
@@ -19,9 +34,6 @@ class DemoApp extends React.Component {
             <div className="form-group">
               <label>
                 {this.props.task.title}
-                <b>
-                  {firstPrediction !== null ? firstPrediction.toString() : ""}
-                </b>
               </label>
 
               <input
@@ -51,7 +63,9 @@ class DemoApp extends React.Component {
         <div>
           <form>
             <div className="form-group">
-              <label>{this.props.task.title}</label>
+              <label>
+                {this.props.task.title}
+              </label>
               <textarea
                 value={this.props.demo.text}
                 className="form-control"
@@ -78,6 +92,7 @@ class DemoApp extends React.Component {
         <NavigationBar />
         <div className="container">
           { demoView }
+          {predictionClasses}
         </div>
       </div>
     );

@@ -102,3 +102,9 @@ body {
 .img-sm {
   height: 250px;
 }
+
+#items-loading {
+  font-size: 3em;
+  margin: 50px;
+  color: #aaa;
+}

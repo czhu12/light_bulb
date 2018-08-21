@@ -11,6 +11,8 @@ from dataset import MIN_UNSUPERVISED_EXAMPLES
 from dataset import MIN_TEST_EXAMPLES
 from dataset import MIN_TRAIN_EXAMPLES
 
+UNSUP_LEARNING_RATIO = 0.2
+
 THRESHOLD = 0.95
 TRAINING_STOPPED = "TRAINING_STOPPED"
 TRAINING_STEP_FINISHED = "TRAINING_STEP_FINISHED"
@@ -141,7 +143,7 @@ class Trainer():
         self.logger.debug(stats)
 
     def train(self):
-        sleep_time = 20.
+        sleep_time = 5.
         while True:
             self.print_stats()
 
@@ -156,7 +158,6 @@ class Trainer():
 
                     self.logger.debug("Training: Loss: {} Acc: {}.".format(loss, acc))
                     trained = True
-                    sleep_time = 1.
                 except ValueError as e:
                     sleep_time *= BACKOFF_FACTOR
                     sleep_time = min(sleep_time, MAX_SLEEP_TIME)

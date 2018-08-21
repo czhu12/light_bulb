@@ -12,7 +12,7 @@ import json
 from PIL import Image
 from typing import List
 
-MIN_TRAIN_EXAMPLES = 10
+MIN_TRAIN_EXAMPLES = 40
 MIN_TEST_EXAMPLES = 20
 MIN_UNSUPERVISED_EXAMPLES = 100
 

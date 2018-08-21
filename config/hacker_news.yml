@@ -7,7 +7,6 @@ dataset:
 label:
   type: classification
   classes:
-    - News
     - Technology
     - Other
 model:

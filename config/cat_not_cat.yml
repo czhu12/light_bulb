@@ -1,0 +1,14 @@
+task:
+  title: Is this a cat?
+dataset:
+  directory: dataset/cat_not_cat/
+  data_type: images
+  judgements_file: outputs/cat_not_cat/labels.csv
+label:
+  type: classification
+  classes:
+    - Cat
+    - Not Cat
+model:
+  directory: outputs/cat_not_cat/models/
+user: chris

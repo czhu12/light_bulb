@@ -5,13 +5,14 @@ import tqdm
 from models.base_model import BaseModel
 from utils import utils
 from keras.models import Sequential, Model, load_model
-from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional, Input, Lambda
+from keras.layers import Dense, Dropout, Embedding, LSTM, Bidirectional, Input, Lambda, BatchNormalization
 from keras import backend as K
 from utils.text_utils import WordVectorizer
 from utils import utils
 from keras.callbacks import EarlyStopping
 from keras.utils import multi_gpu_model
 from keras.preprocessing.sequence import pad_sequences
+from keras import optimizers
 from nltk.tokenize.toktok import ToktokTokenizer
 
 
@@ -30,14 +31,22 @@ class RNNModel(BaseModel):
         vec_input = Input(shape=(None,))
         output = self.lm_decoder(self.encoder(vec_input))
         self.language_model = Model(vec_input, output)
-        self.language_model.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+        self.language_model.compile(
+            optimizers.Adam(lr=0.0001),
+            'categorical_crossentropy',
+            metrics=['accuracy']
+        )
         self.language_model.summary()
 
         self.classifier_decoder = self.get_classifier_decoder(num_classes)
         vec_input = Input(shape=(None,))
         output = self.classifier_decoder(self.encoder(vec_input))
         self.classifier = Model(vec_input, output)
-        self.classifier.compile('adam', 'categorical_crossentropy', metrics=['accuracy'])
+        self.classifier.compile(
+            optimizers.Adam(lr=0.0001),
+            'categorical_crossentropy',
+            metrics=['accuracy'],
+        )
         self.classifier.summary()
 
     def save(self, directory):
@@ -69,6 +78,8 @@ class RNNModel(BaseModel):
     def get_classifier_decoder(self, num_classes):
         vec_input = Input(shape=(None, self.hidden_size,))
         x = Lambda(lambda x: x[:, -1, :], output_shape=(self.hidden_size,))(vec_input)
+        x = BatchNormalization()(x)
+        x = Dropout(0.9)(x)
         decode = Dense(num_classes, activation='softmax')(x)
         model = Model(vec_input, decode)
         return model
@@ -169,7 +180,7 @@ class RNNModel(BaseModel):
         with self.graph.as_default():
             return self.classifier.predict(x_scores)
 
-    def predict(self, x):
+    def predict(self, x_texts):
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
             return self.classifier.predict(x_scores)
