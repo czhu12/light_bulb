@@ -3,8 +3,8 @@ import React from 'react';
 class BoundingBoxDemoView extends React.Component {
   updateCanvas() {
     const canvas = this.refs.canvas;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
     const ctx = canvas.getContext("2d");
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     let img = new Image();
     img.src = `/images?image_path=${this.props.url}`;
     img.onload = () => {

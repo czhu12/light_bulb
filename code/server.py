@@ -75,7 +75,6 @@ def create_judgements():
     try:
         json = request.get_json()
         labels = json.get('labels')
-        print(labels)
         label_app.add_labels(labels)
         return jsonify(json)
     except LabelError as e:
@@ -123,15 +122,21 @@ def batch():
 @app.route('/batch_items_batch', methods=['GET'])
 def batch_items_batch():
     batch, target_class = label_app.next_model_labelled_batch()
+    if target_class == -1:
+        return jsonify({
+            "batch": list(),
+            "target_class": 0,
+            "done": True,
+        })
+    else:
+        batch = batch.fillna('NaN')
+        json_batch = jsonify({
+            "batch": list(batch.T.to_dict().values()),
+            "target_class": target_class,
+            "done": False,
+        })
 
-    batch = batch.fillna('NaN')
-    json_batch = jsonify({
-        "batch": list(batch.T.to_dict().values()),
-        "target_class": target_class,
-        "done": False,
-    })
-
-    return json_batch
+        return json_batch
 
 @app.route('/history', methods=['GET'])
 def history():

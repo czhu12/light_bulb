@@ -1,24 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import { setBoundingBoxClass } from '../actions';
-const CLASSIFICATION_COLORS = [
-"#2ecc71",
-"#9b59b6",
-"#f1c40f",
-"#e74c3c",
-"#16a085",
-"#27ae60",
-"#2980b9",
-"#8e44ad",
-"#2c3e50",
-"#f39c12",
-"#d35400",
-"#c0392b",
-"#1abc9c",
-"#3498db",
-"#34495e",
-"#e67e22",
-]
+import { CLASSIFICATION_COLORS } from '../constants';
 
 class LabelBoundingBoxClassView extends React.Component {
   render() {

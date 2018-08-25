@@ -1,5 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
+
+import { CLASSIFICATION_COLORS } from '../constants';
 import DonePage from './DonePage';
 import NavigationBar from './NavigationBar';
 import TextTaskView from './TextTaskView';
@@ -12,8 +14,9 @@ import Footer from './Footer';
 class LabelApp extends React.Component {
   _computeTitle() {
     if (this.props.task.isBatchView) {
+      let dataType = this.props.task.dataType;
       let className = this.props.task.classes[this.props.batchItems.targetClass];
-      return `Select all <span class="green">${className}</span>`;
+      return `Unselect all ${dataType} that is not a <span style="color:${CLASSIFICATION_COLORS[this.props.batchItems.targetClass]}">${className}</span>`;
     } else {
       return this.props.task.title;
     }
@@ -77,7 +80,7 @@ class LabelApp extends React.Component {
 
     let taskViewStyle = {
       overflowY: this.props.task.isBatchView ? 'visible' : 'auto',
-      maxHeight: '400px',
+      maxHeight: this.props.task.isBatchView ? 'none': '400px',
       marginLeft: '20px',
       marginRight: '20px',
     }

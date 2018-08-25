@@ -9,10 +9,10 @@ body {
   min-height: 100%;
   height: auto;
   /* Negative indent footer by its height */
-  margin: 0 auto -130px;
+  margin: 0 auto -100px;
   overflow-y: auto;
   /* Pad bottom by footer height */
-  padding: 0 0 130px;
+  padding: 0 0 100px;
 }
 
 /* Set the fixed height of the footer here */
@@ -32,8 +32,8 @@ body {
 }
 
 .judgement-button {
-  padding-top: 40px;
-  height: 130px;
+  padding-top: 45px;
+  height: 100px;
   color: #ecf0f1;
   margin: 0;
   cursor: pointer;
@@ -118,7 +118,6 @@ body {
   margin: 10px;
   cursor: pointer;
 
-  border: 5px solid #2ecc71;
   padding: 0px;
   opacity: 1.0;
 }

@@ -6,9 +6,9 @@ import { setIsBatchView, fetchNextBatchItemsBatch } from '../actions';
 class NavigationBar extends React.Component {
   render() {
     let totalItems = this.props.unlabelled + this.props.labelled.total;
-    let labelled = this.props.labelled.total;
+    let labelled = this.props.labelled.test + this.props.labelled.train;
     let maxAccuracy = 0;
-    if (this.props.history.length > 1) {
+    if (this.props.history.length > 0) {
       maxAccuracy = Math.round(
         Math.max(...this.props.history.map((step) => step['test']['acc'])) * 100
       )
@@ -16,14 +16,16 @@ class NavigationBar extends React.Component {
 
     let toggleBatchView = null;
     // TODO: Turn this on again when batch view is ready.
-    if (this.props.task.dataType === 'images' && (this.props.task.labelType === 'binary' || this.props.task.labelType === 'classification')) {
+    if (this.props.task.dataType === 'images' &&
+      (this.props.task.labelType === 'binary' || this.props.task.labelType === 'classification') &&
+      (this.props.labelled.model_labelled > 0)) {
       if (this.props.task.isBatchView) {
         toggleBatchView = (
           <span className="cursor" onClick={this.props.onClickSingle}><b>To Label View</b></span>
         );
       } else {
         toggleBatchView = (
-          <span className="cursor" onClick={this.props.onClickBatch}><b>To Batch View</b></span>
+          <span className="cursor" onClick={this.props.onClickBatch}><b>To Batch View ({this.props.labelled.model_labelled})</b></span>
         );
       }
     }

@@ -1,7 +1,8 @@
 import { connect } from 'react-redux';
 import React from 'react';
+
+import { CLASSIFICATION_COLORS } from '../constants';
 import { submitJudgement } from '../actions';
-import { CLASSIFICATION_COLORS } from './LabelClassificationView';
 
 class BoundingBoxImageTaskView extends React.Component {
   constructor(props) {

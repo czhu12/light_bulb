@@ -1,12 +1,21 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import { zip } from 'lodash';
+import ReactDOM from 'react-dom';
+
+import { CLASSIFICATION_COLORS } from '../constants';
 import { submitBatchJudgements } from '../actions';
 
 class ImageTaskBatchView extends React.Component {
   constructor(props) {
     super(props);
     this.state = {selected: props.batchItems.items.map(() => true)};
+  }
+
+  componentDidUpdate(prevProps, prevState, snapshot) {
+    if (prevProps.batchItems.items !== this.props.batchItems.items) {
+      // Scroll to top.
+    }
   }
 
   componentWillReceiveProps(nextProps) {
@@ -23,16 +32,22 @@ class ImageTaskBatchView extends React.Component {
   render() {
     let items = this.props.batchItems.items;
     let selected = this.state.selected;
+    let color = CLASSIFICATION_COLORS[this.props.batchItems.targetClass];
     let images = zip(items, selected).map((itemAndSelected, idx) => {
       let item = itemAndSelected[0];
       let src = `/images?image_path=${item['path']}`;
       let selected = itemAndSelected[1];
       if (selected) {
-        return (<img onClick={this.onClickImage.bind(this, idx)} className="img-batch-view-selected" src={src} />);
+        let style = { borderWidth: '5px', borderStyle: 'solid', borderColor: color }
+        return (<img onClick={this.onClickImage.bind(this, idx)} style={style} className="img-batch-view-selected" src={src} />);
       } else {
         return (<img onClick={this.onClickImage.bind(this, idx)} className="img-batch-view" src={src} />);
       }
     });
+
+    let fetchingView = this.props.batchItems.fetching ?
+      (<i className="fa fa-spinner fa-spin" aria-hidden="true"></i>) :
+        (<i className="fa fa-arrow-right" aria-hidden="true"></i>);
 
     return (
       <div>
@@ -45,8 +60,9 @@ class ImageTaskBatchView extends React.Component {
               this.state.selected,
               this.props.batchItems.targetClass,
             )}
-            className="btn btn-primary">
-            Done
+            style={{color: '#eee', backgroundColor: color}}
+            className="btn btn-lg">
+            Submit {fetchingView}
           </a>
         </div>
       </div>

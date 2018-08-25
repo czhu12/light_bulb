@@ -81,11 +81,10 @@ class CNNModel(BaseModel):
     def _classifier_model(self, hyperparameters):
         input = Input(shape=(np.prod(hyperparameters['embedding_dim']),))
         x = BatchNormalization()(input)
-        x = Dropout(0.5)(x)
         x = Dense(128)(x)
         x = Activation('relu')(x)
+        x = Dropout(0.6)(x)
 
-        x = Dropout(0.5)(x)
         x = BatchNormalization()(x)
         x = Dense(self.num_classes)(x)
         x = Activation('softmax')(x)

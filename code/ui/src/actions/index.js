@@ -328,6 +328,7 @@ export function submitBatchJudgementsToBackend(judgements) {
         } else {
           dispatch(recordJudgementsSuccess(judgements));
           dispatch(fetchNextBatchItemsBatch());
+          dispatch(getStats());
         }
       })
       .catch(error => dispatch(recordJudgementsFailure(judgements, error.message)));
@@ -346,7 +347,11 @@ export const fetchNextBatchItemsBatch = () => {
       }
       return response.json();
     }).then((json) => {
-      dispatch(fetchBatchItemsSuccess(json))
+      if (json['done']) {
+        dispatch(batchLabellingComplete(json));
+      } else {
+        dispatch(fetchBatchItemsSuccess(json));
+      }
     }).catch(error => dispatch(fetchBatchItemsFailure(`Error fetching batch items: ${error.message}`)));
   }
 };

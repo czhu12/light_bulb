@@ -40,6 +40,7 @@ def download_urls(urls, target_size=(128, 128)):
     for url in urls:
         response = requests.get(url)
         img = Image.open(BytesIO(response.content))
+        img = img.convert('RGB')
         img = img.resize(target_size)
         images.append(img)
 

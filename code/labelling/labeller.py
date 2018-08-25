@@ -11,7 +11,6 @@ from dataset import MIN_UNSUPERVISED_EXAMPLES
 ACCURACY_RATIO = 1.35 # Only start labeling if we have a 35% accuracy improvement over random classifications
 THRESHOLD = 0.98
 MAX_INTERVAL_TIME = 60
-MODEL_LABELLER = 'MODEL_LABELLER'
 
 class ModelLabeller():
     def __init__(
@@ -56,7 +55,10 @@ class ModelLabeller():
             evaluator = Evaluator(self.model, x_test, y_test)
             threshold = evaluator.threshold_for_precision(THRESHOLD)
 
-            unlabelled, ids = self.dataset.unlabelled_set()
+            unlabelled, ids = self.dataset.model_labelling_set()
+            if len(unlabelled) == 0:
+                self.logger.info("Model labelling done!")
+
             scores = self.model.score(unlabelled)
 
             # This assumes only classification :(
@@ -69,7 +71,14 @@ class ModelLabeller():
             for _id, (idx, score) in list(zip(ids, zip(idxs, dist[np.arange(len(idxs)), idxs]))):
                 if score > threshold:
                     past_threshold += 1
-                    self.dataset.add_label(_id, idx, Dataset.MODEL_LABELLED, MODEL_LABELLER)
+                    self.dataset.add_label(
+                        _id,
+                        idx,
+                        stage=Dataset.MODEL_LABELLED,
+                        user=Dataset.USER_MODEL_LABELLER,
+                        is_labelled=False,
+                        save=True,
+                    )
 
             if past_threshold > 0:
                 self.exponential_backoff_factor = 0

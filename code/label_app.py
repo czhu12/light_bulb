@@ -130,35 +130,40 @@ class LabelApp:
         is_binary_classification = len(self.label_helper.classes) == 2
 
         for idx, label in enumerate(labels):
-            _id = label['id']
+            _id = label['path']
             is_target_class = label['is_target_class']
             save = idx == len(labels) - 1
 
             if is_target_class:
-                label = label['target_class']
-                self.add_label(label['id'], label, save)
+                self.dataset.add_label(label['path'], label['target_class'], Dataset.TRAIN, user=self.user, save=save)
             else:
-                if is_binary_classification and label['target_class'] == 1:
-                    self.add_label(label['id'], 0, save)
-                elif is_binary_classification and label['target_class'] == 0:
-                    self.add_label(label['id'], 1, save)
+                if is_binary_classification:
+                    self.dataset.add_label(
+                        label['path'],
+                        0 if label['target_class'] == 1 else 1,
+                        Dataset.TRAIN,
+                        user=self.user,
+                        save=save,
+                    )
                 else:
-                    # Not binary classification
+                    # If the task is not binary classification, then its impossible to know what the "other" label is.
                     # Flag this as USER_MODEL_DISAGREEMENT
-                    self.add_label(label['id'], 1, save)
-                    data_to_write.append(label['id'], 0, save, USER_MODEL_DISAGREEMENT, False)
+                    self.dataset.add_label(
+                        label['path'],
+                        label['target_class'],
+                        Dataset.USER_MODEL_DISAGREEMENT,
+                        user=self.user,
+                        save=save,
+                    )
 
-    def add_label(self, _id, label, save=True, user=None):
-        if user == None:
-            user=self.user
-
+    def add_label(self, _id, label):
         # Validate label
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
         self.label_helper.validate(data, label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
-        self.dataset.add_label(_id, label, self.dataset.current_stage, user=user, save=save)
+        self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user, save=True)
 
     @property
     def title(self):

@@ -13,7 +13,7 @@ from PIL import Image
 from typing import List
 
 MIN_TRAIN_EXAMPLES = 40
-MIN_TEST_EXAMPLES = 20
+MIN_TEST_EXAMPLES = 40
 MIN_UNSUPERVISED_EXAMPLES = 100
 
 
@@ -22,6 +22,7 @@ class Dataset:
     TEST = 'TEST'
     MODEL_LABELLED = 'MODEL_LABELLED'
     USER_MODEL_DISAGREEMENT = 'USER_MODEL_DISAGREEMENT'
+    USER_MODEL_LABELLER = 'USER_MODEL_LABELLER'
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
     OBJECT_DETECTION_TYPE = 'object_detection'
@@ -107,12 +108,16 @@ class Dataset:
         return self.dataset[self.dataset['labelled'] == False]
 
     @property
+    def model_label(self):
+        return self.dataset[(self.dataset['labelled'] == False) & (self.dataset['stage'] != Dataset.MODEL_LABELLED)]
+
+    @property
     def labelled(self):
         return self.dataset[self.dataset['labelled'] == True]
 
     @property
     def model_labelled_data(self):
-        return self.labelled[self.labelled['stage'] == Dataset.MODEL_LABELLED]
+        return self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
 
     @property
     def train_data(self):
@@ -134,6 +139,9 @@ class Dataset:
     def unlabelled_set(self):
         raise NotImplementedError
 
+    def model_labelling_set(self):
+        raise NotImplementedError
+
     def set_current_stage(self):
         if len(self.test_data) <= MIN_TEST_EXAMPLES:
             self.current_stage = Dataset.TEST
@@ -150,8 +158,8 @@ class Dataset:
     def test_set(self):
         raise NotImplementedError
 
-    def add_label(self, id, label, stage, user='default', save=True):
-        self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage', 'labelled_by']] = [label, True, stage, user]
+    def add_label(self, id, label, stage, user='default', save=True, is_labelled=True):
+        self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage', 'labelled_by']] = [label, is_labelled, stage, user]
         if save:
             self.save()
 
@@ -208,7 +216,23 @@ class TextDataset(Dataset):
 
     def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
         data = self.sample(size)
-        return data['text'].values, data['path'].values
+        if len(data) > 0:
+            x_train = data['text'].values
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
+
+    def model_labelling_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
+        data = self.model_label if len(self.model_label) < size else self.model_label.sample(size)
+        if len(data) > 0:
+            x_train = data['text'].values
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
 
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
@@ -254,6 +278,16 @@ class ImageDataset(Dataset):
 
     def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
         data = self.sample(size)
+        if len(data) > 0:
+            x_train = utils.load_images(data['path'].values, self.input_shape)
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
+
+    def model_labelling_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
+        data = self.model_label if len(self.model_label) < size else self.model_label.sample(size)
         if len(data) > 0:
             x_train = utils.load_images(data['path'].values, self.input_shape)
             ids = data['path'].values

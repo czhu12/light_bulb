@@ -78,6 +78,12 @@ const task = (state = {
         ...state,
         isBatchView: action.isBatchView,
       }
+    case BATCH_LABELLING_COMPLETE:
+      // If batch labelling is complete, lets switch back to single item labelling.
+      return {
+        ...state,
+        isBatchView: false,
+      };
     default:
       return state
   }
