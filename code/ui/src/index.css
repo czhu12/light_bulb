@@ -24,13 +24,6 @@ body {
   height: 60%;
 }
 
-#task-view {
-  max-height: 400px;
-  overflow-y: auto;
-  margin-left: 20px;
-  margin-right: 20px;
-}
-
 .sequence-input {
 	flex-grow: 1;
 }
@@ -107,4 +100,33 @@ body {
   font-size: 3em;
   margin: 50px;
   color: #aaa;
+}
+
+.img-batch-view {
+  max-height: 200px;
+  width: auto;
+  margin: 10px;
+  cursor: pointer;
+
+  padding: 5px;
+  opacity: 0.60;
+}
+
+.img-batch-view-selected {
+  max-height: 200px;
+  width: auto;
+  margin: 10px;
+  cursor: pointer;
+
+  border: 5px solid #2ecc71;
+  padding: 0px;
+  opacity: 1.0;
+}
+
+.cursor {
+  cursor: pointer;
+}
+
+.green {
+  color: #2ecc71;
 }

@@ -21,6 +21,7 @@ class Dataset:
     TRAIN = 'TRAIN'
     TEST = 'TEST'
     MODEL_LABELLED = 'MODEL_LABELLED'
+    USER_MODEL_DISAGREEMENT = 'USER_MODEL_DISAGREEMENT'
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
     OBJECT_DETECTION_TYPE = 'object_detection'
@@ -61,6 +62,17 @@ class Dataset:
     @property
     def all(self):
         return self.dataset
+
+    @property
+    def model_labelled(self, num=100):
+        model_labelled = self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
+        if len(model_labelled) == 0:
+            return -1, self.empty_dataframe()
+        target_class = model_labelled['label'].mode()[0]
+        model_labelled = model_labelled[model_labelled['label'] == target_class]
+        if len(model_labelled) < num:
+            return target_class, model_labelled
+        return target_class, model_labelled.sample(num)
 
     @property
     def stats(self):
@@ -138,9 +150,10 @@ class Dataset:
     def test_set(self):
         raise NotImplementedError
 
-    def add_label(self, id, label, stage, user='default'):
+    def add_label(self, id, label, stage, user='default', save=True):
         self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage', 'labelled_by']] = [label, True, stage, user]
-        self.save()
+        if save:
+            self.save()
 
     def get_data(self, _id):
         return None

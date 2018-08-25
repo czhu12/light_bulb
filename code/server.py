@@ -70,6 +70,17 @@ def create_judgement():
     except LabelError as e:
         return jsonify({'error': e.message})
 
+@app.route('/judgements/batch', methods=['POST'])
+def create_judgements():
+    try:
+        json = request.get_json()
+        labels = json.get('labels')
+        print(labels)
+        label_app.add_labels(labels)
+        return jsonify(json)
+    except LabelError as e:
+        return jsonify({'error': e.message})
+
 @app.route('/batch', methods=['GET'])
 def batch():
     """
@@ -88,7 +99,7 @@ def batch():
     prediction = request.args.get('prediction') and request.args.get('prediction') == 'true'
     reverse_entropy = request.args.get('reverse_entropy') and request.args.get('reverse_entropy') == 'true'
 
-    kwargs = {}
+    kwargs = {'prediction': prediction}
     if request.args.get('force_stage'):
         kwargs['force_stage'] = request.args.get('force_stage')
 
@@ -96,11 +107,7 @@ def batch():
         kwargs['size'] = int(request.args.get('sample_size'))
     kwargs['reverse_entropy'] = reverse_entropy
 
-    batch, stage, x_data, entropies = label_app.next_batch(**kwargs)
-
-    y_prediction = None
-    if prediction and len(x_data) > 0:
-        y_prediction = label_app.predict(x_data)
+    batch, stage, y_prediction, entropies = label_app.next_batch(**kwargs)
 
     batch = batch.fillna('NaN')
     json_batch = jsonify({
@@ -108,6 +115,19 @@ def batch():
         "entropy": entropies,
         "stage": stage,
         "y_prediction": y_prediction,
+        "done": False,
+    })
+
+    return json_batch
+
+@app.route('/batch_items_batch', methods=['GET'])
+def batch_items_batch():
+    batch, target_class = label_app.next_model_labelled_batch()
+
+    batch = batch.fillna('NaN')
+    json_batch = jsonify({
+        "batch": list(batch.T.to_dict().values()),
+        "target_class": target_class,
         "done": False,
     })
 
@@ -221,22 +241,25 @@ def root():
 @plac.annotations(
     config=("Path to config file", "option", "c", str),
     port=("Port to start server", "option", "p", int),
-    mode=("Production or training mode", "option", "m", str, ["production", "training"])
+    mode=("Production or training mode", "option", "m", str, ["production", "training"]),
+    no_train=("Don't train model", "flag", "d", bool),
 )
-def main(config, port=5000, mode="training"):
+def main(config, port=5000, mode="training", no_train=False):
     global label_app
     global config_obj
     config_obj = yaml.load(open(config, 'r'))
 
     label_app = LabelApp.load_from(config)
 
-    train_thread = Thread(target=label_app.threaded_train)
-    train_thread.daemon = True
-    train_thread.start()
+    if not no_train:
+        train_thread = Thread(target=label_app.threaded_train)
+        train_thread.daemon = True
+        train_thread.start()
 
-    #labelling_thread = Thread(target=label_app.threaded_label)
-    #labelling_thread.daemon = True
-    #labelling_thread.start()
+    if not no_train:
+        labelling_thread = Thread(target=label_app.threaded_label)
+        labelling_thread.daemon = True
+        labelling_thread.start()
 
     print("Started local server at http://localhost:5000")
     app.run(debug=True, use_reloader=False, port=port)

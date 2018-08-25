@@ -1,20 +1,31 @@
+import numpy as np
 import time
 import logging
 from utils.model_evaluation import Evaluator
+from utils import utils
 from dataset import Dataset
 from dataset import MIN_TEST_EXAMPLES
 from dataset import MIN_TRAIN_EXAMPLES
 from dataset import MIN_UNSUPERVISED_EXAMPLES
 
-THRESHOLD = 0.95
+ACCURACY_RATIO = 1.35 # Only start labeling if we have a 35% accuracy improvement over random classifications
+THRESHOLD = 0.98
 MAX_INTERVAL_TIME = 60
 MODEL_LABELLER = 'MODEL_LABELLER'
 
 class ModelLabeller():
-    def __init__(self, model, dataset, interval=10, logger=logging.getLogger()):
+    def __init__(
+        self,
+        model,
+        dataset,
+        label_helper,
+        interval=10,
+        logger=logging.getLogger(),
+    ):
         self.model = model
         self.dataset = dataset
         self.interval = interval
+        self.label_helper = label_helper
         self.logger = logger
         self.exponential_backoff_factor = 0
 
@@ -25,31 +36,43 @@ class ModelLabeller():
             time.sleep(min(self.exponential_backoff_factor * self.interval, MAX_INTERVAL_TIME))
 
             x_test, y_test = self.dataset.test_set
-            if len(x_test) > MIN_TEST_EXAMPLES:
-                self.logger.debug("Scoring items with model labeller.")
-                evaluator = Evaluator(self.model, x_test, y_test)
-                threshold = evaluator.threshold_for_precision(THRESHOLD)
+            num_classes = len(self.label_helper.classes)
+            loss, acc = self.model.evaluate(x_test, y_test)
+            # TODO(classification_only)
 
-                unlabelled, ids = self.dataset.unlabelled_set()
-                scores = self.model.score(unlabelled)
-
-                past_threshold = 0
-                for id, score in zip(ids, scores):
-                    no = score[0]
-                    yes = score[1]
-                    if no > threshold:
-                        past_threshold += 1
-                        self.dataset.add_label(id, 0., Dataset.MODEL_LABELLED)
-                        self.logger.debug("Labelled {}\tNO.".format(id))
-
-                    if yes > threshold:
-                        past_threshold += 1
-                        self.dataset.add_label(id, 1., Dataset.MODEL_LABELLED, MODEL_LABELLER)
-                        self.logger.debug("Labelled {}\tYES.".format(id))
-
-                if past_threshold > 0:
-                    self.exponential_backoff_factor = 0
-                self.logger.debug("{} / {} labelled.".format(past_threshold, len(scores)))
-            else:
-                self.logger.debug("Need at least {} labels to start labelling images".format(MIN_TEST_EXAMPLES))
+            # TODO(revisit)
+            if len(x_test) < MIN_TEST_EXAMPLES:
+                self.logger.debug("Need at least {} labels to start labelling".format(MIN_TEST_EXAMPLES))
                 self.exponential_backoff_factor += 1
+                continue
+
+            if acc < (1. / num_classes * ACCURACY_RATIO):
+                self.logger.debug("Need at least {}% accuracy improvement over naive baseline to start labelling".format(int((ACCURACY_RATIO - 1.) * 100)))
+                self.exponential_backoff_factor += 1
+                continue
+
+            self.logger.debug("Scoring items with model labeller.")
+            y_test = utils.one_hot_encode(y_test, num_classes)
+            evaluator = Evaluator(self.model, x_test, y_test)
+            threshold = evaluator.threshold_for_precision(THRESHOLD)
+
+            unlabelled, ids = self.dataset.unlabelled_set()
+            scores = self.model.score(unlabelled)
+
+            # This assumes only classification :(
+
+            # Renormalize scores just in case.
+            dist = scores / np.expand_dims(scores.sum(axis=1), -1)
+            idxs = np.argmax(dist, -1)
+
+            past_threshold = 0
+            for _id, (idx, score) in list(zip(ids, zip(idxs, dist[np.arange(len(idxs)), idxs]))):
+                if score > threshold:
+                    past_threshold += 1
+                    self.dataset.add_label(_id, idx, Dataset.MODEL_LABELLED, MODEL_LABELLER)
+
+            if past_threshold > 0:
+                self.exponential_backoff_factor = 0
+            else:
+                self.exponential_backoff_factor += 1
+            self.logger.debug("{} / {} labelled.".format(past_threshold, len(scores)))

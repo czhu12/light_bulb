@@ -10,7 +10,7 @@ class Evaluator():
         self.model = model
         self.X = X
         self.y = y
-    
+
     def threshold_for_precision(self, target_precision=0.9):
         y_score = self.model.score(self.X)
         average_precision = average_precision_score(self.y, y_score)

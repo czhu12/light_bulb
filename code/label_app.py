@@ -54,7 +54,7 @@ class LabelApp:
         self.trainer = Trainer(model_directory, self.model, self.dataset, self.label_helper, logger=logger)
         self.trainer.load_existing()
 
-        self.labeller = ModelLabeller(self.model, self.dataset, logger=logger)
+        self.labeller = ModelLabeller(self.model, self.dataset, self.label_helper, logger=logger)
 
         self.user = user
         self.model_labelling = model_labelling
@@ -71,7 +71,11 @@ class LabelApp:
     def is_done(self):
         return len(self.dataset.unlabelled) == 0
 
-    def next_batch(self, size=10, force_stage=None, reverse_entropy=False):
+    def next_model_labelled_batch(self, size=100):
+        target_class, model_labelled = self.dataset.model_labelled
+        return model_labelled, target_class
+
+    def next_batch(self, size=10, force_stage=None, reverse_entropy=False, prediction=False):
         if self.is_done:
             raise ValueError("Tried to sample a batch when there is nothing else to sample")
 
@@ -105,23 +109,56 @@ class LabelApp:
             entropy_indexes = np.argpartition(entropy, num)[:num]
         else:
             entropy_indexes = np.argpartition(-entropy, num)[:num]
+
+        # Make predictions
+        x_to_score = x_data[entropy_indexes]
+
+        y_prediction = None
+        if prediction and len(x_to_score) > 0:
+            y_prediction = self.predict(x_to_score)
+
         response = (
             sampled_df.iloc[entropy_indexes],
             current_stage,
-            x_data[entropy_indexes],
+            y_prediction,
             entropy[entropy_indexes].tolist(),
         )
         return response
 
 
-    def add_label(self, _id, label):
+    def add_labels(self, labels):
+        is_binary_classification = len(self.label_helper.classes) == 2
+
+        for idx, label in enumerate(labels):
+            _id = label['id']
+            is_target_class = label['is_target_class']
+            save = idx == len(labels) - 1
+
+            if is_target_class:
+                label = label['target_class']
+                self.add_label(label['id'], label, save)
+            else:
+                if is_binary_classification and label['target_class'] == 1:
+                    self.add_label(label['id'], 0, save)
+                elif is_binary_classification and label['target_class'] == 0:
+                    self.add_label(label['id'], 1, save)
+                else:
+                    # Not binary classification
+                    # Flag this as USER_MODEL_DISAGREEMENT
+                    self.add_label(label['id'], 1, save)
+                    data_to_write.append(label['id'], 0, save, USER_MODEL_DISAGREEMENT, False)
+
+    def add_label(self, _id, label, save=True, user=None):
+        if user == None:
+            user=self.user
+
         # Validate label
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
         self.label_helper.validate(data, label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
-        self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user)
+        self.dataset.add_label(_id, label, self.dataset.current_stage, user=user, save=save)
 
     @property
     def title(self):

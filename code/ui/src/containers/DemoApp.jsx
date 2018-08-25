@@ -104,7 +104,6 @@ const mapStateToProps = state => ({
   demo: state.demo,
 });
 
-
 const mapDispatchToProps = dispatch => ({
   submitDataToScore: (e) => {
     e.preventDefault();

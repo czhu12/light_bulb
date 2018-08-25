@@ -10,6 +10,19 @@ import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
 import Footer from './Footer';
 
 class LabelApp extends React.Component {
+  _computeTitle() {
+    if (this.props.task.isBatchView) {
+      let className = this.props.task.classes[this.props.batchItems.targetClass];
+      return `Select all <span class="green">${className}</span>`;
+    } else {
+      return this.props.task.title;
+    }
+  }
+
+  _computeDescription() {
+    return this.props.task.isBatchView ? null : this.props.task.description;
+  }
+
   render() {
     let taskView = null;
     let currentPrediction = null;
@@ -62,16 +75,26 @@ class LabelApp extends React.Component {
       (<div className="center"><i id="items-loading" className="fa fa-spinner fa-spin" aria-hidden="true"></i></div>) :
         null;
 
+    let taskViewStyle = {
+      overflowY: this.props.task.isBatchView ? 'visible' : 'auto',
+      maxHeight: '400px',
+      marginLeft: '20px',
+      marginRight: '20px',
+    }
+
     return (
       <div>
         <DonePage done={this.props.done}/>
         <div id="wrap" style={style}>
 					<NavigationBar />
           <TaskDescriptionView
-            title={this.props.task.title}
-            description={this.props.task.description}
+            title={this._computeTitle()}
+            description={this._computeDescription()}
           />
-          <div className="center" id="task-view">
+          <div
+            className="center"
+            id="task-view"
+            style={taskViewStyle}>
             {taskView}
           </div>
           {fetchingView}
@@ -85,6 +108,7 @@ class LabelApp extends React.Component {
 const mapStateToProps = state => ({
   task: state.task,
   items: state.items.items,
+  batchItems: state.batchItems,
   predictions: state.items.predictions,
   currentIndex: state.items.currentIndex,
   done: state.items.done,

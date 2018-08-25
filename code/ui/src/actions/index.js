@@ -255,8 +255,105 @@ export function submitDataToScore() {
   }
 }
 
-export const SET_IS_BATCH_VIEW = 'SET_IS_BATCH_VIEW';
-export const setIsBatchView = (isBatchView) => ({
-  type: SET_IS_BATCH_VIEW,
-  isBatchView,
+export const RECORD_JUDGEMENTS = 'JUDGEMENTS/RECORD';
+export const recordJudgements = (judgements) => ({
+  type: RECORD_JUDGEMENTS,
+  judgements,
 });
+
+export const RECORD_JUDGEMENTS_SUCCESS = 'JUDGEMENTS/RECORD/SUCCESS';
+export const recordJudgementsSuccess = judgements => ({
+  type: RECORD_JUDGEMENTS_SUCCESS,
+  judgements,
+});
+
+export const RECORD_JUDGEMENTS_FAILURE = 'JUDGEMENTS/RECORD/FAILURE';
+export const recordJudgementsFailure = (judgements, error) => ({
+  type: RECORD_JUDGEMENTS_FAILURE,
+  judgements,
+  errorMsg: error,
+});
+
+export const FETCH_BATCH_ITEMS = 'ITEMS/BATCH/FETCH';
+export const fetchBatchItems = () => ({
+  type: FETCH_BATCH_ITEMS,
+});
+
+export const FETCH_BATCH_ITEMS_SUCCESS = 'ITEMS/BATCH/FETCH/SUCCESS';
+export const fetchBatchItemsSuccess = response => ({
+  type: FETCH_BATCH_ITEMS_SUCCESS,
+  items: response,
+});
+
+export const FETCH_BATCH_ITEMS_FAILURE = 'ITEMS/BATCH/FETCH/FAILURE';
+export const fetchBatchItemsFailure = error => ({
+  type: FETCH_BATCH_ITEMS_FAILURE,
+  errorMsg: error,
+});
+
+export const BATCH_LABELLING_COMPLETE = 'BATCH_LABELLING_COMPLETE';
+export const batchLabellingComplete = () => ({
+  type: BATCH_LABELLING_COMPLETE
+});
+
+export function submitBatchJudgements(judgements) {
+  return (dispatch, getState) => {
+    const state = getState();
+    if (state.judgements.submitting) { // Double clicked
+      console.log('Double called submitJudgements.');
+      return;
+    }
+
+    dispatch(submitBatchJudgementsToBackend(judgements))
+  }
+}
+
+export function submitBatchJudgementsToBackend(judgements) {
+  return (dispatch) => {
+    dispatch(recordJudgements(judgements));
+    return fetch('/judgements/batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ labels: judgements }),
+    })
+      .then((response) => {
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
+        return response.json();
+      })
+      .then((json) => {
+        if ('error' in json) {
+          throw new Error(json['error'])
+        } else {
+          dispatch(recordJudgementsSuccess(judgements));
+          dispatch(fetchNextBatchItemsBatch());
+        }
+      })
+      .catch(error => dispatch(recordJudgementsFailure(judgements, error.message)));
+  };
+}
+
+// Batch labelling for images and text
+export const SET_IS_BATCH_VIEW = 'SET_IS_BATCH_VIEW';
+export const fetchNextBatchItemsBatch = () => {
+  return (dispatch) => {
+    dispatch(fetchBatchItems());
+
+    return fetch(`/batch_items_batch`).then((response) => {
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+      return response.json();
+    }).then((json) => {
+      dispatch(fetchBatchItemsSuccess(json))
+    }).catch(error => dispatch(fetchBatchItemsFailure(`Error fetching batch items: ${error.message}`)));
+  }
+};
+
+export const setIsBatchView = (isBatchView) => {
+  return {
+    type: SET_IS_BATCH_VIEW,
+    isBatchView,
+  }
+};

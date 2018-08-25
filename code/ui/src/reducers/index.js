@@ -22,6 +22,15 @@ import {
   CHANGE_DEMO_SCORE_URL_SEQUENCE,
   CHANGE_DEMO_SCORE_URL,
   SET_IS_BATCH_VIEW,
+
+  // Separate pathway for dealing with batched data.
+  RECORD_JUDGEMENTS,
+  RECORD_JUDGEMENTS_SUCCESS,
+  RECORD_JUDGEMENTS_FAILURE,
+  FETCH_BATCH_ITEMS,
+  FETCH_BATCH_ITEMS_SUCCESS,
+  FETCH_BATCH_ITEMS_FAILURE,
+  BATCH_LABELLING_COMPLETE,
 } from '../actions';
 
 const task = (state = {
@@ -143,6 +152,49 @@ const stats = (state = {
   }
 }
 
+// Batch items currently only supports image classification tasks.
+const batchItems = (state = {
+  fetching: false,
+  items: [],
+  targetClass: 0,
+  done: false,
+  errorMsg: null,
+}, action) => {
+  switch (action.type) {
+    case SHOW_NEXT_ITEM:
+      return {
+        ...state,
+      };
+    case FETCH_BATCH_ITEMS:
+      return {
+        ...state,
+        fetching: true,
+      };
+    case FETCH_BATCH_ITEMS_SUCCESS:
+      return {
+        ...state,
+        fetching: false,
+        items: action.items.batch,
+        targetClass: action.items.target_class,
+        done: action.items.done,
+        errorMsg: null,
+      };
+    case FETCH_BATCH_ITEMS_FAILURE:
+      return {
+        ...state,
+        fetching: false,
+        errorMsg: action.errorMsg,
+      };
+    case BATCH_LABELLING_COMPLETE:
+      return {
+        ...state,
+        done: true,
+      };
+    default:
+      return state
+  }
+}
+
 const items = (state = {
   fetching: false,
   items: [],
@@ -242,5 +294,5 @@ const demo = (state = {
 }
 
 export default {
-  task, judgements, stats, items, demo,
+  task, judgements, stats, items, demo, batchItems,
 };
