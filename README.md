@@ -2,6 +2,8 @@
 
 Light Bulb is an labeling tool built with state of the art active learning and semi supervised learning techniques. Currently supports text classification and image classification.
 
+See the Medium post [here](https://medium.com/@chriszhu12/light-bulb-machine-learning-made-easy-43e64f5124bd).
+
 ## Table of Contents
 
 - [Getting Started](https://github.com/czhu12/labelling-tool#getting-started)
