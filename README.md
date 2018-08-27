@@ -25,6 +25,12 @@ brew install yarn
 git clone https://github.com/czhu12/labelling-tool && cd labelling-tool
 make
 ```
+#### Cat / not cat demo dataset
+```
+make dataset/cat_not_cat # Download and set up dataset.
+python code/server.py --config config/cat_not_cat.yml # Server set up on localhost:5000
+```
+
 ## Usage
 ### Configuration
 Heres an example configuration:
