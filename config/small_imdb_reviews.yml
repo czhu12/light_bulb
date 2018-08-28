@@ -1,0 +1,15 @@
+task:
+  title: What type of post is this?
+dataset:
+  directory: dataset/small_imdb_reviews/
+  data_type: text
+  judgements_file: outputs/small_imdb_reviews/labels.csv
+label:
+  type: classification
+  classes:
+    - Negative
+    - Neutral
+    - Positive
+model:
+    directory: outputs/small_imdb_reviews/models/
+user: chris
