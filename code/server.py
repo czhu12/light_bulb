@@ -124,7 +124,7 @@ def batch_items_batch():
     batch, target_class = label_app.next_model_labelled_batch()
     if target_class == -1:
         return jsonify({
-            "batch": list(),
+            "batch": [],
             "target_class": 0,
             "done": True,
         })

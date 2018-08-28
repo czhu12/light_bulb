@@ -36,7 +36,6 @@ class ModelLabeller():
 
             x_test, y_test = self.dataset.test_set
             num_classes = len(self.label_helper.classes)
-            loss, acc = self.model.evaluate(x_test, y_test)
             # TODO(classification_only)
 
             # TODO(revisit)
@@ -44,6 +43,8 @@ class ModelLabeller():
                 self.logger.debug("Need at least {} labels to start labelling".format(MIN_TEST_EXAMPLES))
                 self.exponential_backoff_factor += 1
                 continue
+
+            loss, acc = self.model.evaluate(x_test, y_test)
 
             if acc < (1. / num_classes * ACCURACY_RATIO):
                 self.logger.debug("Need at least {}% accuracy improvement over naive baseline to start labelling".format(int((ACCURACY_RATIO - 1.) * 100)))

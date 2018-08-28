@@ -72,8 +72,8 @@ class Dataset:
         target_class = model_labelled['label'].mode()[0]
         model_labelled = model_labelled[model_labelled['label'] == target_class]
         if len(model_labelled) < num:
-            return target_class, model_labelled
-        return target_class, model_labelled.sample(num)
+            return int(target_class), model_labelled
+        return int(target_class), model_labelled.sample(num)
 
     @property
     def stats(self):
