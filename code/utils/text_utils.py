@@ -8,6 +8,7 @@ from keras.preprocessing.sequence import pad_sequences
 from nltk.tokenize import word_tokenize
 import requests
 from nltk.tokenize.toktok import ToktokTokenizer
+from keras.layers import Embedding
 
 import re
 import spacy
@@ -26,10 +27,47 @@ PAD_TOKEN = '<pad>'
 logger = logging.getLogger()
 
 class WordVectorizer():
-    def __init__(self, index2word):
+    def __init__(
+        self,
+        index2word=[],
+        use_glove=False,
+        glove_path='vendor/glove.6B/glove.6B.50d.txt',
+    ):
+        if use_glove:
+            index2word, embedding_layer = self._load_glove_vectors(glove_path)
+            self.embedding_layer = embedding_layer
+
         self.index2word = index2word
-        self.word2index = { word: index for index, word in enumerate(index2word) }
+
+        self.word2index = { word: index for index, word in enumerate(self.index2word) }
         self.tokenizer = ToktokTokenizer()
+
+    def _load_glove_vectors(self, path):
+        embeddings_index = {}
+        f = open(path)
+        for line in f:
+            values = line.split()
+            word = values[0]
+            coefs = np.asarray(values[1:], dtype='float32')
+            embeddings_index[word] = coefs
+        f.close()
+        num_words = len(embeddings_index) + 3
+        embedding_matrix = np.zeros((num_words, EMBEDDING_DIM))
+        word2index = { PAD_TOKEN: 0, UNKNOWN_TOKEN: 1, EOS_TOKEN: 2 }
+
+        for index, (word, embedding) in enumerate(embeddings_index.items()):
+            embedding_matrix[index + 3] = embedding
+            word2index[word] = index + 3
+
+        embedding_layer = Embedding(
+                num_words,
+                EMBEDDING_DIM,
+                weights=[embedding_matrix],
+                trainable=False)
+
+        vocab = [PAD_TOKEN, UNKNOWN_TOKEN, EOS_TOKEN] + list(embeddings_index.keys())
+        return vocab, embedding_layer
+
 
     def _embedding(self, word, word2index):
         if word in word2index:

@@ -17,6 +17,11 @@ code/ui/build/index.html:
 run:
 	$(PYTHON) code/server.py --config ${CONFIG}
 
+vendor/glove.6B: vendor
+	curl -o ./vendor/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip
+	unzip ./data/glove.6B.zip -d data/glove.6B/
+	rm ./data/glove.6B.zip
+
 vendor/keras_language_model: vendor
 	curl -o vendor/keras_language_model.tar.gz https://gitlab.com/chriszhu12/light-bulb-custom-models/raw/master/keras_language_model.tar.gz
 	tar -xvf vendor/keras_language_model.tar.gz -C vendor

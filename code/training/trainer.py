@@ -143,7 +143,7 @@ class Trainer():
         self.logger.debug(stats)
 
     def train(self):
-        sleep_time = 5.
+        sleep_time = 10.
         while True:
             self.print_stats()
 

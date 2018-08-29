@@ -2,6 +2,7 @@ import pdb
 import os
 import keras
 import tqdm
+import time
 from models.base_model import BaseModel
 from utils import utils
 from keras.models import Sequential, Model, load_model
@@ -17,9 +18,9 @@ from nltk.tokenize.toktok import ToktokTokenizer
 
 
 class RNNModel(BaseModel):
-    def __init__(self, num_classes, index2word, embedding_size=200, hidden_size=256):
+    def __init__(self, num_classes, index2word, embedding_size=200, hidden_size=64):
         super(RNNModel, self).__init__()
-        self.hidden_size = 256
+        self.hidden_size = hidden_size
         self.num_classes = num_classes
         self.vocab_size = len(index2word)
         self.embedding_size = embedding_size
@@ -68,7 +69,6 @@ class RNNModel(BaseModel):
     def get_encoder(self):
         vec_input = Input(shape=(None,))
         x = Embedding(self.vocab_size, self.embedding_size)(vec_input)
-        x = LSTM(self.hidden_size, return_sequences=True)(x)
         x = LSTM(self.hidden_size, return_sequences=True)(x)
         x = LSTM(self.hidden_size, return_sequences=True)(x)
         model = Model(vec_input, x)
@@ -176,9 +176,12 @@ class RNNModel(BaseModel):
             return self.classifier.evaluate(x_test, y_test)
 
     def score(self, x_texts):
+        start = time.time()
         x_scores = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.classifier.predict(x_scores)
+            results = self.classifier.predict(x_scores)
+            print("Inference took: {} seconds".format(time.time() - start))
+            return results
 
     def predict(self, x_texts):
         x_scores = self.vectorize_text(x_texts)

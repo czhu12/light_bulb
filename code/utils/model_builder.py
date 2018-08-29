@@ -8,6 +8,7 @@ from dataset import Dataset
 from label import Label
 from models.cnn_model import CNNModel
 from models.rnn_model import RNNModel
+from models.cnn_text_classifier import CNNTextClassifier
 from models.sequence_model import SequenceModel
 from models.stub_model import StubModel
 from models.tf_pretrained_model import TFPretrainedModel
@@ -110,14 +111,18 @@ class ModelBuilder:
         word_list = pickle.load(open("vendor/keras_language_model/vocab.p", "rb"))
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
-            rnn_model = RNNModel(2, word_list)
-            rnn_model.load_lm('vendor/keras_language_model')
-            return rnn_model
+            cnn_model = CNNTextClassifier(2)
+            return cnn_model
+            #rnn_model = RNNModel(2, word_list)
+            #rnn_model.load_lm('vendor/keras_language_model')
+            #return rnn_model
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
-            rnn_model = RNNModel(len(self.label.classes), word_list)
-            rnn_model.load_lm('vendor/keras_language_model')
-            return rnn_model
+            cnn_model = CNNTextClassifier(len(self.label.classes))
+            return cnn_model
+            #rnn_model = RNNModel(len(self.label.classes), word_list)
+            #rnn_model.load_lm('vendor/keras_language_model')
+            #return rnn_model
             #return LM_TextClassifier(lm, len(self.label.classes))
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.SEQUENCE:

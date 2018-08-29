@@ -1,5 +1,5 @@
 task:
-  title: What type of post is this?
+  title: What the sentiment
 dataset:
   directory: dataset/small_imdb_reviews/
   data_type: text
@@ -8,7 +8,6 @@ label:
   type: classification
   classes:
     - Negative
-    - Neutral
     - Positive
 model:
     directory: outputs/small_imdb_reviews/models/
