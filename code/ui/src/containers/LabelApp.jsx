@@ -9,6 +9,7 @@ import ImageTaskView from './ImageTaskView';
 import ImageTaskBatchView from './ImageTaskBatchView';
 import TaskDescriptionView from './TaskDescriptionView';
 import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
+import JSONTaskView from './JSONTaskView';
 import Footer from './Footer';
 
 class LabelApp extends React.Component {
@@ -61,6 +62,14 @@ class LabelApp extends React.Component {
         taskView = (
           <TextTaskView
             currentItem={currentItem}
+            currentPrediction={currentPrediction}
+          />
+        );
+      } else if (this.props.task.dataType === 'json') {
+        taskView = (
+          <JSONTaskView
+            currentItem={currentItem}
+            task={this.props.task}
             currentPrediction={currentPrediction}
           />
         );

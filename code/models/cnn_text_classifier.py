@@ -21,35 +21,36 @@ class CNNTextClassifier(BaseModel):
         self.num_filters = num_filters
         self.kernel_size = kernel_size
         self.hidden_dims = hidden_dims
-        self.model = self._get_model()
+        self.model = self._get_encoder()
         self.model.summary()
 
-    def _get_model(self):
+    def _get_encoder(self):
         model = Sequential()
 
-        # we start off with an efficient embedding layer which maps
-        # our vocab indices into embedding_dims dimensions
         model.add(self.lang.embedding_layer)
         model.add(Dropout(0.2))
 
-        # we add a Convolution1D, which will learn filters
-        # word group filters of size filter_length:
         model.add(Conv1D(self.num_filters,
                          self.kernel_size,
                          padding='same',
                          activation='relu',
                          strides=1))
-        # we use max pooling:
+        model.add(Activation('relu'))
+        model.add(Dropout(0.2))
+
+        model.add(Conv1D(self.num_filters,
+                         self.kernel_size,
+                         padding='same',
+                         activation='relu',
+                         strides=1))
         model.add(GlobalMaxPooling1D())
 
-        # We add a vanilla hidden layer:
         model.add(Dense(self.hidden_dims))
         model.add(Dropout(0.2))
         model.add(Activation('relu'))
 
-        # We project onto a single unit output layer, and squash it with a sigmoid:
         model.add(Dense(self.num_classes))
-        model.add(Activation('sigmoid'))
+        model.add(Activation('softmax'))
 
         model.compile(loss='categorical_crossentropy',
                       optimizer='adam',

@@ -173,6 +173,10 @@ class LabelApp:
     def description(self):
         return self.task.description
 
+    @property
+    def template(self):
+        return self.task.template
+
     def threaded_train(self):
         self.trainer.train()
 
@@ -190,6 +194,7 @@ class Task:
     def load_from(config):
         return Task(**config)
 
-    def __init__(self, title='', description=''):
+    def __init__(self, title='', description='', template=''):
         self.title = title
         self.description = description
+        self.template = template

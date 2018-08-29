@@ -1,0 +1,20 @@
+task:
+  title: What kind of animal is this?
+  template: >
+    <div>
+      <img height="350" width="600" src="{{img_src}}"/>
+      <div>{{text}}</div>
+    </div>
+dataset:
+  directory: dataset/json_classification/
+  data_type: json
+  judgements_file: outputs/json_classification/labels.csv
+label:
+  type: classification
+  classes:
+    - Dog
+    - Cat
+    - Giraffe
+model:
+  directory: outputs/json_classification/models/
+user: chris

@@ -41,6 +41,7 @@ const task = (state = {
   classes: null,
   validTokens: [],
   fetching: false,
+  template: null,
   errorMsg: null,
   isBatchView: false,
   minTrain: 0,
@@ -57,6 +58,7 @@ const task = (state = {
       return {
         ...state,
         title: action.task.title,
+        template: action.task.template,
         description: action.task.description,
         dataType: action.task.data_type,
         labelType: action.task.label_type,

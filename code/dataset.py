@@ -23,6 +23,7 @@ class Dataset:
     MODEL_LABELLED = 'MODEL_LABELLED'
     USER_MODEL_DISAGREEMENT = 'USER_MODEL_DISAGREEMENT'
     USER_MODEL_LABELLER = 'USER_MODEL_LABELLER'
+    JSON_TYPE = 'json'
     IMAGE_TYPE = 'images'
     TEXT_TYPE = 'text'
     OBJECT_DETECTION_TYPE = 'object_detection'
@@ -33,6 +34,8 @@ class Dataset:
             return ImageDataset(config)
         elif config['data_type'] == Dataset.TEXT_TYPE:
             return TextDataset(config)
+        elif config['data_type'] == Dataset.JSON_TYPE:
+            return JSONDataset(config)
         elif config['data_type'] == Dataset.OBJECT_DETECTION_TYPE:
             return ObjectDetectionDataset(config)
         else:
@@ -172,8 +175,7 @@ class TextDataset(Dataset):
     def get_data(self, _id):
         return self.dataset[self.dataset['path'] == _id]['text'].values[0]
 
-    def load_unlabelled_dataset(self):
-        types = ['*.txt']
+    def load_unlabelled_dataset(self, types=['*.txt']):
         text_paths = []
         for type in types:
             text_paths.extend(glob.glob("{}/{}".format(self.directory, type)))
@@ -233,6 +235,12 @@ class TextDataset(Dataset):
             x_train = []
             ids = []
         return x_train, ids
+
+class JSONDataset(TextDataset):
+
+    def load_unlabelled_dataset(self):
+        types = ['*.json']
+        return super(JSONDataset, self).load_unlabelled_dataset(types)
 
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
@@ -295,7 +303,6 @@ class ImageDataset(Dataset):
             x_train = []
             ids = []
         return x_train, ids
-
 
 class ObjectDetectionDataset(ImageDataset):
     # Object detection

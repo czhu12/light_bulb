@@ -8,6 +8,7 @@ class ConfigParser:
             'type': 'dict',
             'schema': {
                 'title': {'type': 'string', 'required': True},
+                'template': {'type': 'string', 'required': False},
             },
             'required': True,
         },
@@ -15,7 +16,7 @@ class ConfigParser:
             'type': 'dict',
             'schema': {
                 'directory': {'type': 'string', 'required': True},
-                'data_type': {'type': 'string', 'required': True, 'allowed': ['images', 'text']},
+                'data_type': {'type': 'string', 'required': True, 'allowed': ['images', 'text', 'json']},
                 'judgements_file': {'type': 'string', 'required': True},
             },
             'required': True,
