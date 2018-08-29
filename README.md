@@ -103,13 +103,15 @@ user: chris
 ### Example Text classification
 To run the text classification demo:
 ```
-make run config/text_multiclass_classification.yml
+make dataset/small_imdb_reviews
+python code/server.py --config config/small_imdb_reviews.yml
 ```
 
 ### Example Image Classification
-To run the Image classification demo:
+To run the image classification demo:
 ```
-make run config/image_multiclass_classification.yml
+make dataset/cat_not_cat
+python code/server.py --config config/cat_not_cat.yml
 ```
 
 ## How It Works
