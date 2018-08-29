@@ -3,7 +3,7 @@ PYTHON ?= $(VIRTUALENV)/bin/python
 
 .PHONY: clean
 
-all: .virt code/ui/build/index.html vendor/keras_language_model dataset vendor
+all: .virt code/ui/build/index.html vendor/keras_language_model dataset vendor vendor/glove.6B
 
 code/ui/build/index.html:
 	cd code/ui; yarn install
@@ -36,6 +36,11 @@ dataset/small_imdb_reviews: dataset
 	curl -o dataset/small_imdb_reviews.tar.gz https://gitlab.com/chriszhu12/light-bulb-custom-models/raw/master/small_imdb_reviews.tar.gz
 	tar -xvf dataset/small_imdb_reviews.tar.gz -C dataset
 	rm dataset/small_imdb_reviews.tar.gz
+
+dataset/json_classification: dataset
+	curl -o dataset/json_classification.tar.gz https://gitlab.com/chriszhu12/light-bulb-custom-models/raw/master/json_classification.tar.gz
+	tar -xvf dataset/json_classification.tar.gz -C dataset
+	rm dataset/json_classification.tar.gz
 
 dataset:
 	mkdir dataset
