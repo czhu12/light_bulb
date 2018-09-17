@@ -9,6 +9,7 @@ import ImageTaskView from './ImageTaskView';
 import ImageTaskBatchView from './ImageTaskBatchView';
 import TaskDescriptionView from './TaskDescriptionView';
 import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
+import SequenceTaggerTaskView from './SequenceTaggerTaskView';
 import JSONTaskView from './JSONTaskView';
 import Footer from './Footer';
 
@@ -64,6 +65,14 @@ class LabelApp extends React.Component {
             currentItem={currentItem}
             currentPrediction={currentPrediction}
           />
+        );
+      } else if (this.props.task.dataType === 'json' && this.props.task.labelType === 'sequence') {
+        taskView = (
+          <SequenceTaggerTaskView
+            currentItem={currentItem}
+            task={this.props.task}
+          />
+
         );
       } else if (this.props.task.dataType === 'json') {
         taskView = (

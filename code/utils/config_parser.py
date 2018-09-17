@@ -33,6 +33,7 @@ class ConfigParser:
             'schema': {
                 'type': {'type': 'string', 'required': True, 'allowed': ['classification', 'binary', 'sequence', 'object_detection']},
                 'classes': {'type': 'list', 'required': False},
+                'default_class': {'type': 'string', 'required': False},
             },
             'required': True,
         },

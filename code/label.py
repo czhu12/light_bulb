@@ -59,29 +59,18 @@ class ClassificationLabel(Label):
         #return utils.one_hot_encode(y, len(self.classes))
 
 class SequenceLabel(Label):
-    def __init__(self, length_equality=False, valid_tokens=[], delimiter=' ', **kwargs):
+    def __init__(
+        self,
+        classes=[],
+        default_class=None,
+        **kwargs,
+    ):
         super(SequenceLabel, self).__init__(kwargs)
-        self.length_equality = length_equality
-        self.valid_tokens = valid_tokens
-        self.delimiter = delimiter
-
-    def validate(self, data, label):
-        # check for length_equality
-        if self.length_equality:
-            label_tokens = label.split(self.delimiter)
-            # TODO: This won't work in character-input mode
-            if not len(label_tokens) == len(word_tokenize(data)):
-                raise LabelError("Label must be of length: {}".format(len(word_tokenize(data))))
-
-        # check valid_tokens are correct
-        if self.valid_tokens and len(self.valid_tokens) > 0:
-            tokens = label.split(self.delimiter)
-            valid_tokens = set(self.valid_tokens)
-            if not all(token in valid_tokens for token in tokens):
-                raise LabelError("Label {} is invalid. Can only have tokens: {}.".format(label, valid_tokens))
+        self.default_class = default_class
+        self.classes = classes
 
     def decode(self, encoded):
-        return encoded
+        return json.dumps(encoded)
 
 class ObjectDetectionLabel(Label):
     def __init__(self, **kwargs):

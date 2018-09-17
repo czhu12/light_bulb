@@ -3,7 +3,7 @@ import React from 'react';
 
 import LabelSequenceView from './LabelSequenceView';
 import LabelClassificationView from './LabelClassificationView';
-import LabelBoundingBoxClassView from './LabelBoundingBoxClassView';
+import LabelSelectedClassView from './LabelSelectedClassView';
 
 class Footer extends React.Component {
   render() {
@@ -19,18 +19,11 @@ class Footer extends React.Component {
         />
       );
     } else if (
-      this.props.task.labelType === 'sequence' ||
-      this.props.task.labelType === 'seq2seq'
+      this.props.task.labelType === 'object_detection' ||
+      this.props.task.labelType === 'sequence'
     ) {
       labelView = (
-        <LabelSequenceView
-          task={this.props.task}
-          currentPrediction={this.props.currentPrediction}
-        />
-      );
-    } else if (this.props.task.labelType === 'object_detection') {
-      labelView = (
-        <LabelBoundingBoxClassView
+        <LabelSelectedClassView
           task={this.props.task}
           currentPrediction={this.props.currentPrediction}
         />

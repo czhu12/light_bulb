@@ -16,7 +16,7 @@ import {
   SUBMIT_DATA_SUCCESS,
   SHOW_NEXT_ITEM,
   LABELLING_COMPLETE,
-  SET_BOUNDING_BOX_CLASS,
+  SET_CURRENT_SELECTED_CLASS,
   CHANGE_SEQUENCE_INPUT,
   CHANGE_DEMO_SCORE_TEXT,
   CHANGE_DEMO_SCORE_URL_SEQUENCE,
@@ -47,6 +47,7 @@ const task = (state = {
   minTrain: 0,
   minTest: 0,
   minUnsup: 0,
+  defaultClass: null,
 }, action) => {
   switch (action.type) {
     case FETCH_TASK:
@@ -68,6 +69,7 @@ const task = (state = {
         minTrain: action.task.min_train,
         minTest: action.task.min_test,
         minUnsup: action.task.min_unsup,
+        defaultClass: action.task.default_class,
       }
     case FETCH_TASK_FAILURE:
       return {
@@ -212,7 +214,7 @@ const items = (state = {
   predictions: [],
   errorMsg: null,
   currentIndex: null,
-  currentBoundingBoxClass: null, // Only relevant for bounding box task
+  currentSelectedClass: null, // Only relevant for bounding box task
 }, action) => {
   switch (action.type) {
     case SHOW_NEXT_ITEM:
@@ -220,10 +222,10 @@ const items = (state = {
         ...state,
         currentIndex: state.currentIndex + 1,
       }
-    case SET_BOUNDING_BOX_CLASS:
+    case SET_CURRENT_SELECTED_CLASS:
       return {
         ...state,
-        currentBoundingBoxClass: action.boundingBoxClass,
+        currentSelectedClass: action.currentSelectedClass,
       }
     case FETCH_ITEMS:
       return {
@@ -241,6 +243,7 @@ const items = (state = {
         predictions: action.items.y_prediction ? state.predictions.concat(action.items.y_prediction) : [],
         stages: state.stages.concat(Array(action.items.batch.length).fill(action.items.stage)),
         errorMsg: null,
+        currentSelectedClass: 0,
       };
     case FETCH_ITEMS_FAILURE:
       return {
