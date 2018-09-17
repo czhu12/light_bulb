@@ -81,10 +81,10 @@ export const labellingComplete = () => ({
   type: LABELLING_COMPLETE
 });
 
-export const SET_BOUNDING_BOX_CLASS = 'SET_BOUNDING_BOX_CLASS';
-export const setBoundingBoxClass = (boundingBoxClass) => ({
-  type: SET_BOUNDING_BOX_CLASS,
-  boundingBoxClass,
+export const SET_CURRENT_SELECTED_CLASS = 'SET_CURRENT_SELECTED_CLASS';
+export const setCurrentSelectedClass = (currentSelectedClass) => ({
+  type: SET_CURRENT_SELECTED_CLASS,
+  currentSelectedClass,
 });
 
 export const CHANGE_SEQUENCE_INPUT = 'CHANGE_SEQUENCE_INPUT';

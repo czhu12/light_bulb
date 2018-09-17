@@ -73,7 +73,7 @@ class BoundingBoxImageTaskView extends React.Component {
   }
 
   _currentColor() {
-    let colorIndex = this.props.classes.indexOf(this.props.currentBoundingBoxClass);
+    let colorIndex = this.props.classes.indexOf(this.props.currentSelectedClass);
     return CLASSIFICATION_COLORS[colorIndex];
   }
 
@@ -109,7 +109,7 @@ class BoundingBoxImageTaskView extends React.Component {
       color: this._currentColor(),
       width: width,
       height: height,
-      currentClass: this.props.currentBoundingBoxClass,
+      currentClass: this.props.currentSelectedClass,
     })
 
     this.setState({
@@ -215,7 +215,7 @@ class BoundingBoxImageTaskView extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  currentBoundingBoxClass: state.items.currentBoundingBoxClass,
+  currentSelectedClass: state.items.currentSelectedClass,
   classes: state.task.classes,
 });
 

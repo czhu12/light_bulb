@@ -46,6 +46,10 @@ def task():
     if hasattr(label_app.label_helper, 'classes'):
         classes = label_app.label_helper.classes
 
+    default_class = None
+    if hasattr(label_app.label_helper, 'default_class'):
+        default_class = label_app.label_helper.default_class
+
     return jsonify({
         'title': label_app.title,
         'description': label_app.description,
@@ -53,6 +57,7 @@ def task():
         'label_type': label_app.label_helper.label_type,
         'data_type': label_app.data_type,
         'classes': classes,
+        'default_class': default_class,
         'valid_tokens': valid_tokens,
         "min_train": MIN_TRAIN_EXAMPLES,
         "min_test": MIN_TEST_EXAMPLES,
