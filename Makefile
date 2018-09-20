@@ -19,8 +19,8 @@ run:
 
 vendor/glove.6B: vendor
 	curl -o ./vendor/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip
-	unzip ./data/glove.6B.zip -d data/glove.6B/
-	rm ./data/glove.6B.zip
+	unzip ./vendor/glove.6B.zip -d vendor/glove.6B/
+	rm ./vendor/glove.6B.zip
 
 vendor/keras_language_model: vendor
 	curl -o vendor/keras_language_model.tar.gz https://gitlab.com/chriszhu12/light-bulb-custom-models/raw/master/keras_language_model.tar.gz
