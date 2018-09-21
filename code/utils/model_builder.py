@@ -1,18 +1,22 @@
 import pdb
 import pickle
 import numpy as np
+import logging
 
 from dataset import Dataset
-from label import Label
+from labels.label import Label
 from models.cnn_model import CNNModel
 from models.rnn_model import RNNModel
 from models.cnn_text_classifier import CNNTextClassifier
-from models.sequence_model import SequenceModel
 from models.stub_model import StubModel
 from models.tf_pretrained_model import TFPretrainedModel
 from keras.models import load_model
 #from models.language_model import LM_TextClassifier, LanguageModel
+#from models.sequence_model import SequenceModel
 from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
+
+logger = logging.getLogger('label_app')
+logger.setLevel(logging.DEBUG)
 
 
 def flatten(l):
@@ -41,6 +45,11 @@ class ModelBuilder:
         return lm
 
     def build(self):
+        built_model = self._build()
+        logger.debug("Loading model: {}".format(type(built_model).__name__))
+        return built_model
+
+    def _build(self):
         if 'custom' in self.config and self.config['custom']:
             return self.build_custom_model()
 
@@ -71,12 +80,10 @@ class ModelBuilder:
             #return rnn_model
             #return LM_TextClassifier(lm, len(self.label.classes))
 
-        if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.SEQUENCE:
-            return SequenceModel(
-                valid_outputs=self.label.valid_tokens,
-                seq2seq=False,
-                character_mode=False,
-            )
+        if self.dataset.data_type == Dataset.JSON_TYPE and self.label.label_type == Label.SEQUENCE:
+            from models.cnn_sequence_tagger import CNNSequenceTagger
+            classes = self.label.classes + [self.label.default_class] if self.label.default_class else self.label.classes
+            return CNNSequenceTagger(classes)
 
         if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
             from models.lightnet_model import LightnetModel

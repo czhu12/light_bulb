@@ -18,7 +18,6 @@ class SequenceTaggerTaskView extends React.Component {
   }
 
   initializeTags(props) {
-    window.test = this.props.currentItem['text'];
     let sequence = JSON.parse(this.props.currentItem['text']);
     let labels = sequence.map((word, index) => {
       return {word, classIdx: null}
@@ -46,6 +45,18 @@ class SequenceTaggerTaskView extends React.Component {
     this.setState({labels});
   }
 
+	_submitLabels() {
+    this.props.submitLabels(this.state.labels, this.props.task);
+	}
+
+	componentDidMount() {
+		window.addEventListener("click", this._submitLabels);
+	}
+
+	componentWillUnmount() {
+		window.removeEventListener("click", this._submitLabels);
+	}
+
   render() {
     let sequenceText = this.state.labels.map((label, idx) => {
       let word = label['word'];
@@ -67,15 +78,6 @@ class SequenceTaggerTaskView extends React.Component {
           {sequenceText}
         </div>
         <div className="clear"></div>
-
-        <div>
-          <button
-            onClick={this.props.submitLabels.bind(null, this.state.labels, this.props.task)}
-            className="btn btn-primary float-right"
-          >
-            Next
-          </button>
-        </div>
       </div>
     );
   }

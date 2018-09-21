@@ -1,5 +1,5 @@
 task:
-  title: What the sentiment
+  title: What is the sentiment?
 dataset:
   directory: dataset/small_imdb_reviews/
   data_type: text

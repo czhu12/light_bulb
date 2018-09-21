@@ -14,7 +14,7 @@ import sys
 from dataset import Dataset
 from training.trainer import Trainer
 from labelling.labeller import ModelLabeller
-from label import Label
+from labels.label import Label
 
 logger = logging.getLogger('label_app')
 logger.setLevel(logging.DEBUG)

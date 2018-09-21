@@ -25,6 +25,7 @@ class ConfigParser:
             'type': 'dict',
             'schema': {
                 'directory': {'type': 'string', 'required': True},
+                'pretrain': {'type': 'string', 'required': False},
             },
             'required': True,
         },
