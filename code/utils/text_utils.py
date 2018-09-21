@@ -96,46 +96,32 @@ class WordVectorizer():
 
         return sequences
 
-    def decode_one_hot_sequence_predictions(self, y_scores, lengths, valid_tokens=None):
-        if not valid_tokens:
-            valid_tokens = string.printable
-
-        id2token = [PAD_TOKEN, EOS_TOKEN] + list(valid_tokens)
-        token2id = { t: i for i, t in enumerate(id2token) }
+    def decode_one_hot_sequence_predictions(self, y_scores, lengths, id2class):
+        id2class = [PAD_TOKEN, EOS_TOKEN] + list(id2class)
+        class2id = { t: i for i, t in enumerate(id2class) }
         decoded = []
         for index, y_score in enumerate(y_scores):
             tags = []
             idxs = np.argmax(y_score, axis=1)
             for idx in idxs:
-                tags.append(id2token[idx])
+                tags.append(id2class[idx])
 
             length = lengths[index]
             decoded.append(tags[-length:-1])
         # Filter out all preset tokens
         return decoded
 
-    # TODO: Need to add words support to this
-    def one_hot_encode_sequence(self, y_seqs, valid_tokens=None):
-        if valid_tokens:
-            y_seqs = [y_seq.split(' ') for y_seq in y_seqs]
-        else:
-            valid_tokens = string.printable
-
-        valid_tokens = set(valid_tokens)
-        id2token = [PAD_TOKEN, EOS_TOKEN] + list(valid_tokens)
-        token2id = { t: i for i, t in enumerate(id2token) }
-        # Validate y_seqs
+    # Token wise one hot encode.
+    def one_hot_encode_sequence(self, y_seqs, id2class):
+        id2class = [PAD_TOKEN, EOS_TOKEN] + list(id2class)
+        class2id = { c: i for i, c in enumerate(id2class) }
         for y_seq in y_seqs:
-            assert all(y in valid_tokens for y in y_seq), "{} not in valid_tokens".format(y_seq, valid_tokens)
+            assert all(y in id2class for y in y_seq), "{} not in valid_tokens: {}".format(set(y_seq) - set(id2class), id2class)
 
-        def _to_seq_ids(seq):
-            return [token2id[y] for y in seq] + [token2id[EOS_TOKEN]]
-
+        _to_seq_ids = lambda seq: [class2id[y] for y in seq] + [class2id[EOS_TOKEN]]
         y_seq_ids = [_to_seq_ids(y_seq) for y_seq in y_seqs]
-
-        ys = pad_sequences(y_seq_ids)
-        y_one_hot = np.zeros((len(ys), len(ys[0]), len(token2id)))
-
+        ys = pad_sequences(y_seq_ids, value=class2id[PAD_TOKEN])
+        y_one_hot = np.zeros((len(ys), len(ys[0]), len(class2id)))
         for idx, y in enumerate(ys):
             for idx2, y2 in enumerate(y):
                 y_one_hot[idx][idx2][y2] = 1.

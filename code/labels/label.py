@@ -72,6 +72,15 @@ class SequenceLabel(Label):
     def decode(self, encoded):
         return json.dumps(encoded)
 
+    def to_training(self, ys):
+        """y is a list of strings"""
+        tags_only = []
+        for y in ys:
+            tagged_text = json.loads(y)
+            tags_only.append([tagged['tag'] for tagged in tagged_text])
+
+        return tags_only
+
 class ObjectDetectionLabel(Label):
     def __init__(self, **kwargs):
         super(ObjectDetectionLabel, self).__init__(kwargs)

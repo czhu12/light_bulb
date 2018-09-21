@@ -102,27 +102,34 @@ class LabelApp extends React.Component {
       marginLeft: '20px',
       marginRight: '20px',
     }
-
-    return (
-      <div>
-        <DonePage done={this.props.done}/>
-        <div id="wrap" style={style}>
-					<NavigationBar />
-          <TaskDescriptionView
-            title={this._computeTitle()}
-            description={this._computeDescription()}
-          />
-          <div
-            className="center"
-            id="task-view"
-            style={taskViewStyle}>
-            {taskView}
-          </div>
-          {fetchingView}
+    let mainView = null;
+    if (this.props.done) {
+      return (
+        <div>
+          <DonePage done={this.props.done}/>
         </div>
-        { footer }
-      </div>
-    );
+      );
+    } else {
+      return (
+        <div>
+          <div id="wrap">
+            <NavigationBar />
+            <TaskDescriptionView
+              title={this._computeTitle()}
+              description={this._computeDescription()}
+            />
+            <div
+              className="center"
+              id="task-view"
+              style={taskViewStyle}>
+              {taskView}
+            </div>
+            {fetchingView}
+          </div>
+          { footer }
+        </div>
+      );
+    }
   }
 }
 

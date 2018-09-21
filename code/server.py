@@ -4,7 +4,7 @@ import plac
 import yaml
 from flask import Flask, request, send_from_directory, render_template, jsonify, send_file
 from label_app import LabelApp
-from label import LabelError
+from labels.label import LabelError
 from mimetypes import MimeTypes
 from threading import Thread
 from utils import utils
