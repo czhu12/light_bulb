@@ -10,7 +10,7 @@ code/ui/build/index.html:
 	cd code/ui; yarn build
 
 .virt:
-	python3 -m venv $@
+	virtualenv -p python3.6 $@
 	$@/bin/pip install --upgrade pip
 	$@/bin/pip install -r requirements.txt
 
