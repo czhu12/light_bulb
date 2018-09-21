@@ -275,7 +275,7 @@ def main(config, port=5000, mode="training", no_train=False):
         labelling_thread.start()
 
     print("Started local server at http://localhost:5000")
-    app.run(debug=True, use_reloader=False, port=port)
+    app.run(host='0.0.0.0', debug=True, use_reloader=False, port=port)
 
 if __name__ == "__main__":
     plac.call(main)

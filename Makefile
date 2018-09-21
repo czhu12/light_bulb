@@ -1,7 +1,8 @@
 VIRTUALENV ?= .virt
 PYTHON ?= $(VIRTUALENV)/bin/python
+PWD = $(shell pwd)
 
-.PHONY: clean
+.PHONY: clean run
 
 all: .virt code/ui/build/index.html vendor/keras_language_model dataset vendor vendor/glove.6B
 
@@ -10,12 +11,9 @@ code/ui/build/index.html:
 	cd code/ui; yarn build
 
 .virt:
-	python3.6 -m venv $@
+	virtualenv -p python3 $@
 	$@/bin/pip install --upgrade pip
 	$@/bin/pip install -r requirements.txt
-
-run:
-	$(PYTHON) code/server.py --config ${CONFIG}
 
 vendor/glove.6B: vendor
 	curl -o ./vendor/glove.6B.zip https://nlp.stanford.edu/data/glove.6B.zip
@@ -51,3 +49,6 @@ vendor:
 clean:
 	rm -rf vendor/keras_langauge_model
 	rm -rf dataset/cat_not_cat
+
+run:
+	docker run -it -v ${PWD}/dataset:/app/dataset -v ${PWD}/outputs:/app/outputs -v ${PWD}/vendor:/app/vendor -p 5000:5000 light-bulb /bin/bash
