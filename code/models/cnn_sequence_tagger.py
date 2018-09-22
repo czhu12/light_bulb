@@ -57,10 +57,10 @@ class CNNSequenceTagger(BaseModel):
     def fit(self, x_seq, y_seq, validation_split=0., epochs=1):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
-            x_train, lengths = self.lang.texts_to_sequence(x_seq)
-            y_train = self.lang.one_hot_encode_sequence(y_seq, self.classes)
             import pdb
             pdb.set_trace()
+            x_train, lengths = self.lang.tokenized_to_sequence(x_seq)
+            y_train = self.lang.one_hot_encode_sequence(y_seq, self.classes)
             return self.model.fit(x_train, y_train)
 
     def representation_learning(self, x_train, epochs=1):
@@ -70,12 +70,12 @@ class CNNSequenceTagger(BaseModel):
     def score(self, x_seq):
         with self.graph.as_default():
             # Unroll until completion (this returns a string)
-            x_seq, lengths = self.lang.texts_to_sequence(x_seq)
+            x_seq, lengths = self.lang._sequence_ids(x_seq)
             return self.model.predict(x_seq)
 
     def predict(self, x):
         with self.graph.as_default():
-            x, lengths = self.lang.texts_to_sequence(x)
+            x, lengths = self.lang._sequence_ids(x)
             return self.lang.decode_one_hot_sequence_predictions(
                 self.model.predict(x),
                 lengths,
