@@ -71,16 +71,13 @@ class WordVectorizer():
 
     def _embedding(self, word, word2index):
         if word in word2index:
-            return word2index[word]
+            return word2index[word.lower()]
         return word2index[UNKNOWN_TOKEN]
 
-    def _tokenize(self, texts, character=False, include_stop_token=False):
+    def _tokenize(self, texts, include_stop_token=False):
         tokenized_texts = []
         for text in texts:
-            if character:
-                words = list(text)
-            else:
-                words = self.tokenizer.tokenize(text.lower())
+            words = self.tokenizer.tokenize(text)
 
             if include_stop_token:
                 words += [EOS_TOKEN]
@@ -88,7 +85,7 @@ class WordVectorizer():
 
         return tokenized_texts
 
-    def _sequence_ids(self, tokenized, character=False, include_stop_token=False):
+    def _sequence_ids(self, tokenized, include_stop_token=False):
         sequences = []
         for tokens in tokenized:
             ids = [self._embedding(token, self.word2index) for token in tokens]
@@ -118,7 +115,7 @@ class WordVectorizer():
         for y_seq in y_seqs:
             assert all(y in id2class for y in y_seq), "{} not in valid_tokens: {}".format(set(y_seq) - set(id2class), id2class)
 
-        _to_seq_ids = lambda seq: [class2id[y] for y in seq] + [class2id[EOS_TOKEN]]
+        _to_seq_ids = lambda seq: [class2id[y] for y in seq]
         y_seq_ids = [_to_seq_ids(y_seq) for y_seq in y_seqs]
         ys = pad_sequences(y_seq_ids, value=class2id[PAD_TOKEN])
         y_one_hot = np.zeros((len(ys), len(ys[0]), len(class2id)))
@@ -128,12 +125,18 @@ class WordVectorizer():
 
         return y_one_hot
 
-    def texts_to_sequence(self, texts, maxlen=None, character=False, include_stop_token=False):
+    def texts_to_sequence(self, texts, maxlen=None, include_stop_token=False):
         """
         Sequences is padded of size (batch, maxlen).
         """
-        tokenized = self._tokenize(texts, character, include_stop_token=include_stop_token)
-        sequences = self._sequence_ids(tokenized, character, include_stop_token=include_stop_token)
+        tokenized = self._tokenize(texts, include_stop_token=include_stop_token)
+        return self.tokenized_to_sequence(tokenized, maxlen=maxlen, include_stop_token=include_stop_token)
+
+    def tokenized_to_sequence(self, tokenized, maxlen=None, include_stop_token=False):
+        """
+        Sequences is padded of size (batch, maxlen).
+        """
+        sequences = self._sequence_ids(tokenized, include_stop_token=include_stop_token)
         lengths = [len(ids) for ids in sequences]
 
         if not maxlen:

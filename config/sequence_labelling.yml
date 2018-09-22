@@ -8,28 +8,13 @@ label:
   type: sequence
   default_class: O
   classes:
-    - B-ADJP
-    - I-ADJP
-    - B-ADVP
-    - I-ADVP
-    - B-CONJP
-    - I-CONJP
-    - B-INTJ
-    - I-INTJ
-    - B-LST
-    - I-LST
-    - B-NP
-    - I-NP
-    - B-PP
-    - I-PP
-    - B-PRT
-    - I-PRT
-    - B-SBAR
-    - I-SBAR
-    - B-UCP
-    - I-UCP
-    - B-VP
-    - I-VP
+    - B-LOC
+    - B-MISC
+    - B-ORG
+    - I-LOC
+    - I-MISC
+    - I-ORG
+    - I-PER
 model:
   directory: outputs/sequence_labelling/models/
   pretrain_file: dataset/pretrain.csv

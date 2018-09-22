@@ -242,6 +242,35 @@ class JSONDataset(TextDataset):
         types = ['*.json']
         return super(JSONDataset, self).load_unlabelled_dataset(types)
 
+    @property
+    def test_set(self):
+        if len(self.test_data) == 0:
+            return [], []
+
+        test_data = self.test_data
+        x_train = [json.loads(val) for val in test_data['text'].values]
+        y_train = test_data['label'].values
+        return x_train, y_train
+
+    @property
+    def train_set(self):
+        if len(self.train_data) == 0:
+            return [], []
+        train_data = self.train_data
+        x_train = [json.loads(val) for val in train_data['text'].values]
+        y_train = train_data['label'].values
+        return x_train, y_train
+
+    def unlabelled_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
+        data = self.sample(size)
+        if len(data) > 0:
+            x_train = [json.loads(val) for val in data['text'].values]
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
+
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
 
