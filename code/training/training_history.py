@@ -1,22 +1,33 @@
 import numpy as np
 
 class TrainingHistory:
+    """
+    This class keeps track of the state of representation learning,
+    and epoch results.
+    """
     def __init__(self):
         self.history = []
         self._should_save = False
         self._was_training = True
+        self.finished_representation_learning = False
 
+    @property
+    def recent_num_samples(self):
+        if len(self.history) == 0:
+            return 0
+
+        return self.history[-1]['stats']['labelled']['test']
     # TODO: Consider replacing num_labels idea with just creating a new model
     def add_train_eval_step(
         self,
-        num_labels,
+        stats,
         train_acc,
         train_loss,
         test_acc,
         test_loss,
     ):
         self.history.append({
-            'num_labels': num_labels,
+            'stats': stats,
             'train': {
                 'acc': train_acc,
                 'loss': train_loss,

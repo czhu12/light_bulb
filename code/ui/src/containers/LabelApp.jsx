@@ -15,7 +15,7 @@ import Footer from './Footer';
 
 class LabelApp extends React.Component {
   _computeTitle() {
-    if (this.props.task.isBatchView) {
+    if (this.props.task.isBatchView && this.props.task.labelType === 'classification') {
       let dataType = this.props.task.dataType;
       let className = this.props.task.classes[this.props.batchItems.targetClass];
       return `Unselect all ${dataType} that is not a <span style="color:${CLASSIFICATION_COLORS[this.props.batchItems.targetClass]}">${className}</span>`;
@@ -88,7 +88,7 @@ class LabelApp extends React.Component {
     let style = this.props.done ? { display: "none" } : {}
     let footer = null;
 
-    if (!this.props.task.isBatchView) {
+    if (!this.props.task.isBatchView && this.props.task.labelType === 'classification') {
       footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
     }
 

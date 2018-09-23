@@ -57,11 +57,10 @@ class CNNSequenceTagger(BaseModel):
     def fit(self, x_seq, y_seq, validation_split=0., epochs=1):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
-            import pdb
-            pdb.set_trace()
             x_train, lengths = self.lang.tokenized_to_sequence(x_seq)
             y_train = self.lang.one_hot_encode_sequence(y_seq, self.classes)
-            return self.model.fit(x_train, y_train)
+            history = self.model.fit(x_train, y_train)
+            return history.history['loss'][0], history.history['acc'][0]
 
     def representation_learning(self, x_train, epochs=1):
         with self.graph.as_default():
