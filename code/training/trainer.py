@@ -122,7 +122,6 @@ class Trainer():
             else:
                 sleep_time *= BACKOFF_FACTOR
                 sleep_time = min(sleep_time, MAX_SLEEP_TIME)
-                self.logger.error(e)
                 self.logger.error("Backing off interval time...")
 
             if self.history.should_save_model():

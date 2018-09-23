@@ -18,7 +18,7 @@ class SequenceTaggerTaskView extends React.Component {
   }
 
   initializeTags(props) {
-    let sequence = JSON.parse(this.props.currentItem['text']);
+    let sequence = JSON.parse(props.currentItem['text']);
     let labels = sequence.map((word, index) => {
       return {word, classIdx: null}
     })
@@ -45,16 +45,19 @@ class SequenceTaggerTaskView extends React.Component {
     this.setState({labels});
   }
 
-	_submitLabels() {
-    this.props.submitLabels(this.state.labels, this.props.task);
+	_submitLabels(e) {
+    let key = e.which || e.keyCode;
+    if (key === 13) {
+      this.props.submitLabels(this.state.labels, this.props.task);
+    }
 	}
 
 	componentDidMount() {
-		window.addEventListener("click", this._submitLabels);
+		window.addEventListener("keypress", this._submitLabels.bind(this));
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener("click", this._submitLabels);
+		window.removeEventListener("keypress", this._submitLabels.bind(this));
 	}
 
   render() {
@@ -98,7 +101,6 @@ const mapDispatchToProps = dispatch => ({
       if (!cls) cls = task.defaultClass;
       return {word, tag: cls}
     });
-    console.log(labelsToSubmit);
     
     dispatch(submitJudgement(labelsToSubmit));
   },
