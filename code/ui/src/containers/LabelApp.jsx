@@ -88,7 +88,7 @@ class LabelApp extends React.Component {
     let style = this.props.done ? { display: "none" } : {}
     let footer = null;
 
-    if (!this.props.task.isBatchView && this.props.task.labelType === 'classification') {
+    if (!(this.props.task.isBatchView && this.props.task.labelType === 'classification')) {
       footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
     }
 

@@ -1,7 +1,6 @@
 import { connect } from 'react-redux';
 import React from 'react';
 
-import LabelSequenceView from './LabelSequenceView';
 import LabelClassificationView from './LabelClassificationView';
 import LabelSelectedClassView from './LabelSelectedClassView';
 

@@ -15,10 +15,13 @@ class NavigationBar extends React.Component {
     }
 
     let toggleBatchView = null;
-    // TODO: Turn this on again when batch view is ready.
-    if (this.props.task.dataType === 'images' &&
-      (this.props.task.labelType === 'binary' || this.props.task.labelType === 'classification') &&
-      (this.props.labelled.model_labelled > 0)) {
+    // Is image batch view when type is image, label is classification.
+    const isImageBatchView = this.props.task.dataType === 'images' &&
+      (this.props.task.labelType === 'binary' || this.props.task.labelType === 'classification');
+
+    const isSequenceBatchView = this.props.task.dataType === 'text' && this.props.task.labelType === 'sequence';
+
+    if ((isImageBatchView || isSequenceBatchView) && (this.props.labelled.model_labelled > 0)) {
       if (this.props.task.isBatchView) {
         toggleBatchView = (
           <span className="cursor" onClick={this.props.onClickSingle}><b>To Label View</b></span>

@@ -171,10 +171,6 @@ const batchItems = (state = {
   errorMsg: null,
 }, action) => {
   switch (action.type) {
-    case SHOW_NEXT_ITEM:
-      return {
-        ...state,
-      };
     case FETCH_BATCH_ITEMS:
       return {
         ...state,
