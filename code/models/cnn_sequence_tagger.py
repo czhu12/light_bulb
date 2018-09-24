@@ -2,6 +2,7 @@ from keras.models import Sequential
 from keras import layers
 from models.base_model import BaseModel
 from utils.text_utils import WordVectorizer
+from utils import utils
 
 class CNNSequenceTagger(BaseModel):
     def __init__(
@@ -58,7 +59,7 @@ class CNNSequenceTagger(BaseModel):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
             x_train, lengths = self.lang.tokenized_to_sequence(x_seq)
-            y_train = self.lang.one_hot_encode_sequence(y_seq, self.classes)
+            y_train = utils.one_hot_encode_sequence(y_seq, self.classes)
             history = self.model.fit(x_train, y_train)
             return history.history['loss'][0], history.history['acc'][0]
 
@@ -66,23 +67,28 @@ class CNNSequenceTagger(BaseModel):
         with self.graph.as_default():
             pass
 
-    def score(self, x_seq):
+    def score(self, texts):
         with self.graph.as_default():
             # Unroll until completion (this returns a string)
-            x_seq, lengths = self.lang._sequence_ids(x_seq)
+            x_seq, lengths = self.lang.tokenized_to_sequence(texts)
             return self.model.predict(x_seq)
 
-    def predict(self, x):
+    def predict(self, texts):
         with self.graph.as_default():
-            x, lengths = self.lang._sequence_ids(x)
-            return self.lang.decode_one_hot_sequence_predictions(
-                self.model.predict(x),
+            x_seq, lengths = self.lang.tokenized_to_sequence(texts)
+            predictions = self.lang.decode_one_hot_sequence_predictions(
+                self.model.predict(x_seq),
                 lengths,
                 self.classes,
             )
 
+            tagged = []
+            for text, prediction in zip(texts, predictions):
+                tagged.append([{'word': word, 'tag': tag} for word, tag in zip(text, prediction)])
+            return tagged
+
     def evaluate(self, x_seq, y_seq):
         with self.graph.as_default():
-            x_eval, lengths = self.lang.texts_to_sequence(x_seq)
-            y_eval = self.lang.one_hot_encode_sequence(y_seq, self.classes)
+            x_eval, lengths = self.lang.tokenized_to_sequence(x_seq)
+            y_eval = utils.one_hot_encode_sequence(y_seq, self.classes)
             return self.model.evaluate(x_eval, y_eval)

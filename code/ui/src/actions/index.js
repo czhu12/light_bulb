@@ -229,6 +229,10 @@ export function submitDataToScore() {
       body = { type: 'images', urls: [state.demo.urlSequence] }
     } else if (state.task.dataType === 'text') {
       body = { type: 'text', texts: [state.demo.text] }
+    } else if (state.task.dataType === 'json') {
+      // Here, we have to tokenize the text. We should tokenize with punctuation
+      let tokenized = state.demo.text.split(/\W+/);
+      body = { type: 'text', texts: [tokenized] }
     }
 
     dispatch(submitData(body));

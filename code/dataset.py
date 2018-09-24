@@ -271,6 +271,16 @@ class JSONDataset(TextDataset):
             ids = []
         return x_train, ids
 
+    def model_labelling_set(self, size=MIN_UNSUPERVISED_EXAMPLES):
+        data = self.model_label if len(self.model_label) < size else self.model_label.sample(size)
+        if len(data) > 0:
+            x_train = [json.loads(val) for val in data['text'].values]
+            ids = data['path'].values
+        else:
+            x_train = []
+            ids = []
+        return x_train, ids
+
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
 

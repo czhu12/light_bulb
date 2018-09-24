@@ -58,7 +58,9 @@ class DemoApp extends React.Component {
           </div>
 				</div>
       )
-    } else if (this.props.task.dataType === 'text') {
+    } else if (this.props.task.dataType === 'text'
+      || (this.props.task.dataType == 'json'
+        && this.props.task.labelType === 'sequence')) {
       demoView = (
         <div>
           <form>
@@ -76,22 +78,23 @@ class DemoApp extends React.Component {
             <button
               onClick={this.props.submitDataToScore}
               className="btn btn-primary">
-              Classify Text
+              Predict
             </button>
           </form>
         </div>
       )
-    } else if (this.props.task.dataType == 'object_detection') {
+    } else if (this.props.task.labelType == 'object_detection') {
       <BoundingBoxDemoView
         url={this.props.demo.url}
         boundingBoxes={firstPrediction}
       />
     }
+
     return (
       <div>
         <NavigationBar />
         <div className="container">
-          { demoView }
+          {demoView}
           {predictionClasses}
         </div>
       </div>
