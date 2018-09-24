@@ -1,11 +1,13 @@
 import keras
 from keras import layers
 from keras.models import Sequential
-from nltk import word_tokenize
-import string
-from utils.text_utils import WordVectorizer
 import random
 import numpy as np
+from nltk import word_tokenize
+import string
+
+from utils.text_utils import WordVectorizer
+from utils import utils
 
 from models.base_model import BaseModel
 
@@ -49,7 +51,7 @@ class SequenceModel(BaseModel):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
             x_train, lengths = self.lang.texts_to_sequence(x_seq)
-            y_train = self.lang.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
+            y_train = utils.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
             return self.model.fit(x_train, y_train)
 
     def representation_learning(self, x_train, epochs=1):
@@ -77,5 +79,5 @@ class SequenceModel(BaseModel):
     def evaluate(self, x_seq, y_seq):
         with self.graph.as_default():
             x_eval, lengths = self.lang.texts_to_sequence(x_seq)
-            y_eval = self.lang.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
+            y_eval = utils.one_hot_encode_sequence(y_seq, valid_tokens=self.valid_outputs)
             return self.model.evaluate(x_eval, y_eval)

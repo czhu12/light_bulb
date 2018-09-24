@@ -93,38 +93,6 @@ class WordVectorizer():
 
         return sequences
 
-    def decode_one_hot_sequence_predictions(self, y_scores, lengths, id2class):
-        id2class = [PAD_TOKEN, EOS_TOKEN] + list(id2class)
-        class2id = { t: i for i, t in enumerate(id2class) }
-        decoded = []
-        for index, y_score in enumerate(y_scores):
-            tags = []
-            idxs = np.argmax(y_score, axis=1)
-            for idx in idxs:
-                tags.append(id2class[idx])
-
-            length = lengths[index]
-            decoded.append(tags[-length:-1])
-        # Filter out all preset tokens
-        return decoded
-
-    # Token wise one hot encode.
-    def one_hot_encode_sequence(self, y_seqs, id2class):
-        id2class = [PAD_TOKEN, EOS_TOKEN] + list(id2class)
-        class2id = { c: i for i, c in enumerate(id2class) }
-        for y_seq in y_seqs:
-            assert all(y in id2class for y in y_seq), "{} not in valid_tokens: {}".format(set(y_seq) - set(id2class), id2class)
-
-        _to_seq_ids = lambda seq: [class2id[y] for y in seq]
-        y_seq_ids = [_to_seq_ids(y_seq) for y_seq in y_seqs]
-        ys = pad_sequences(y_seq_ids, value=class2id[PAD_TOKEN])
-        y_one_hot = np.zeros((len(ys), len(ys[0]), len(class2id)))
-        for idx, y in enumerate(ys):
-            for idx2, y2 in enumerate(y):
-                y_one_hot[idx][idx2][y2] = 1.
-
-        return y_one_hot
-
     def texts_to_sequence(self, texts, maxlen=None, include_stop_token=False):
         """
         Sequences is padded of size (batch, maxlen).
