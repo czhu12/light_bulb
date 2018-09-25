@@ -76,7 +76,7 @@ class Dataset:
         model_labelled = model_labelled[model_labelled['label'] == target_class]
         if len(model_labelled) < num:
             return int(target_class), model_labelled
-        return int(target_class), model_labelled.sample(num)
+        return model_labelled.sample(num), int(target_class)
 
     @property
     def stats(self):
@@ -280,6 +280,13 @@ class JSONDataset(TextDataset):
             x_train = []
             ids = []
         return x_train, ids
+
+    @property
+    def model_labelled(self, num=100):
+        model_labelled = self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
+        if len(model_labelled) == 0:
+            return -1, self.empty_dataframe()
+        return model_labelled.sample(num), -1
 
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']

@@ -127,8 +127,10 @@ def batch():
 
 @app.route('/batch_items_batch', methods=['GET'])
 def batch_items_batch():
+    # TODO: Fix this shit.
+    target_size = 10 if label_app.label_helper.label_type == 'sequence' else 100
     batch, target_class = label_app.next_model_labelled_batch()
-    if target_class == -1:
+    if len(batch) == 0:
         return jsonify({
             "batch": [],
             "target_class": 0,

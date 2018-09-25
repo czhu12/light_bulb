@@ -72,7 +72,7 @@ class LabelApp:
         return len(self.dataset.unlabelled) == 0
 
     def next_model_labelled_batch(self, size=100):
-        target_class, model_labelled = self.dataset.model_labelled
+        model_labelled, target_class = self.dataset.model_labelled
         return model_labelled, target_class
 
     def next_batch(self, size=10, force_stage=None, reverse_entropy=False, prediction=False):
