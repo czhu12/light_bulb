@@ -10,6 +10,7 @@ import ImageTaskBatchView from './ImageTaskBatchView';
 import TaskDescriptionView from './TaskDescriptionView';
 import BoundingBoxImageTaskView from './BoundingBoxImageTaskView';
 import SequenceTaggerTaskView from './SequenceTaggerTaskView';
+import SequenceTaggerTaskBatchView from './SequenceTaggerTaskBatchView';
 import JSONTaskView from './JSONTaskView';
 import Footer from './Footer';
 
@@ -38,12 +39,13 @@ class LabelApp extends React.Component {
         currentPrediction = this.props.predictions[this.props.currentIndex];
       }
 
-      if (this.props.task.isBatchView) {
+      if (this.props.task.isBatchView && this.props.task.labelType === 'classification') {
         taskView = (
-          <ImageTaskBatchView
-            items={this.props.items}
-            predictions={this.props.predictions}
-          />
+          <ImageTaskBatchView />
+        );
+      } else if (this.props.task.isBatchView && this.props.task.labelType === 'sequence') {
+        taskView = (
+          <SequenceTaggerTaskBatchView task={this.props.task} />
         );
       } else if (this.props.task.dataType === 'images' && this.props.task.labelType === 'object_detection') {
         taskView = (
@@ -88,7 +90,9 @@ class LabelApp extends React.Component {
     let style = this.props.done ? { display: "none" } : {}
     let footer = null;
 
-    if (!(this.props.task.isBatchView && this.props.task.labelType === 'classification')) {
+    let isBatchViewForClassification = this.props.task.isBatchView && this.props.task.labelType === 'classification';
+    if (!isBatchViewForClassification) {
+      console.log('showing footer');
       footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
     }
 
@@ -97,8 +101,8 @@ class LabelApp extends React.Component {
         null;
 
     let taskViewStyle = {
-      overflowY: this.props.task.isBatchView ? 'visible' : 'auto',
-      maxHeight: this.props.task.isBatchView ? 'none': '400px',
+      overflowY: isBatchViewForClassification ? 'visible' : 'auto',
+      maxHeight: isBatchViewForClassification ? 'none': `${window.innerHeight - 200}px`,
       marginLeft: '20px',
       marginRight: '20px',
     }

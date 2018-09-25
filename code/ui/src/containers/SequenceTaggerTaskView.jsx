@@ -1,7 +1,17 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import { CLASSIFICATION_COLORS } from '../constants';
-import { changeSequenceInput, submitJudgement } from '../actions';
+import { submitJudgement } from '../actions';
+
+function isJsonString(str) {
+    try {
+      JSON.parse(str);
+    } catch (e) {
+      return false;
+    }
+    return true;
+}
+
 
 class SequenceTaggerTaskView extends React.Component {
   constructor(props) {
@@ -19,16 +29,31 @@ class SequenceTaggerTaskView extends React.Component {
 
   initializeTags(props) {
     let sequence = JSON.parse(props.currentItem['text']);
-    let labels = sequence.map((word, index) => {
-      return {word, classIdx: null}
-    })
-    return labels
+    // If there is already a prediction
+    if (isJsonString(props.currentItem['label'])) {
+      let labels = JSON.parse(props.currentItem['label']);
+      console.log(props);
+      let classes = props.task.classes;
+      return labels.map((label) => {
+        let word = label['word'];
+        let tag = label['tag'];
+        return {
+          word: word,
+          classIdx: classes.indexOf(tag),
+        };
+      })
+    } else {
+      let labels = sequence.map((word, index) => {
+        return {word, classIdx: null}
+      })
+      return labels
+    }
   }
 
   clickedWord(e) {
     let index = parseInt(e.target.getAttribute('data-word-index'), 10);
     let labels = this.state.labels.slice();
-    if (labels[index]['classIdx'] == this.props.currentSelectedClass) {
+    if (labels[index]['classIdx'] === this.props.currentSelectedClass) {
       // Unset tag
       labels[index] = {
         word: labels[index]['word'],

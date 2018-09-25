@@ -42,6 +42,8 @@ def main(config_path, dataset_path):
     label_helper = Label.load_from(parser.label)
     user = config['user']
     label_app = LabelApp(task, dataset, label_helper, user, model_config, parser)
+    import pdb
+    pdb.set_trace()
     label_app.trainer.train_epochs(epochs=1)
 
     # Save the model once its trained

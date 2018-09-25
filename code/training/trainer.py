@@ -59,6 +59,7 @@ class Trainer():
 
     def train_epochs(self, epochs=10):
         # This is only used for pretraining
+        self.logger.debug("Training for {} epochs".format(epochs))
         for i in range(epochs):
             train_loss, train_acc = self.train_step()
             self.history.add_train_eval_step(

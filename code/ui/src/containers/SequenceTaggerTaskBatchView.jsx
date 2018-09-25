@@ -1,5 +1,7 @@
 import { connect } from 'react-redux';
+import { zip } from 'lodash';
 import React from 'react';
+import { submitBatchJudgements } from '../actions';
 
 import SequenceTaggerTaskView from './SequenceTaggerTaskView';
 
@@ -20,31 +22,19 @@ class SequenceTaggerTaskBatchView extends React.Component {
     this.setState({selected: selected});
   }
 
-  onClickImage(idx) {
-    let selected = this.state.selected.slice(0);
-    selected[idx] = !selected[idx];
-    this.setState({selected: selected});
-  }
-
   render() {
     let items = this.props.batchItems.items;
-
+    let sequenceTaggerView = items.map((item) => {
+      return (
+        <div>
+          <SequenceTaggerTaskView task={this.props.task} currentItem={item} />
+          <hr />
+        </div>
+      )
+    });
     return (
       <div>
-        {images}
-        <div className="pull-right">
-          <a
-            onClick={this.props.onClickSubmit.bind(
-              null,
-              this.props.batchItems.items,
-              this.state.selected,
-              this.props.batchItems.targetClass,
-            )}
-            style={{color: '#eee', backgroundColor: color}}
-            className="btn btn-lg">
-            Submit {fetchingView}
-          </a>
-        </div>
+        {sequenceTaggerView}
       </div>
     );
   }

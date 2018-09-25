@@ -19,7 +19,7 @@ class NavigationBar extends React.Component {
     const isImageBatchView = this.props.task.dataType === 'images' &&
       (this.props.task.labelType === 'binary' || this.props.task.labelType === 'classification');
 
-    const isSequenceBatchView = this.props.task.dataType === 'text' && this.props.task.labelType === 'sequence';
+    const isSequenceBatchView = this.props.task.dataType === 'json' && this.props.task.labelType === 'sequence';
 
     if ((isImageBatchView || isSequenceBatchView) && (this.props.labelled.model_labelled > 0)) {
       if (this.props.task.isBatchView) {

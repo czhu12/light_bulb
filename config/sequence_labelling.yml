@@ -17,5 +17,5 @@ label:
     - I-PER
 model:
   directory: outputs/sequence_labelling/models/
-  pretrain_file: dataset/pretrain-small.csv
+  pretrain_file: dataset/pretrain.csv
 user: chris

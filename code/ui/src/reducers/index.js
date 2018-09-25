@@ -167,6 +167,7 @@ const batchItems = (state = {
   fetching: false,
   items: [],
   targetClass: 0,
+  predictions: [],
   done: false,
   errorMsg: null,
 }, action) => {
@@ -182,6 +183,7 @@ const batchItems = (state = {
         fetching: false,
         items: action.items.batch,
         targetClass: action.items.target_class,
+        predictions: action.items.predictions,
         done: action.items.done,
         errorMsg: null,
       };
