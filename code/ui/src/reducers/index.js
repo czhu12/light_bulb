@@ -31,6 +31,7 @@ import {
   FETCH_BATCH_ITEMS_SUCCESS,
   FETCH_BATCH_ITEMS_FAILURE,
   BATCH_LABELLING_COMPLETE,
+  UPDATE_BATCH_ITEMS_BY_INDEX,
 } from '../actions';
 
 const task = (state = {
@@ -176,6 +177,13 @@ const batchItems = (state = {
       return {
         ...state,
         fetching: true,
+      };
+    case UPDATE_BATCH_ITEMS_BY_INDEX:
+      let items = state.items.slice();
+      items[action.index] = action.item;
+      return {
+        ...state,
+        items,
       };
     case FETCH_BATCH_ITEMS_SUCCESS:
       return {

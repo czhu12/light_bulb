@@ -71,6 +71,7 @@ class LabelApp extends React.Component {
       } else if (this.props.task.dataType === 'json' && this.props.task.labelType === 'sequence') {
         taskView = (
           <SequenceTaggerTaskView
+            isBatchMode={false}
             currentItem={currentItem}
             task={this.props.task}
           />
@@ -92,7 +93,6 @@ class LabelApp extends React.Component {
 
     let isBatchViewForClassification = this.props.task.isBatchView && this.props.task.labelType === 'classification';
     if (!isBatchViewForClassification) {
-      console.log('showing footer');
       footer = (<Footer task={this.props.task} currentPrediction={currentPrediction} />);
     }
 

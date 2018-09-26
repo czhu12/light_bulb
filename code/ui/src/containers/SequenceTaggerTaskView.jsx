@@ -32,14 +32,15 @@ class SequenceTaggerTaskView extends React.Component {
     // If there is already a prediction
     if (isJsonString(props.currentItem['label'])) {
       let labels = JSON.parse(props.currentItem['label']);
-      console.log(props);
       let classes = props.task.classes;
       return labels.map((label) => {
         let word = label['word'];
         let tag = label['tag'];
+        let tagIdx = classes.indexOf(tag);
+        tagIdx = tagIdx === -1 ? null : tagIdx;
         return {
           word: word,
-          classIdx: classes.indexOf(tag),
+          classIdx: tagIdx,
         };
       })
     } else {
@@ -67,6 +68,15 @@ class SequenceTaggerTaskView extends React.Component {
       }
     }
 
+    if (this.props.isBatchMode) {
+      this.props.changedLabels(labels.map((l) => {
+        let tag = l['classIdx'] !== null ? this.props.task.classes[l['classIdx']] : this.props.task.defaultClass;
+        return {
+          tag: tag,
+          word: l['word'],
+        }
+      }));
+    }
     this.setState({labels});
   }
 
@@ -78,11 +88,15 @@ class SequenceTaggerTaskView extends React.Component {
 	}
 
 	componentDidMount() {
-		window.addEventListener("keypress", this._submitLabels.bind(this));
+    if (!this.props.isBatchMode) {
+      window.addEventListener("keypress", this._submitLabels.bind(this));
+    }
 	}
 
 	componentWillUnmount() {
-		window.removeEventListener("keypress", this._submitLabels.bind(this));
+    if (!this.props.isBatchMode) {
+      window.removeEventListener("keypress", this._submitLabels.bind(this));
+    }
 	}
 
   render() {

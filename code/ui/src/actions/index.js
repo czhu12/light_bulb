@@ -300,6 +300,13 @@ export const batchLabellingComplete = () => ({
   type: BATCH_LABELLING_COMPLETE
 });
 
+export const UPDATE_BATCH_ITEMS_BY_INDEX = 'UPDATE_BATCH_ITEMS_BY_INDEX';
+export const updateBatchItemByIndex = (index, item) => ({
+  type: UPDATE_BATCH_ITEMS_BY_INDEX,
+  item: item,
+  index: index,
+});
+
 export function submitBatchJudgements(judgements) {
   return (dispatch, getState) => {
     const state = getState();
