@@ -129,7 +129,7 @@ def batch():
 def batch_items_batch():
     # TODO: Fix this shit.
     target_size = 10 if label_app.label_helper.label_type == 'sequence' else 100
-    batch, target_class = label_app.next_model_labelled_batch()
+    batch, target_class = label_app.next_model_labelled_batch(target_size)
     if len(batch) == 0:
         return jsonify({
             "batch": [],

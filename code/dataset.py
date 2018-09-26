@@ -67,7 +67,6 @@ class Dataset:
     def all(self):
         return self.dataset
 
-    @property
     def model_labelled(self, num=100):
         model_labelled = self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
         if len(model_labelled) == 0:
@@ -281,7 +280,6 @@ class JSONDataset(TextDataset):
             ids = []
         return x_train, ids
 
-    @property
     def model_labelled(self, num=100):
         model_labelled = self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
         if len(model_labelled) == 0:

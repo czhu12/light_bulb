@@ -1,14 +1,13 @@
 import { connect } from 'react-redux';
 import { zip } from 'lodash';
 import React from 'react';
-import { submitBatchJudgements } from '../actions';
+import { submitBatchJudgements, updateBatchItemByIndex } from '../actions';
 
 import SequenceTaggerTaskView from './SequenceTaggerTaskView';
 
 class SequenceTaggerTaskBatchView extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {selected: props.batchItems.items.map(() => true)};
   }
 
   componentDidUpdate(prevProps, prevState, snapshot) {
@@ -17,17 +16,36 @@ class SequenceTaggerTaskBatchView extends React.Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    let selected = nextProps.batchItems.items.map(() => true);
-    this.setState({selected: selected});
+  changedLabels(index, label) {
+    let item = this.props.batchItems.items.slice()[index];
+    item['label'] = JSON.stringify(label);
+    this.props.updateBatchItemByIndex(index, item);
   }
+
+  _submitLabels() {
+    // Submit labels in this.props.batchItems.items;
+  }
+
+	componentDidMount() {
+    window.addEventListener("keypress", this._submitLabels.bind(this));
+	}
+
+	componentWillUnmount() {
+    window.removeEventListener("keypress", this._submitLabels.bind(this));
+	}
 
   render() {
     let items = this.props.batchItems.items;
-    let sequenceTaggerView = items.map((item) => {
+    console.log(items);
+    let sequenceTaggerView = items.map((item, index) => {
       return (
         <div>
-          <SequenceTaggerTaskView task={this.props.task} currentItem={item} />
+          <SequenceTaggerTaskView
+            isBatchMode={true}
+            task={this.props.task}
+            currentItem={item}
+            changedLabels={this.changedLabels.bind(this, index)}
+          />
           <hr />
         </div>
       )
@@ -35,6 +53,11 @@ class SequenceTaggerTaskBatchView extends React.Component {
     return (
       <div>
         {sequenceTaggerView}
+        <a
+          onClick={this._submitLabels.bind(this)}
+          className="btn btn-lg">
+          Submit
+        </a>
       </div>
     );
   }
@@ -47,16 +70,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onClickSubmit: (items, selected, targetClass) => {
-    let judgements = items.map((item, idx) => {
-      return {
-        path: item['path'],
-        is_target_class: selected[idx],
-        target_class: targetClass,
-      }
-    });
-
-    dispatch(submitBatchJudgements(judgements));
+  updateBatchItemByIndex: (index, item) => {
+    dispatch(updateBatchItemByIndex(index, item));
   }
 });
 

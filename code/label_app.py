@@ -72,7 +72,7 @@ class LabelApp:
         return len(self.dataset.unlabelled) == 0
 
     def next_model_labelled_batch(self, size=100):
-        model_labelled, target_class = self.dataset.model_labelled
+        model_labelled, target_class = self.dataset.model_labelled(size)
         return model_labelled, target_class
 
     def next_batch(self, size=10, force_stage=None, reverse_entropy=False, prediction=False):
@@ -127,34 +127,38 @@ class LabelApp:
 
 
     def add_labels(self, labels):
-        is_binary_classification = len(self.label_helper.classes) == 2
+        is_classification = self.label_helper.label_type == 'classification'
+        if is_classification:
+            is_binary_classification = len(self.label_helper.classes) == 2
 
-        for idx, label in enumerate(labels):
-            _id = label['path']
-            is_target_class = label['is_target_class']
-            save = idx == len(labels) - 1
+            for idx, label in enumerate(labels):
+                _id = label['path']
+                is_target_class = label['is_target_class']
+                save = idx == len(labels) - 1
 
-            if is_target_class:
-                self.dataset.add_label(label['path'], label['target_class'], Dataset.TRAIN, user=self.user, save=save)
-            else:
-                if is_binary_classification:
-                    self.dataset.add_label(
-                        label['path'],
-                        0 if label['target_class'] == 1 else 1,
-                        Dataset.TRAIN,
-                        user=self.user,
-                        save=save,
-                    )
+                if is_target_class:
+                    self.dataset.add_label(label['path'], label['target_class'], Dataset.TRAIN, user=self.user, save=save)
                 else:
-                    # If the task is not binary classification, then its impossible to know what the "other" label is.
-                    # Flag this as USER_MODEL_DISAGREEMENT
-                    self.dataset.add_label(
-                        label['path'],
-                        label['target_class'],
-                        Dataset.USER_MODEL_DISAGREEMENT,
-                        user=self.user,
-                        save=save,
-                    )
+                    if is_binary_classification:
+                        self.dataset.add_label(
+                            label['path'],
+                            0 if label['target_class'] == 1 else 1,
+                            Dataset.TRAIN,
+                            user=self.user,
+                            save=save,
+                        )
+                    else:
+                        # If the task is not binary classification, then its impossible to know what the "other" label is.
+                        # Flag this as USER_MODEL_DISAGREEMENT
+                        self.dataset.add_label(
+                            label['path'],
+                            label['target_class'],
+                            Dataset.USER_MODEL_DISAGREEMENT,
+                            user=self.user,
+                            save=save,
+                        )
+        else:
+            pass
 
     def add_label(self, _id, label):
         # Validate label
