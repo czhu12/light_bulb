@@ -84,7 +84,7 @@ class Trainer():
     # 2. actual training.
     # This information should be saved with the model so training can restart.
     def train(self, total_epochs=None):
-        sleep_time = 10.
+        sleep_time = 1.
         # Unsupervised pre-training
         if self.should_learn_to_represent(self.dataset, self.history):
             self.logger.debug("Starting representation training.")

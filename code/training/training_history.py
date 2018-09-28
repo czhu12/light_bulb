@@ -49,8 +49,8 @@ class TrainingHistory:
             return True
 
         recent_step = self.history[-1]
-        greater_than_pct = current_labels / float(recent_step['num_labels']) > 1.2
-        greater_than_val = current_labels - recent_step['num_labels'] > 30
+        greater_than_pct = current_labels / float(recent_step['stats']['labelled']['train']) > 1.2
+        greater_than_val = current_labels - recent_step['stats']['labelled']['train'] > 30
         if greater_than_pct or greater_than_val:
             self._was_training = True
             return True
@@ -74,7 +74,7 @@ class TrainingHistory:
             return False
         first_event = self.history[0]
         last_event = self.history[-1]
-        return last_event['num_labels'] / first_event['num_labels'] > 5
+        return last_event['stats']['labelled']['train'] / first_event['stats']['labelled']['train'] > 5
 
     def should_save_model(self):
         ret = self._should_save
