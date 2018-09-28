@@ -36,7 +36,6 @@ class SequenceTaggerTaskBatchView extends React.Component {
 
   render() {
     let items = this.props.batchItems.items;
-    console.log(items);
     let sequenceTaggerView = items.map((item, index) => {
       return (
         <div>

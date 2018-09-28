@@ -61,23 +61,26 @@ class ModelLabeller():
         for _id, (text, prediction) in zip(ids, zip(unlabelled_texts, dist)):
             # The prediction has padding so we only take the last len(text) scores.
             text_tag = []
+            met_threshold = True
             for word, word_likelihood_dist in zip(text, prediction[-len(text):]):
                 idx = np.argmax(word_likelihood_dist)
                 tag = id2class[idx]
                 if word_likelihood_dist.max() < threshold:
-                    continue
+                    met_threshold = False
+                    break
                 text_tag.append({'word': word, 'tag': tag})
 
-            self.dataset.add_label(
-                _id,
-                self.label_helper.decode(text_tag),
-                stage=Dataset.MODEL_LABELLED,
-                user=Dataset.USER_MODEL_LABELLER,
-                is_labelled=False,
-                save=True,
-            )
+            if met_threshold:
+                self.dataset.add_label(
+                    _id,
+                    self.label_helper.decode(text_tag),
+                    stage=Dataset.MODEL_LABELLED,
+                    user=Dataset.USER_MODEL_LABELLER,
+                    is_labelled=False,
+                    save=True,
+                )
         return len(accepted_text_tags)
-        
+
     def _score_classification(self, x_test, y_test):
         loss, acc = self.model.evaluate(x_test, y_test)
 
@@ -132,7 +135,14 @@ class ModelLabeller():
             x_test, y_test = self.dataset.test_set
 
             if len(x_test) < MIN_TEST_EXAMPLES:
-                self.logger.debug("Need at least {} labels to start labelling".format(MIN_TEST_EXAMPLES))
+                self.logger.debug("Need at least {} test labels to start labelling".format(MIN_TEST_EXAMPLES))
+                self.exponential_backoff_factor += 1
+                continue
+
+            x_train, y_train = self.dataset.train_set
+
+            if len(x_train) < MIN_TRAIN_EXAMPLES:
+                self.logger.debug("Need at least {} train labels to start labelling".format(MIN_TRAIN_EXAMPLES))
                 self.exponential_backoff_factor += 1
                 continue
 

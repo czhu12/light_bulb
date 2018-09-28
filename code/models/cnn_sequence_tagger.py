@@ -1,3 +1,4 @@
+import keras
 from keras.models import Sequential
 from keras import layers
 from models.base_model import BaseModel
@@ -8,7 +9,7 @@ class CNNSequenceTagger(BaseModel):
     def __init__(
         self,
         classes,
-        num_filters=400,
+        num_filters=700,
         kernel_size=3,
         hidden_size=128,
         dropout_rate=0.25,
@@ -35,7 +36,7 @@ class CNNSequenceTagger(BaseModel):
             activation='relu',
             strides=1,
         ))
-        
+
         model.add(layers.Conv1D(
             self.num_filters,
             self.kernel_size,
@@ -51,7 +52,7 @@ class CNNSequenceTagger(BaseModel):
         model.add(layers.TimeDistributed(layers.Dense(len(self.classes) + 2)))
         model.add(layers.Activation('softmax'))
         model.compile(loss='binary_crossentropy',
-              optimizer='adam',
+              optimizer=keras.optimizers.Adam(lr=0.0005),
               metrics=['accuracy'])
         return model
 
@@ -60,7 +61,7 @@ class CNNSequenceTagger(BaseModel):
             # Assumption: sequence_tagger(words) -> characters
             x_train, lengths = self.lang.tokenized_to_sequence(x_seq)
             y_train = utils.one_hot_encode_sequence(y_seq, self.classes)
-            history = self.model.fit(x_train, y_train)
+            history = self.model.fit(x_train, y_train, verbose=0)
             return history.history['loss'][0], history.history['acc'][0]
 
     def representation_learning(self, x_train, epochs=1):
@@ -91,4 +92,4 @@ class CNNSequenceTagger(BaseModel):
         with self.graph.as_default():
             x_eval, lengths = self.lang.tokenized_to_sequence(x_seq)
             y_eval = utils.one_hot_encode_sequence(y_seq, self.classes)
-            return self.model.evaluate(x_eval, y_eval)
+            return self.model.evaluate(x_eval, y_eval, verbose=0)

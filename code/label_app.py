@@ -91,13 +91,15 @@ class LabelApp:
         # Generate training data
         sampled_df = self.dataset.sample(size * 5)
         if self.data_type == Dataset.IMAGE_TYPE:
-            x_data = utils.load_images(sampled_df['path'].values, self.dataset.input_shape)
+            x_data, ids = self.dataset.unlabelled_set(size * 5)
         if self.data_type == Dataset.TEXT_TYPE:
-            x_data = sampled_df['text'].values
+            x_data, ids = self.dataset.unlabelled_set(size * 5)
+        if self.data_type == Dataset.JSON_TYPE:
+            x_data, ids = self.dataset.unlabelled_set(size * 5)
 
         scores = self.model.score(x_data)
         entropy_func = lambda scores: np.sum(scores * np.log(1 / scores), axis=-1)
-        if type(scores) == list:
+        if len(scores.shape) == 3:
             entropy = np.array([entropy_func(score).mean() for score in scores])
         else:
             entropy = entropy_func(scores)
@@ -111,7 +113,11 @@ class LabelApp:
             entropy_indexes = np.argpartition(-entropy, num)[:num]
 
         # Make predictions
-        x_to_score = x_data[entropy_indexes]
+        # TODO: This doesn't work for text or json types
+        if self.data_type == Dataset.IMAGE_TYPE:
+            x_to_score = x_data[entropy_indexes]
+        else:
+            x_to_score = []
 
         y_prediction = None
         if prediction and len(x_to_score) > 0:
@@ -158,7 +164,15 @@ class LabelApp:
                             save=save,
                         )
         else:
-            pass
+            # TODO: The is_classification case should fit nicely into code like the ones below: please refactor
+            for label in labels:
+                label = label['path']
+                self.dataset.add_label(
+                    label['path'],
+                    label['label'],
+                    Dataset.TRAIN,
+                    user=self.user,
+                )
 
     def add_label(self, _id, label):
         # Validate label
