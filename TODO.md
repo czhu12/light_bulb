@@ -1,4 +1,6 @@
-Add a feature to be able to hash the relevant parts of the config file and save it somewhere.
+https://github.com/keras-team/keras/issues/9424
+Pretrain a cnn language model
+Need a way to reset the model
 
 I want a pretraining feature.
 

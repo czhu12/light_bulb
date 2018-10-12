@@ -284,7 +284,7 @@ class JSONDataset(TextDataset):
         model_labelled = self.dataset[self.dataset['stage'] == Dataset.MODEL_LABELLED]
         if len(model_labelled) == 0:
             return -1, self.empty_dataframe()
-        return model_labelled.sample(num), -1
+        return model_labelled.sample(min(num, len(model_labelled))), -1
 
 class ImageDataset(Dataset):
     COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']

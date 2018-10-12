@@ -26,9 +26,8 @@ class PretrainJSONDataset(JSONDataset):
         pass
 
 @plac.annotations(
-    config_path=("Config path.", "option", "c", str),
-    dataset_path=("Dataset path.", "option", "d", str))
-def main(config_path, dataset_path):
+    config_path=("Config path.", "option", "c", str))
+def main(config_path):
     # For pretraining, we do everything the same, except we replace the
     # dataset:judgements_file with model:pretrain_file.
     with open(config_path) as f:
@@ -42,8 +41,7 @@ def main(config_path, dataset_path):
     label_helper = Label.load_from(parser.label)
     user = config['user']
     label_app = LabelApp(task, dataset, label_helper, user, model_config, parser)
-    import pdb
-    pdb.set_trace()
+    label_app.trainer.load_existing()
     label_app.trainer.train_epochs(epochs=1)
 
     # Save the model once its trained
