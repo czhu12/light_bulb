@@ -1,0 +1,15 @@
+task:
+  title: Label this sequence with its named entities
+dataset:
+  directory: dataset/short_sequence_labelling/
+  data_type: json
+  judgements_file: outputs/short_sequence_labelling/labels.csv
+label:
+  type: sequence
+  default_class: O
+  classes:
+    - LOC
+    - NAME
+model:
+  directory: outputs/short_sequence_labelling/models/
+user: chris

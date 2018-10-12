@@ -49,22 +49,23 @@ class CNNSequenceTagger(BaseModel):
         model.add(layers.Activation('relu'))
         model.add(layers.Dropout(self.dropout_rate))
 
-        model.add(layers.TimeDistributed(layers.Dense(len(self.classes) + 2)))
+        model.add(layers.TimeDistributed(layers.Dense(len(self.classes))))
         model.add(layers.Activation('softmax'))
         model.compile(loss='binary_crossentropy',
               optimizer=keras.optimizers.Adam(lr=0.0005),
               metrics=['accuracy'])
         return model
 
-    def fit(self, x_seq, y_seq, validation_split=0., epochs=1):
+    def fit(self, x_seq, y_seq, validation_split=0., epochs=1, verbose=0):
         with self.graph.as_default():
             # Assumption: sequence_tagger(words) -> characters
             x_train, lengths = self.lang.tokenized_to_sequence(x_seq)
             y_train = utils.one_hot_encode_sequence(y_seq, self.classes)
-            history = self.model.fit(x_train, y_train, verbose=0)
+            history = self.model.fit(x_train, y_train, verbose=verbose)
             return history.history['loss'][0], history.history['acc'][0]
 
-    def representation_learning(self, x_train, epochs=1):
+    def representation_learning(self, texts, epochs=1):
+        x_seq, lengths = self.lang.tokenized_to_sequence(texts)
         with self.graph.as_default():
             pass
 

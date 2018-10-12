@@ -166,7 +166,6 @@ class LabelApp:
         else:
             # TODO: The is_classification case should fit nicely into code like the ones below: please refactor
             for label in labels:
-                label = label['path']
                 self.dataset.add_label(
                     label['path'],
                     label['label'],

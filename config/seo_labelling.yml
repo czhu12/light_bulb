@@ -1,5 +1,5 @@
 task:
-  title: Label this sequence with its named entities
+  title: Label this sequence with its NERs
 dataset:
   directory: dataset/sequence_labelling/
   data_type: json
@@ -8,13 +8,11 @@ label:
   type: sequence
   default_class: O
   classes:
-    - B-LOC
-    - B-MISC
-    - B-ORG
-    - I-LOC
-    - I-MISC
-    - I-ORG
-    - I-PER
+    - LOC
+    - ATTR
+    - HOME-TYPE
+    - ACT
+    - AMENITIES
 model:
   directory: outputs/sequence_labelling/models/
   pretrain_file: dataset/pretrain.csv

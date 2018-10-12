@@ -68,22 +68,14 @@ class ModelBuilder:
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
             cnn_model = CNNTextClassifier(2)
             return cnn_model
-            #rnn_model = RNNModel(2, word_list)
-            #rnn_model.load_lm('vendor/keras_language_model')
-            #return rnn_model
 
         if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
             cnn_model = CNNTextClassifier(len(self.label.classes))
             return cnn_model
-            #rnn_model = RNNModel(len(self.label.classes), word_list)
-            #rnn_model.load_lm('vendor/keras_language_model')
-            #return rnn_model
-            #return LM_TextClassifier(lm, len(self.label.classes))
 
         if self.dataset.data_type == Dataset.JSON_TYPE and self.label.label_type == Label.SEQUENCE:
             from models.cnn_sequence_tagger import CNNSequenceTagger
-            classes = self.label.classes + [self.label.default_class] if self.label.default_class else self.label.classes
-            return CNNSequenceTagger(classes)
+            return CNNSequenceTagger(self.label.score_classes)
 
         if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
             from models.lightnet_model import LightnetModel

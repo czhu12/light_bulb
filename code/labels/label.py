@@ -1,6 +1,7 @@
 import json
 from nltk import word_tokenize
 from utils import utils
+from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
 
 class LabelError(Exception):
     def __init__(self, message):
@@ -68,6 +69,7 @@ class SequenceLabel(Label):
         super(SequenceLabel, self).__init__(kwargs)
         self.default_class = default_class
         self.classes = classes
+        self.score_classes = [PAD_TOKEN, self.default_class] + self.classes
 
     def decode(self, encoded):
         return json.dumps(encoded)

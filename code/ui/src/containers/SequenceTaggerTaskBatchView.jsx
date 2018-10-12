@@ -24,15 +24,8 @@ class SequenceTaggerTaskBatchView extends React.Component {
 
   _submitLabels() {
     // Submit labels in this.props.batchItems.items;
+    this.props.submitBatchJudgements(this.props.batchItems.items);
   }
-
-	componentDidMount() {
-    window.addEventListener("keypress", this._submitLabels.bind(this));
-	}
-
-	componentWillUnmount() {
-    window.removeEventListener("keypress", this._submitLabels.bind(this));
-	}
 
   render() {
     let items = this.props.batchItems.items;
@@ -71,7 +64,10 @@ const mapStateToProps = state => ({
 const mapDispatchToProps = dispatch => ({
   updateBatchItemByIndex: (index, item) => {
     dispatch(updateBatchItemByIndex(index, item));
-  }
+  },
+  submitBatchJudgements: (items) => {
+    dispatch(submitBatchJudgements(items));
+  },
 });
 
 export default connect(

@@ -51,17 +51,17 @@ class Trainer():
         self.logger.debug("Evaluating on {} samples.".format(len(x_test)))
         return self.model.evaluate(x_test, y_test)
 
-    def train_step(self):
+    def train_step(self, verbose=0):
         x_train, y_train = self.dataset.train_set
         y_train = self.label_helper.to_training(y_train)
         self.logger.debug("Training on {} samples.".format(len(x_train)))
-        return self.model.fit(x_train, y_train)
+        return self.model.fit(x_train, y_train, verbose=verbose)
 
     def train_epochs(self, epochs=10):
         # This is only used for pretraining
         self.logger.debug("Training for {} epochs".format(epochs))
         for i in range(epochs):
-            train_loss, train_acc = self.train_step()
+            train_loss, train_acc = self.train_step(verbose=1)
             self.history.add_train_eval_step(
                 self.dataset.stats,
                 train_acc,
