@@ -118,7 +118,7 @@ class CNNModel(BaseModel):
             results = self.autoencoder.fit(x_train, x_train, epochs=epochs, verbose=0)
             return results.history['loss'][0]
 
-    def fit(self, x_train, y_train, validation_split=0., epochs=1):
+    def fit(self, x_train, y_train, validation_split=0., epochs=1, verbose=0):
         y_train = utils.one_hot_encode(y_train, self.num_classes)
 
         x_train, x_val, y_train, y_val = train_test_split(
@@ -141,7 +141,7 @@ class CNNModel(BaseModel):
                 epochs=epochs,
                 validation_data=validation_data,
                 callbacks=callbacks,
-                verbose=0,
+                verbose=verbose,
             )
 
             return (results.history['loss'][0], results.history['acc'][0])
@@ -154,8 +154,8 @@ class CNNModel(BaseModel):
         with self.graph.as_default():
             return self.model.predict(x)[:, 1] > 0.5
 
-    def evaluate(self, x_test, y_test):
+    def evaluate(self, x_test, y_test, verbose=0):
         y_test = utils.one_hot_encode(y_test, self.num_classes)
         with self.graph.as_default():
-            results = self.model.evaluate(x_test, y_test, verbose=0)
+            results = self.model.evaluate(x_test, y_test, verbose=verbose)
             return results[0], results[1]

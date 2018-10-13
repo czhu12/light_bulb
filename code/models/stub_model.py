@@ -5,10 +5,10 @@ class StubModel(BaseModel):
     def representation_learning(self, x_train):
         pass
 
-    def fit(self, x_train, y_train):
+    def fit(self, x_train, y_train, verbose=0):
         pass
 
-    def evaluate(self, x_train, y_train):
+    def evaluate(self, x_train, y_train, verbose=0):
         pass
 
     # Assume binary classification?

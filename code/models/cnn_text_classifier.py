@@ -77,13 +77,13 @@ class CNNTextClassifier(BaseModel):
     def representation_learning(self, x_texts):
         pass
 
-    def evaluate(self, x_texts, y_test):
+    def evaluate(self, x_texts, y_test, verbose=0):
         y_test = utils.one_hot_encode(y_test, self.num_classes)
         x_test = self.vectorize_text(x_texts)
         with self.graph.as_default():
-            return self.model.evaluate(x_test, y_test)
+            return self.model.evaluate(x_test, y_test, verbose=verbose)
 
-    def fit(self, x_texts, y_train, validation_split=0, epochs=1):
+    def fit(self, x_texts, y_train, validation_split=0, epochs=1, verbose=0):
         # Freeze language model
         y_train = utils.one_hot_encode(y_train, self.num_classes)
         x_train = self.vectorize_text(x_texts)
@@ -99,6 +99,6 @@ class CNNTextClassifier(BaseModel):
                 validation_split=validation_split,
                 callbacks=callbacks,
                 epochs=epochs,
-                verbose=0,
+                verbose=verbose,
             )
             return history.history['loss'][0], history.history['acc'][0]

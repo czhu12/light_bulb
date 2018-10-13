@@ -62,19 +62,15 @@ class ModelLabeller():
             # The prediction has padding so we only take the last len(text) scores.
             text_tag = []
             met_threshold = True
-            print("========")
             for word, word_likelihood_dist in zip(text, prediction[-len(text):]):
-                print(word_likelihood_dist)
                 idx = np.argmax(word_likelihood_dist)
                 tag = id2class[idx]
                 if np.max(word_likelihood_dist) < threshold:
-                    print("Missed threshold")
                     met_threshold = False
                     break
                 text_tag.append({'word': word, 'tag': tag})
 
             if met_threshold:
-                print("Met threshold!")
                 self.dataset.add_label(
                     _id,
                     self.label_helper.decode(text_tag),
