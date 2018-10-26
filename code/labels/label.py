@@ -60,12 +60,7 @@ class ClassificationLabel(Label):
         #return utils.one_hot_encode(y, len(self.classes))
 
 class SequenceLabel(Label):
-    def __init__(
-        self,
-        classes=[],
-        default_class=None,
-        **kwargs,
-    ):
+    def __init__(self, classes=[], default_class=None, **kwargs):
         super(SequenceLabel, self).__init__(kwargs)
         self.default_class = default_class
         self.classes = classes
@@ -103,10 +98,10 @@ class ObjectDetectionLabel(Label):
 
     def validate(self, boxes, label):
         boxes = json.loads(boxes)
-        assert all(['startX' in box for box in boxes]), f"startX not in {boxes}"
-        assert all(['startY' in box for box in boxes]), f"startY not in {boxes}"
-        assert all(['width' in box for box in boxes]), f"width not in {boxes}"
-        assert all(['height' in box for box in boxes]), f"height not in {boxes}"
-        assert all(['currentClass' in box for box in boxes]), f"currentClass not in {boxes}"
+        assert all(['startX' in box for box in boxes]), "startX not in {}".format(boxes)
+        assert all(['startY' in box for box in boxes]), "startY not in {}".format(boxes)
+        assert all(['width' in box for box in boxes]), "width not in {}".format(boxes)
+        assert all(['height' in box for box in boxes]), "height not in {}".format(boxes)
+        assert all(['currentClass' in box for box in boxes]), "currentClass not in {}".format(boxes)
 
         return True

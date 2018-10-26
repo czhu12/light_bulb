@@ -56,11 +56,11 @@ def download_file(remote_path, local_dir):
         os.makedirs('./vendor')
 
     if not os.path.isdir(local_dir):
-        logger.debug(f"Created {local_dir}")
+        logger.debug("Created {}".format(local_dir))
         os.makedirs(local_dir)
 
     filename = os.path.basename(remote_path)
-    path_to_downloaded_file = f'{local_dir}/{filename}'
+    path_to_downloaded_file = '{}/{}'.format(local_dir, filename)
     if os.path.exists(path_to_downloaded_file):
         return path_to_downloaded_file
 
