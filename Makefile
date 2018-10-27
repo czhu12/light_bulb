@@ -2,9 +2,12 @@ VIRTUALENV ?= .virt
 PYTHON ?= $(VIRTUALENV)/bin/python
 PWD = $(shell pwd)
 
-.PHONY: clean run
+.PHONY: clean run docker_build
 
-all: .virt light-bulb/ui/build/index.html vendor/keras_language_model dataset vendor vendor/glove.6B
+all: docker_build dataset vendor/glove.6B
+
+docker_build:
+	docker build -t light-bulb .
 
 light-bulb/ui/build/index.html:
 	cd light-bulb/ui; yarn install
@@ -40,6 +43,14 @@ dataset/json_classification: dataset
 	tar -xvf dataset/json_classification.tar.gz -C dataset
 	rm dataset/json_classification.tar.gz
 
+run:
+	docker run -it \
+		-v ${PWD}/config:/app/config \
+	 	-v ${PWD}/dataset:/app/dataset \
+	 	-v ${PWD}/outputs:/app/outputs \
+	 	-v ${PWD}/vendor:/app/vendor \
+	 	-p 5000:5000 light-bulb /bin/bash
+
 dataset:
 	mkdir dataset
 
@@ -47,8 +58,4 @@ vendor:
 	mkdir vendor
 
 clean:
-	rm -rf vendor/keras_langauge_model
-	rm -rf dataset/cat_not_cat
-
-run:
-	docker run -it -v ${PWD}/dataset:/app/dataset -v ${PWD}/outputs:/app/outputs -v ${PWD}/vendor:/app/vendor -p 5000:5000 light-bulb /bin/bash
+	rm -r vendor/*
