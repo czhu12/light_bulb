@@ -4,11 +4,11 @@ PWD = $(shell pwd)
 
 .PHONY: clean run
 
-all: .virt code/ui/build/index.html vendor/keras_language_model dataset vendor vendor/glove.6B
+all: .virt light-bulb/ui/build/index.html vendor/keras_language_model dataset vendor vendor/glove.6B
 
-code/ui/build/index.html:
-	cd code/ui; yarn install
-	cd code/ui; yarn build
+light-bulb/ui/build/index.html:
+	cd light-bulb/ui; yarn install
+	cd light-bulb/ui; yarn build
 
 .virt:
 	virtualenv -p python3 $@

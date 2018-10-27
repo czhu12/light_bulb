@@ -11,8 +11,8 @@ RUN curl -sL https://deb.nodesource.com/setup_9.x | bash
 RUN apt-get update && apt-get install -y python3 python3-dev python3-pip python3-venv
 RUN apt-get install -y curl software-properties-common yarn nodejs unzip 
 
-RUN mkdir -p /app/code/ui/build
-RUN mkdir -p /app/code/ui/public
+RUN mkdir -p /app/light-bulb/ui/build
+RUN mkdir -p /app/light-bulb/ui/public
 WORKDIR /app
 
 ADD Makefile /app/Makefile
