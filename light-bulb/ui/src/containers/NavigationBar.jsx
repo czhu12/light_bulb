@@ -39,7 +39,7 @@ class NavigationBar extends React.Component {
     } else {
       isTraining = (<span className="text-danger">No</span>)
     }
-
+    let averageSecondsPerLabel = Math.round(this.props.averageTimeTaken / 100) / 10;
     return (
       <nav className="navbar navbar-toggleable-md navbar-light bg-faded navbar-expand-md">
         <button className="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarNavAltMarkup" aria-controls="navbarNavAltMarkup" aria-expanded="false" aria-label="Toggle navigation">
@@ -51,6 +51,7 @@ class NavigationBar extends React.Component {
             <a className="nav-item nav-link">Labelled: <b id="labelled-counts-text">{labelled} / {totalItems}</b></a>
             <a className="nav-ite nav-link">Accuracy: <b id="accuracy-text">{maxAccuracy}%</b></a>
             <a className="nav-ite nav-link">Training: <b id="accuracy-text">{isTraining}</b></a>
+            <a className="nav-ite nav-link">Time Per Label: <b id="accuracy-text">{averageSecondsPerLabel} s</b></a>
             <a className="nav-ite nav-link">{toggleBatchView}</a>
           </div>
         </div>
@@ -62,6 +63,7 @@ class NavigationBar extends React.Component {
 const mapStateToProps = state => ({
   task: state.task,
   unlabelled: state.stats.unlabelled,
+  averageTimeTaken: state.stats.averageTimeTaken,
   labelled: state.stats.labelled,
   history: state.stats.history,
   errorMsg: state.judgements.errorMsg || state.stats.errorMsg || state.items.errorMsg,

@@ -28,7 +28,7 @@ make
 #### Cat / not cat demo dataset
 ```
 make dataset/cat_not_cat # Download and set up dataset.
-python light-bulb/server.py --config config/cat_not_cat.yml # Server set up on localhost:5000
+./bin/run config/cat_not_cat.yml # Server set up on localhost:5000
 ```
 
 ## Usage
@@ -104,14 +104,14 @@ user: chris
 To run the text classification demo:
 ```
 make dataset/small_imdb_reviews
-python light-bulb/server.py --config config/small_imdb_reviews.yml
+./bin/run config/small_imdb_reviews.yml
 ```
 
 ### Example Image Classification
 To run the image classification demo:
 ```
 make dataset/cat_not_cat
-python light-bulb/server.py --config config/cat_not_cat.yml
+./bin/run config/cat_not_cat.yml
 ```
 
 ## How It Works

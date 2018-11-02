@@ -1,0 +1,6 @@
+docker run -it \
+  -v $(PWD)/config:/app/config \
+  -v $(PWD)/dataset:/app/dataset \
+  -v $(PWD)/outputs:/app/outputs \
+  -v $(PWD)/vendor:/app/vendor \
+  -p 5000:5000 light-bulb .virt/bin/python light-bulb/server.py --config $1

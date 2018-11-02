@@ -71,7 +71,8 @@ def create_judgement():
         json = request.get_json()
         id = json.get('id')
         label = json.get('label')
-        label_app.add_label(id, label)
+        time_taken = json.get('time_taken')
+        label_app.add_label(id, label, time_taken=time_taken)
         return jsonify({'id': id, 'label': label})
     except LabelError as e:
         return jsonify({'error': e.message})
@@ -81,7 +82,8 @@ def create_judgements():
     try:
         json = request.get_json()
         labels = json.get('labels')
-        label_app.add_labels(labels)
+        avg_time_taken = json.get('avg_time_taken')
+        label_app.add_labels(labels, avg_time_taken=avg_time_taken)
         return jsonify(json)
     except LabelError as e:
         return jsonify({'error': e.message})

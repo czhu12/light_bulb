@@ -149,7 +149,10 @@ export function submitJudgement(judgement) {
     const currentIndex = state.items.currentIndex;
     const items = state.items.items;
     const itemId = items[currentIndex]['path'];
-    dispatch(submitJudgementToBackend(itemId, judgement, () => {
+
+    let timeTaken = new Date().getTime() - state.judgements.timeLastSubmitted;
+    dispatch(submitJudgementToBackend(itemId, judgement, timeTaken, () => {
+      // If 4 away from last item.
       if (currentIndex + 4 > items.length) {
         dispatch(getNextBatch())
       }
@@ -159,13 +162,13 @@ export function submitJudgement(judgement) {
   }
 }
 
-export function submitJudgementToBackend(itemId, judgement, successCallback) {
+export function submitJudgementToBackend(itemId, judgement, timeTaken, successCallback) {
   return (dispatch) => {
     dispatch(recordJudgement(itemId, judgement));
     return fetch('/judgements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ id: itemId, label: judgement }),
+      body: JSON.stringify({ id: itemId, label: judgement, time_taken: timeTaken }),
     })
       .then((response) => {
         if (!response.ok) {
@@ -315,17 +318,18 @@ export function submitBatchJudgements(judgements) {
       return;
     }
 
-    dispatch(submitBatchJudgementsToBackend(judgements))
+    let timeTaken = (new Date().getTime() - state.judgements.timeLastSubmitted) / judgements.length;
+    dispatch(submitBatchJudgementsToBackend(judgements, timeTaken));
   }
 }
 
-export function submitBatchJudgementsToBackend(judgements) {
+export function submitBatchJudgementsToBackend(judgements, timeTaken) {
   return (dispatch) => {
     dispatch(recordJudgements(judgements));
     return fetch('/judgements/batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ labels: judgements }),
+      body: JSON.stringify({ labels: judgements, time_taken: timeTaken }),
     })
       .then((response) => {
         if (!response.ok) {

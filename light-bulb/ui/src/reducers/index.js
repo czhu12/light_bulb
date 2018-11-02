@@ -97,6 +97,7 @@ const task = (state = {
 const judgements = (state = {
   submitting: false,
   sequenceInput: '',
+  timeLastSubmitted: new Date().getTime(),
 }, action) => {
   switch (action.type) {
     case CHANGE_SEQUENCE_INPUT:
@@ -104,10 +105,16 @@ const judgements = (state = {
         ...state,
         sequenceInput: action.sequenceInput,
       }
+    case RECORD_JUDGEMENTS:
+      return {
+        ...state,
+        timeLastSubmitted: new Date().getTime(),
+      }
     case RECORD_JUDGEMENT:
       return {
         ...state,
         submitting: true,
+        timeLastSubmitted: new Date().getTime(),
       }
     case RECORD_JUDGEMENT_SUCCESS:
       return {
@@ -136,6 +143,7 @@ const stats = (state = {
     train: 0,
   },
   unlabelled: 0,
+  averageTimeTaken: 0,
 }, action) => {
   switch (action.type) {
     case FETCH_STATS:
@@ -150,6 +158,7 @@ const stats = (state = {
         history: action.stats.history,
         labelled: action.stats.labelled,
         unlabelled: action.stats.unlabelled,
+        averageTimeTaken: action.stats.average_time_taken,
         errorMsg: null,
       }
     case FETCH_STATS_FAILURE:
