@@ -132,7 +132,7 @@ class LabelApp:
         return response
 
 
-    def add_labels(self, labels):
+    def add_labels(self, labels, avg_time_taken):
         is_classification = self.label_helper.label_type == 'classification'
         if is_classification:
             is_binary_classification = len(self.label_helper.classes) == 2
@@ -143,7 +143,14 @@ class LabelApp:
                 save = idx == len(labels) - 1
 
                 if is_target_class:
-                    self.dataset.add_label(label['path'], label['target_class'], Dataset.TRAIN, user=self.user, save=save)
+                    self.dataset.add_label(
+                        label['path'],
+                        label['target_class'],
+                        Dataset.TRAIN,
+                        user=self.user,
+                        save=save,
+                        time_taken=avg_time_taken,
+                    )
                 else:
                     if is_binary_classification:
                         self.dataset.add_label(
@@ -152,6 +159,7 @@ class LabelApp:
                             Dataset.TRAIN,
                             user=self.user,
                             save=save,
+                            time_taken=avg_time_taken,
                         )
                     else:
                         # If the task is not binary classification, then its impossible to know what the "other" label is.
@@ -162,6 +170,7 @@ class LabelApp:
                             Dataset.USER_MODEL_DISAGREEMENT,
                             user=self.user,
                             save=save,
+                            time_taken=avg_time_taken,
                         )
         else:
             # TODO: The is_classification case should fit nicely into code like the ones below: please refactor
@@ -171,16 +180,24 @@ class LabelApp:
                     label['label'],
                     Dataset.TRAIN,
                     user=self.user,
+                    time_taken=avg_time_taken,
                 )
 
-    def add_label(self, _id, label):
+    def add_label(self, _id, label, time_taken):
         # Validate label
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
         self.label_helper.validate(data, label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
-        self.dataset.add_label(_id, label, self.dataset.current_stage, user=self.user, save=True)
+        self.dataset.add_label(
+            _id,
+            label,
+            self.dataset.current_stage,
+            user=self.user,
+            save=True,
+            time_taken=time_taken,
+        )
 
     @property
     def title(self):

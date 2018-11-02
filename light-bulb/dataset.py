@@ -87,6 +87,7 @@ class Dataset:
                 "test": len(self.test_data),
             },
             "unlabelled": len(self.unlabelled),
+            "average_time_taken": self.labelled['time_taken'].median() if len(self.labelled) > 0 else 0,
         }
 
     def load_unlabelled_dataset(self):
@@ -160,8 +161,14 @@ class Dataset:
     def test_set(self):
         raise NotImplementedError
 
-    def add_label(self, id, label, stage, user='default', save=True, is_labelled=True):
-        self.dataset.loc[self.dataset['path'] == id, ['label', 'labelled', 'stage', 'labelled_by']] = [label, is_labelled, stage, user]
+    def add_label(self, id, label, stage, user='default', save=True, is_labelled=True, time_taken=0.):
+        self.dataset.loc[self.dataset['path'] == id, [
+            'label',
+            'labelled',
+            'stage',
+            'labelled_by',
+            'time_taken',
+        ]] = [label, is_labelled, stage, user, time_taken]
         if save:
             self.save()
 
@@ -169,7 +176,7 @@ class Dataset:
         return None
 
 class TextDataset(Dataset):
-    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage', 'text']
+    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage', 'text', 'time_taken']
 
     def get_data(self, _id):
         return self.dataset[self.dataset['path'] == _id]['text'].values[0]
@@ -287,7 +294,7 @@ class JSONDataset(TextDataset):
         return model_labelled.sample(min(num, len(model_labelled))), -1
 
 class ImageDataset(Dataset):
-    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage']
+    COLUMNS = ['label', 'labelled_by', 'path', 'labelled', 'stage', 'time_taken']
 
     def __init__(self, config):
         super(ImageDataset, self).__init__(config)
