@@ -16,18 +16,10 @@ from training.trainer import Trainer
 from labelling.labeller import ModelLabeller
 from labels.label import Label
 
-logger = logging.getLogger('label_app')
-logger.setLevel(logging.DEBUG)
-
-ch = logging.StreamHandler(sys.stdout)
-ch.setLevel(logging.DEBUG)
-ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
-logger.addHandler(ch)
-
 class LabelApp:
     @staticmethod
-    def load_from(config_path):
-        with open(config_path) as f:
+    def load_from(config_meta):
+        with open(config_meta['path']) as f:
             config = yaml.load(f)
             parser = ConfigParser(config)
             parser._create_directories()
@@ -38,9 +30,18 @@ class LabelApp:
         label_helper = Label.load_from(parser.label)
         user = config['user']
 
-        return LabelApp(task, dataset, label_helper, user, model_config, parser)
+        # Set up logger
+        log_level = config_meta['log_level']
+        logger = logging.getLogger('label_app')
+        logger.setLevel(getattr(logging, log_level))
 
-    def __init__(self, task, dataset, label_helper, user, model_config, config, model_labelling=True):
+        ch = logging.StreamHandler(sys.stdout)
+        ch.setFormatter(logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s'))
+        logger.addHandler(ch)
+
+        return LabelApp(task, dataset, label_helper, user, model_config, parser, logger)
+
+    def __init__(self, task, dataset, label_helper, user, model_config, config, logger, model_labelling=True):
         self.config = config.config
         self.task = task
         self.dataset = dataset
@@ -58,6 +59,7 @@ class LabelApp:
 
         self.user = user
         self.model_labelling = model_labelling
+        self.logger = logger
 
     def score(self, x):
         scores = self.model.score(x)
@@ -79,7 +81,7 @@ class LabelApp:
         if self.is_done:
             raise ValueError("Tried to sample a batch when there is nothing else to sample")
 
-        logger.debug("Sampling a batch for {} set.".format(self.dataset.current_stage))
+        self.logger.debug("Sampling a batch for {} set.".format(self.dataset.current_stage))
         self.dataset.set_current_stage()
 
         current_stage = force_stage if force_stage else self.dataset.current_stage

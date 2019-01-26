@@ -2,6 +2,8 @@ import pdb
 import os
 import plac
 import yaml
+import numpy as np
+import logging
 from flask import Flask, request, send_from_directory, render_template, jsonify, send_file
 from label_app import LabelApp
 from labels.label import LabelError
@@ -117,15 +119,23 @@ def batch():
     batch, stage, y_prediction, entropies = label_app.next_batch(**kwargs)
 
     batch = batch.fillna('NaN')
-    json_batch = jsonify({
-        "batch": list(batch.T.to_dict().values()),
-        "entropy": entropies,
-        "stage": stage,
-        "y_prediction": y_prediction,
-        "done": False,
-    })
+    json_batch = jsonify({ "batch": list(batch.T.to_dict().values()), "entropy": entropies, "stage": stage, "y_prediction": y_prediction, "done": False, })
 
     return json_batch
+
+
+def _df_to_jsonable(df):
+    rows = df.T.to_dict().values()
+    """This is a really annoying hack, but we need to convert all np.int's to ints"""
+    for row in rows:
+        for key, value, in row.items():
+            if type(value) == np.int or type(value) == np.int32 or type(value) == np.int64:
+                row[key] = int(value)
+            if type(value) == np.float or type(value) == np.float32 or type(value) == np.float64:
+                row[key] = float(value)
+
+    return rows
+
 
 @app.route('/batch_items_batch', methods=['GET'])
 def batch_items_batch():
@@ -264,14 +274,12 @@ def root():
     config=("Path to config file", "option", "c", str),
     port=("Port to start server", "option", "p", int),
     mode=("Production or training mode", "option", "m", str, ["production", "training"]),
-    no_train=("Don't train model", "flag", "d", bool),
+    log_level=("Log level.", "option", "l", str, ['DEBUG', 'INFO', 'ERROR']),
+    no_train=("Don't train model.", "flag", "d", bool),
 )
-def main(config, port=5000, mode="training", no_train=False):
+def main(config, port=5000, mode="training", log_level='DEBUG', no_train=False):
     global label_app
-    global config_obj
-    config_obj = yaml.load(open(config, 'r'))
-
-    label_app = LabelApp.load_from(config)
+    label_app = LabelApp.load_from({'path': config, 'log_level': log_level})
 
     if not no_train:
         train_thread = Thread(target=label_app.threaded_train)
@@ -283,7 +291,9 @@ def main(config, port=5000, mode="training", no_train=False):
         labelling_thread.daemon = True
         labelling_thread.start()
 
+    print("Setting log level to {}".format(log_level))
     print("Started local server at http://localhost:5000")
+    app.logger.setLevel(getattr(logging, log_level))
     app.run(host='0.0.0.0', debug=True, use_reloader=False, port=port)
 
 if __name__ == "__main__":

@@ -105,21 +105,17 @@ class ModelLabeller():
             return 0
 
         scores = self.model.score(unlabelled)
-        # if scores is 2 dimentional: (batch x classes)
-
-        # This assumes only classification :(
-
         # Renormalize scores just in case.
         dist = scores / np.expand_dims(scores.sum(axis=1), -1)
         idxs = np.argmax(dist, -1)
 
         num_scored = 0
-        for _id, (idx, score) in list(zip(ids, zip(idxs, dist[np.arange(len(idxs)), idxs]))):
+        for _id, (inferred_class, score) in list(zip(ids, zip(idxs, dist[np.arange(len(idxs)), idxs]))):
             if score > threshold:
                 num_scored += 1
                 self.dataset.add_label(
                     _id,
-                    idx,
+                    int(inferred_class),
                     stage=Dataset.MODEL_LABELLED,
                     user=Dataset.USER_MODEL_LABELLER,
                     is_labelled=False,
