@@ -5,6 +5,7 @@ import { CLASSIFICATION_COLORS } from '../constants';
 import DonePage from './DonePage';
 import NavigationBar from './NavigationBar';
 import TextTaskView from './TextTaskView';
+import TextTaskBatchView from './TextTaskBatchView';
 import ImageTaskView from './ImageTaskView';
 import ImageTaskBatchView from './ImageTaskBatchView';
 import TaskDescriptionView from './TaskDescriptionView';
@@ -16,7 +17,11 @@ import Footer from './Footer';
 
 class LabelApp extends React.Component {
   _computeTitle() {
-    if (this.props.task.isBatchView && this.props.task.labelType === 'classification') {
+    if (
+      this.props.task.isBatchView &&
+      this.props.task.labelType === 'classification' &&
+      this.props.task.dataType === 'images' &&
+      this.props.batchItems.targetClass >= 0) {
       let dataType = this.props.task.dataType;
       let className = this.props.task.classes[this.props.batchItems.targetClass];
       return `Unselect all ${dataType} that is not a <span style="color:${CLASSIFICATION_COLORS[this.props.batchItems.targetClass]}">${className}</span>`;
@@ -39,9 +44,17 @@ class LabelApp extends React.Component {
         currentPrediction = this.props.predictions[this.props.currentIndex];
       }
 
-      if (this.props.task.isBatchView && this.props.task.labelType === 'classification') {
+      if (this.props.task.isBatchView
+        && this.props.task.labelType === 'classification'
+        && this.props.task.dataType === 'images') {
         taskView = (
           <ImageTaskBatchView />
+        );
+      } else if (this.props.task.isBatchView
+        && this.props.task.labelType === 'classification'
+        && this.props.task.dataType === 'text') {
+        taskView = (
+          <TextTaskBatchView />
         );
       } else if (this.props.task.isBatchView && this.props.task.labelType === 'sequence') {
         taskView = (

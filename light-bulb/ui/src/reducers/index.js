@@ -32,6 +32,7 @@ import {
   FETCH_BATCH_ITEMS_FAILURE,
   BATCH_LABELLING_COMPLETE,
   UPDATE_BATCH_ITEMS_BY_INDEX,
+  CHANGE_NAVBAR_SEARCH_QUERY,
 } from '../actions';
 
 const task = (state = {
@@ -180,6 +181,7 @@ const batchItems = (state = {
   predictions: [],
   done: false,
   errorMsg: null,
+  searchQuery: '',
 }, action) => {
   switch (action.type) {
     case FETCH_BATCH_ITEMS:
@@ -215,6 +217,11 @@ const batchItems = (state = {
         ...state,
         done: true,
       };
+    case CHANGE_NAVBAR_SEARCH_QUERY:
+      return {
+        ...state,
+        searchQuery: action.searchQuery,
+      }
     default:
       return state
   }

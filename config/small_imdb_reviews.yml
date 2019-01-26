@@ -10,5 +10,6 @@ label:
     - Negative
     - Positive
 model:
-    directory: outputs/small_imdb_reviews/models/
+  directory: outputs/small_imdb_reviews/models/
+  pretrain_file: dataset/imdb_pretrain.csv
 user: chris

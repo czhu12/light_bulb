@@ -5,6 +5,7 @@ from utils import utils
 import chardet
 from utils import text_utils
 from threading import Lock
+import re
 
 import copy
 import logging
@@ -13,7 +14,7 @@ from PIL import Image
 from typing import List
 
 MIN_TRAIN_EXAMPLES = 40
-MIN_TEST_EXAMPLES = 40
+MIN_TEST_EXAMPLES = 10
 MIN_UNSUPERVISED_EXAMPLES = 100
 
 
@@ -55,6 +56,9 @@ class Dataset:
         self.dataset = self.dataset.append(unlabelled)
         self.loaded_text = False
         self.current_stage = Dataset.TEST
+
+    def search(self, search_query):
+        raise NotImplementedError()
 
     def save(self):
         self.save_lock.acquire()
@@ -180,6 +184,15 @@ class TextDataset(Dataset):
 
     def get_data(self, _id):
         return self.dataset[self.dataset['path'] == _id]['text'].values[0]
+
+    def search(self, search_query, num_results):
+        text = self.unlabelled['text']
+        text = ' ' + text + ' '
+        text = text.str.lower().str.replace('[^\w\s]', ' ')
+        search_query = re.sub('[^\w\s]', ' ', search_query)
+        return self.unlabelled[
+            text.str.contains(' ' + search_query + ' ')
+        ].iloc[:num_results]
 
     def load_unlabelled_dataset(self, types=['*.txt']):
         text_paths = []

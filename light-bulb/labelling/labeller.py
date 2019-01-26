@@ -44,7 +44,7 @@ class ModelLabeller():
             y_pred.reshape((y_test.shape[0], -1)),
             TARGET_PRECISION,
         )
-        threshold = 0.5
+        threshold = 0.45
 
         unlabelled_texts, ids = self.dataset.model_labelling_set()
         if len(unlabelled_texts) == 0:

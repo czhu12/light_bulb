@@ -18,6 +18,7 @@
     "react-router": "^4.2.0",
     "react-router-redux": "^5.0.0-alpha.8",
     "react-scripts": "1.0.14",
+    "react-select": "^2.2.0",
     "react-waypoint": "^7.3.1",
     "react-with-styles": "^2.2.0",
     "react-with-styles-interface-aphrodite": "^3.1.1",

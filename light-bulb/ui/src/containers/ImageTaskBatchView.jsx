@@ -5,6 +5,7 @@ import ReactDOM from 'react-dom';
 
 import { CLASSIFICATION_COLORS } from '../constants';
 import { submitBatchJudgements } from '../actions';
+import { createJudgementsFromBatch } from '../utils';
 
 class ImageTaskBatchView extends React.Component {
   constructor(props) {
@@ -59,6 +60,7 @@ class ImageTaskBatchView extends React.Component {
               this.props.batchItems.items,
               this.state.selected,
               this.props.batchItems.targetClass,
+              this.props.task.classes,
             )}
             style={{color: '#eee', backgroundColor: color}}
             className="btn btn-lg">
@@ -76,15 +78,8 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch => ({
-  onClickSubmit: (items, selected, targetClass) => {
-    let judgements = items.map((item, idx) => {
-      return {
-        path: item['path'],
-        is_target_class: selected[idx],
-        target_class: targetClass,
-      }
-    });
-
+  onClickSubmit: (items, selected, targetClass, classes) => {
+    const judgements = createJudgementsFromBatch(items, selected, targetClass, classes)
     dispatch(submitBatchJudgements(judgements));
   }
 });

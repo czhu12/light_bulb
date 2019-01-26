@@ -14,6 +14,10 @@ class LabelClassificationView extends React.Component {
 
   _submitLabelByKeyboard(e) {
     // Search for this key in the classes;
+    if (e.target.tagName === "INPUT") {
+      return;
+    }
+
     let key = e.which || e.keyCode;
     let targetChar = String.fromCharCode(key);
     let foundIndex = this.props.task.classes.map((cls) => {

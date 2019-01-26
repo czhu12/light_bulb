@@ -310,7 +310,7 @@ export const updateBatchItemByIndex = (index, item) => ({
   index: index,
 });
 
-export function submitBatchJudgements(judgements) {
+export function submitBatchJudgements(judgements, isSearch) {
   return (dispatch, getState) => {
     const state = getState();
     if (state.judgements.submitting) { // Double clicked
@@ -319,11 +319,11 @@ export function submitBatchJudgements(judgements) {
     }
 
     let timeTaken = (new Date().getTime() - state.judgements.timeLastSubmitted) / judgements.length;
-    dispatch(submitBatchJudgementsToBackend(judgements, timeTaken));
+    dispatch(submitBatchJudgementsToBackend(judgements, timeTaken, isSearch));
   }
 }
 
-export function submitBatchJudgementsToBackend(judgements, timeTaken) {
+export function submitBatchJudgementsToBackend(judgements, timeTaken, isSearch) {
   return (dispatch) => {
     dispatch(recordJudgements(judgements));
     return fetch('/judgements/batch', {
@@ -342,7 +342,11 @@ export function submitBatchJudgementsToBackend(judgements, timeTaken) {
           throw new Error(json['error'])
         } else {
           dispatch(recordJudgementsSuccess(judgements));
-          dispatch(fetchNextBatchItemsBatch());
+          if (isSearch) {
+            dispatch(submitSearchBatchQuery());
+          } else {
+            dispatch(fetchNextBatchItemsBatch());
+          }
           dispatch(getStats());
         }
       })
@@ -375,5 +379,31 @@ export const setIsBatchView = (isBatchView) => {
   return {
     type: SET_IS_BATCH_VIEW,
     isBatchView,
+  }
+};
+
+export const CHANGE_NAVBAR_SEARCH_QUERY = 'CHANGE_NAVBAR_SEARCH_QUERY';
+export const changeNavbarSearchQuery = (searchQuery) => {
+  return {
+    type: CHANGE_NAVBAR_SEARCH_QUERY,
+    searchQuery,
+  }
+};
+
+export const submitSearchBatchQuery = () => {
+  return (dispatch, getState) => {
+    let state = getState();
+    let searchQuery = state.batchItems.searchQuery;
+    dispatch(fetchBatchItems());
+    debugger;
+    return fetch(`/batch_items_batch?search_query=${searchQuery}`).then((response) => {
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+      return response.json();
+    }).then((json) => {
+      dispatch(setIsBatchView(true));
+      dispatch(fetchBatchItemsSuccess(json));
+    }).catch(error => dispatch(fetchBatchItemsFailure(`Error fetching batch items: ${error.message}`)));
   }
 };

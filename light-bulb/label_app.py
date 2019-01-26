@@ -131,57 +131,19 @@ class LabelApp:
         )
         return response
 
+    def search(self, search_query: str, num_results: int=20):
+        results = self.dataset.search(search_query, num_results)
+        return results
 
     def add_labels(self, labels, avg_time_taken):
-        is_classification = self.label_helper.label_type == 'classification'
-        if is_classification:
-            is_binary_classification = len(self.label_helper.classes) == 2
-
-            for idx, label in enumerate(labels):
-                _id = label['path']
-                is_target_class = label['is_target_class']
-                save = idx == len(labels) - 1
-
-                if is_target_class:
-                    self.dataset.add_label(
-                        label['path'],
-                        label['target_class'],
-                        Dataset.TRAIN,
-                        user=self.user,
-                        save=save,
-                        time_taken=avg_time_taken,
-                    )
-                else:
-                    if is_binary_classification:
-                        self.dataset.add_label(
-                            label['path'],
-                            0 if label['target_class'] == 1 else 1,
-                            Dataset.TRAIN,
-                            user=self.user,
-                            save=save,
-                            time_taken=avg_time_taken,
-                        )
-                    else:
-                        # If the task is not binary classification, then its impossible to know what the "other" label is.
-                        # Flag this as USER_MODEL_DISAGREEMENT
-                        self.dataset.add_label(
-                            label['path'],
-                            label['target_class'],
-                            Dataset.USER_MODEL_DISAGREEMENT,
-                            user=self.user,
-                            save=save,
-                            time_taken=avg_time_taken,
-                        )
-        else:
-            # TODO: The is_classification case should fit nicely into code like the ones below: please refactor
-            for label in labels:
-                self.dataset.add_label(
-                    label['path'],
-                    label['label'],
-                    Dataset.TRAIN,
-                    user=self.user,
-                    time_taken=avg_time_taken,
-                )
+        for label in labels:
+            self.dataset.add_label(
+                label['path'],
+                label['label'],
+                Dataset.TRAIN,
+                user=self.user,
+                time_taken=avg_time_taken,
+            )
 
     def add_label(self, _id, label, time_taken):
         # Validate label

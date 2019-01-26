@@ -82,7 +82,7 @@ def create_judgements():
     try:
         json = request.get_json()
         labels = json.get('labels')
-        avg_time_taken = json.get('avg_time_taken')
+        avg_time_taken = json.get('time_taken')
         label_app.add_labels(labels, avg_time_taken=avg_time_taken)
         return jsonify(json)
     except LabelError as e:
@@ -130,8 +130,15 @@ def batch():
 @app.route('/batch_items_batch', methods=['GET'])
 def batch_items_batch():
     # TODO: Fix this shit.
+    search_query = request.args.get('search_query')
     target_size = 10 if label_app.label_helper.label_type == 'sequence' else 100
-    batch, target_class = label_app.next_model_labelled_batch(target_size)
+    if search_query:
+        # if search query is present, we need to call label_app.search
+        batch = label_app.search(search_query)
+        target_class = -1
+    else:
+        batch, target_class = label_app.next_model_labelled_batch(target_size)
+
     if len(batch) == 0:
         return jsonify({
             "batch": [],
