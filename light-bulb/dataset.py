@@ -189,6 +189,7 @@ class TextDataset(Dataset):
         text = self.unlabelled['text']
         text = ' ' + text + ' '
         text = text.str.lower().str.replace('[^\w\s]', ' ')
+        search_query = search_query.lower()
         search_query = re.sub('[^\w\s]', ' ', search_query)
         return self.unlabelled[
             text.str.contains(' ' + search_query + ' ')
