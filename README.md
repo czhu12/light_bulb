@@ -28,7 +28,12 @@ make
 #### Cat / not cat demo dataset
 ```
 make dataset/cat_not_cat # Download and set up dataset.
-./bin/run config/cat_not_cat.yml # Server set up on localhost:5000
+./bin/run config/examples/cat_not_cat.yml # Server set up on localhost:5000
+```
+#### Small IMDB reviews dataset
+```
+make dataset/small_imdb_reviews # Download and set up dataset.
+./bin/run config/examples/small_imdb_reviews.yml # Server set up on localhost:5000
 ```
 
 ## Usage
@@ -104,14 +109,14 @@ user: chris
 To run the text classification demo:
 ```
 make dataset/small_imdb_reviews
-./bin/run config/small_imdb_reviews.yml
+./bin/run config/examples/small_imdb_reviews.yml
 ```
 
 ### Example Image Classification
 To run the image classification demo:
 ```
 make dataset/cat_not_cat
-./bin/run config/cat_not_cat.yml
+./bin/run config/examples/cat_not_cat.yml
 ```
 
 ## How It Works
