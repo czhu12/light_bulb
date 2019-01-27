@@ -1,6 +1,7 @@
 import { connect } from 'react-redux';
 import React from 'react';
 import { zip } from 'lodash';
+import Highlighter from "react-highlight-words";
 import ReactDOM from 'react-dom';
 import Select from 'react-select';
 
@@ -112,7 +113,13 @@ class TextTaskBatchView extends React.Component {
             <div
               className="col-sm-10"
             >
-              {text}
+							<Highlighter
+								highlightClassName="highlighted-search-query"
+								caseSensitive={false}
+								searchWords={[this.props.batchItems.searchQuery]}
+								autoEscape={true}
+								textToHighlight={text}
+							/>
               {expandCollapseButton}
             </div>
           </div>
