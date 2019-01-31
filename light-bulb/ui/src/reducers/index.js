@@ -33,6 +33,10 @@ import {
   BATCH_LABELLING_COMPLETE,
   UPDATE_BATCH_ITEMS_BY_INDEX,
   CHANGE_NAVBAR_SEARCH_QUERY,
+
+  FETCH_DATASET,
+  FETCH_DATASET_SUCCESS,
+  FETCH_DATASET_FAILURE,
 } from '../actions';
 
 const task = (state = {
@@ -286,11 +290,10 @@ const items = (state = {
 const demo = (state = {
   submitting: false,
   errorMsg: null,
-  scores: null,
+  scores: [],
   text: '',
   urlSequence: '',
   url: '',
-  predictions: [],
 }, action) => {
   switch (action.type) {
     case SUBMIT_DATA:
@@ -307,7 +310,7 @@ const demo = (state = {
     case SUBMIT_DATA_SUCCESS:
       return {
         ...state,
-        predictions: action.response.predictions,
+        scores: action.response.scores,
         url: state.urlSequence,
         submitting: false,
       }
@@ -326,6 +329,37 @@ const demo = (state = {
   }
 }
 
+const dataset = (state = {
+  dataset: [],
+  page: 0,
+  labelled: null,
+  done: false,
+  submitting: false
+}, action) => {
+  switch (action.type) {
+    case FETCH_DATASET:
+      return {
+        ...state,
+        submitting: true,
+      }
+    case FETCH_DATASET_FAILURE:
+      return {
+        ...state,
+        submitting: false,
+        errorMsg: action.errorMsg,
+      }
+    case FETCH_DATASET_SUCCESS:
+      return {
+        ...state,
+        dataset: state.dataset.concat(action.dataset),
+        submitting: false,
+        page: state.page + 1,
+      }
+    default:
+      return state
+  }
+}
+
 export default {
-  task, judgements, stats, items, demo, batchItems,
+  task, judgements, stats, items, demo, batchItems, dataset
 };

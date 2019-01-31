@@ -158,3 +158,8 @@ body {
 .highlighted-search-query {
   background-color: #ffd54f;
 }
+.card-img-top {
+    width: 100%;
+    height: 30vw;
+    object-fit: cover;
+}

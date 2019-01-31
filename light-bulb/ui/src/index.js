@@ -14,7 +14,7 @@ import queryString from 'query-string';
 import LabelAppContainer from './containers/LabelApp';
 import DemoAppContainer from './containers/DemoApp';
 import DatasetContainer from './containers/DatasetApp';
-import { getTask, getNextBatch, getStats } from './actions';
+import { getTask, getNextBatch, getStats, getNextDatasetPage } from './actions';
 import reducer from './reducers';
 
 const history = createHistory();
@@ -52,12 +52,7 @@ store.subscribe(render);
 store.dispatch(getTask());
 // TODO: Fix this hack
 if (window.location.href.indexOf('dataset') !== -1) {
-  store.dispatch(getNextBatch({
-    sample_size: 100,
-    force_stage: 'TRAIN',
-    prediction: 'true',
-    reverse_entropy: queryString.parse(window.location.search)['reverse_entropy'],
-  }));
+  store.dispatch(getNextDatasetPage());
 } else {
   store.dispatch(getNextBatch());
 }

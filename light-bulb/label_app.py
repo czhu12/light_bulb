@@ -137,6 +137,17 @@ class LabelApp:
         results = self.dataset.search(search_query, num_results)
         return results
 
+    def labelled_data(self, start_idx, end_idx, labelled=None):
+        df = self.dataset.dataset
+        if labelled is not None:
+            df = df[df['labelled'] == labelled]
+
+        if start_idx >= len(df):
+            return [], True
+
+        rows = df.iloc[start_idx:end_idx]
+        return rows, False
+
     def add_labels(self, labels, avg_time_taken):
         for label in labels:
             self.dataset.add_label(

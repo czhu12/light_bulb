@@ -5,7 +5,7 @@ import Highlighter from "react-highlight-words";
 import ReactDOM from 'react-dom';
 import Select from 'react-select';
 
-import { createJudgementsFromBatch } from '../utils';
+import { createJudgementsFromBatch, shortenText } from '../utils';
 import { CLASSIFICATION_COLORS } from '../constants';
 import { submitBatchJudgements } from '../actions';
 
@@ -27,14 +27,6 @@ class TextTaskBatchView extends React.Component {
       selectedLabel = { value: 0, label: nextProps.task.classes[0] };
     }
     this.setState({checkedItems, hiddenItems, selectedLabel: selectedLabel});
-  }
-
-  _shortenedLongText(text) {
-    let split = text.split(' ');
-    if (split.length > 50) {
-      return split.slice(0, 25).concat(['...']).concat(split.slice(split.length - 50, split.length)).join(' ');
-    }
-    return text;
   }
 
   checkedBox(idx, e) {
@@ -85,7 +77,7 @@ class TextTaskBatchView extends React.Component {
       let text = null;
       let expandCollapseButton = null;
       if (this.state.hiddenItems[idx]) {
-        text = this._shortenedLongText(item['text']);
+        text = shortenText(item['text'], 50);
         expandCollapseButton = text !== item['text'] ? (
           <div style={{cursor: 'pointer'}} onClick={this._expandText.bind(this, idx)}>
             <b>Expand <i className="fas fa-chevron-down"></i></b>

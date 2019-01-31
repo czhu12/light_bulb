@@ -17,6 +17,7 @@ from dataset import MIN_UNSUPERVISED_EXAMPLES
 app = Flask(__name__, static_folder='ui/build/static', template_folder='ui/build')
 
 @app.route('/')
+@app.route('/dataset')
 def index():
     return render_template(
         'index.html',
@@ -26,10 +27,6 @@ def index():
         label_helper=label_app.label_helper,
         label_type=label_app.label_helper.label_type,
     )
-
-@app.route('/dataset')
-def dataset():
-    return render_template('index.html')
 
 @app.route('/task', methods=['GET'])
 def task():
@@ -90,6 +87,22 @@ def create_judgements():
     except LabelError as e:
         return jsonify({'error': e.message})
 
+@app.route('/api/dataset', methods=['GET'])
+def labeled_data():
+    """
+    Returns labeled rows from the dataset.
+    """
+    page = int(request.args.get('page'))
+    page_size = int(request.args.get('page_size'))
+    labelled = True if request.args.get('labelled') == 'true' else False
+
+    batch, done = label_app.labelled_data(page, (page + 1) * page_size, labelled)
+    batch = batch.fillna('NaN')
+    return jsonify({
+        "dataset": list(batch.T.to_dict().values()),
+        "done": done,
+    })
+
 @app.route('/batch', methods=['GET'])
 def batch():
     """
@@ -119,7 +132,13 @@ def batch():
     batch, stage, y_prediction, entropies = label_app.next_batch(**kwargs)
 
     batch = batch.fillna('NaN')
-    json_batch = jsonify({ "batch": list(batch.T.to_dict().values()), "entropy": entropies, "stage": stage, "y_prediction": y_prediction, "done": False, })
+    json_batch = jsonify({
+        "batch": list(batch.T.to_dict().values()),
+        "entropy": entropies,
+        "stage": stage,
+        "y_prediction": y_prediction,
+        "done": False,
+    })
 
     return json_batch
 

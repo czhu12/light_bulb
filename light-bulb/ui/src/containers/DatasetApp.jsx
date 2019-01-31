@@ -1,38 +1,66 @@
+/*eslint-env jquery*/
 import { chunk, zip } from 'lodash';
 import { connect } from 'react-redux';
+import { shortenText } from '../utils';
+import { getNextDatasetPage } from '../actions';
+import NavigationBar from './NavigationBar';
 import React from 'react';
 
 class DatasetApp extends React.Component {
-  _cardView(item) {
-    let text = item[0].text;
-    let path = item[0].path;
-    let file = path.split('/')[path.split('/').length - 1];
-    let entropy = Math.round(item[1] * 100) / 100;
-    let prediction = item[3];
-		return (
-			<div className="card card-dataset" style={{width: "85%", height: "250px"}}>
-        <div className="card-header">{file}</div>
-				<div className="card-body">
-					<h5 className="card-title">{text}</h5>
-					<div>{prediction}</div>
+  componentDidMount() {
+    window.addEventListener('scroll', this.handleScroll.bind(this));
+  }
 
+  componentWillUnmount() {
+    window.removeEventListener('scroll', this.handleScroll.bind(this));
+  }
+
+  handleScroll(e) {
+    if ($(window).scrollTop() + $(window).height() == $(document).height()) {
+      this.props.onScrollToBottom();
+    }
+  }
+
+  _cardView(item) {
+    let path = item['path'];
+    let textView = null;
+    if (this.props.task.dataType === 'text') {
+      textView = <div>{shortenText(item['text'], 25)}</div>
+    }
+
+    let imgView = null;
+    if (this.props.task.dataType === 'images') {
+      let imgPath = `/images?image_path=${path}`;
+      imgView = (<img className="card-img-top" src={ imgPath } alt={ path } />);
+    }
+    let labelView = null;
+    console.log(item);
+    if (item['labelled']) {
+      labelView = (<span>Label:<span className="badge badge-secondary">{item['label']}</span><br/></span>);
+    }
+
+    let file = path.split('/')[path.split('/').length - 1];
+		return (
+			<div className="card card-dataset" style={{width: "85%"}}>
+        {imgView}
+				<div className="card-body">
+          {textView}
+          <br />
+          <div className="help-block card-text">
+            {labelView}
+            File: {file}
+          </div>
 				</div>
-        <div className="card-footer">
-          <p class="card-text">Entropy: {entropy}</p>
-        </div>
 			</div>
 		);
   }
 
   render() {
-    let items = zip(this.props.items, this.props.entropy, this.props.stages, this.props.predictions);
-    items.sort((a, b) => {
-      return b[1] - a[1];
-    });
-    let itemRows = chunk(items, 4).map((rowItems) => {
+    let items = this.props.dataset.dataset;
+    let itemRows = chunk(items, 2).map((rowItems) => {
       return rowItems.map((item) => {
         return (
-					<div className="col-md-3">
+					<div className="col-md-6">
 						{this._cardView(item)}
 					</div>
 				);
@@ -42,6 +70,7 @@ class DatasetApp extends React.Component {
     });
     return (
       <div>
+        <NavigationBar />
         {itemRows}
       </div>
     );
@@ -49,14 +78,15 @@ class DatasetApp extends React.Component {
 }
 
 const mapStateToProps = state => ({
-  items: state.items.items,
-  entropy: state.items.entropy,
-  stages: state.items.stages,
-  predictions: state.items.predictions,
+  dataset: state.dataset,
+  task: state.task,
 });
 
 
 const mapDispatchToProps = dispatch => ({
+  onScrollToBottom: () => {
+    dispatch(getNextDatasetPage());
+  }
 });
 
 export default connect(

@@ -23,3 +23,12 @@ export const createJudgementsFromBatch = (items, selected, targetClass, classes)
 
   return judgements;
 };
+
+export const shortenText = (text, numWords) => {
+  let split = text.split(' ');
+  let halfWords = Math.floor(numWords / 2);
+  if (split.length > numWords) {
+    return split.slice(0, halfWords).concat(['...']).concat(split.slice(split.length - numWords, split.length)).join(' ');
+  }
+  return text;
+}

@@ -10,8 +10,8 @@ class DemoApp extends React.Component {
     let demoView = null;
     let firstPrediction = null;
     let predictionClasses = null;
-    if (this.props.demo.predictions.length > 0) {
-      firstPrediction = this.props.demo.predictions[0];
+    if (this.props.demo.scores.length > 0) {
+      firstPrediction = this.props.demo.scores[0];
       let argMaxIndex = firstPrediction.map((x, i) => [x, i]).reduce((r, a) => (a[0] > r[0] ? a : r))[1];
       // Argmax from https://gist.github.com/engelen/fbce4476c9e68c52ff7e5c2da5c24a28
       let classesAndScores = zip(this.props.task.classes, firstPrediction)

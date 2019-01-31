@@ -240,7 +240,7 @@ export function submitDataToScore() {
 
     dispatch(submitData(body));
 
-    return fetch('/predict', {
+    return fetch('/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -395,7 +395,6 @@ export const submitSearchBatchQuery = () => {
     let state = getState();
     let searchQuery = state.batchItems.searchQuery;
     dispatch(fetchBatchItems());
-    debugger;
     return fetch(`/batch_items_batch?search_query=${searchQuery}`).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
@@ -407,3 +406,46 @@ export const submitSearchBatchQuery = () => {
     }).catch(error => dispatch(fetchBatchItemsFailure(`Error fetching batch items: ${error.message}`)));
   }
 };
+
+export const FETCH_DATASET = 'TASK/DATASET';
+export const fetchDataset = () => ({
+  type: FETCH_DATASET,
+});
+
+export const FETCH_DATASET_SUCCESS = 'DATASET/FETCH/SUCCESS';
+export const fetchDatasetSuccess = ({dataset}) => ({
+  type: FETCH_DATASET_SUCCESS,
+  dataset: dataset,
+});
+
+export const FETCH_DATASET_FAILURE = 'DATASET/FETCH/FAILURE';
+export const fetchDatasetFailure = error => ({
+  type: FETCH_DATASET_FAILURE,
+  errorMsg: error,
+});
+
+export function getNextDatasetPage() {
+  return (dispatch, getState) => {
+    const state = getState();
+    if (state.dataset.submitting) {
+      return;
+    }
+
+    dispatch(fetchDataset());
+    let body = { page: state.dataset.page, page_size: 20 };
+    if (state.labelled != null) {
+      body['labelled'] = state.labelled;
+    }
+    const query = new URLSearchParams(body);
+
+    return fetch(`/api/dataset?${query.toString()}`).then((response) => {
+      if (!response.ok) {
+        throw Error(response.statusText);
+      }
+      return response.json();
+    }).then((json) => {
+      dispatch(fetchDatasetSuccess(json));
+    }).catch(error => dispatch(fetchDatasetFailure(`Error fetching dataset: ${error.message}`)));
+  }
+}
+
