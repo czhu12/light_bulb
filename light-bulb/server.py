@@ -235,7 +235,7 @@ def index():
         label_type=server.label_app.label_helper.label_type,
     )
 
-@app.route('/api/task', methods=['GET'])
+@app.route('/lightbulb/api/task', methods=['GET'])
 def task():
     """
     Returns:
@@ -246,19 +246,19 @@ def task():
     """
     return server.get_task()
 
-@app.route('/api/judgements', methods=['POST'])
+@app.route('/lightbulb/api/judgements', methods=['POST'])
 def create_judgement():
     return server.create_judgement()
 
-@app.route('/api/judgements/batch', methods=['POST'])
+@app.route('/lightbulb/api/judgements/batch', methods=['POST'])
 def create_judgements():
     return server.create_judgements()
 
-@app.route('/api/dataset', methods=['GET'])
+@app.route('/lightbulb/api/dataset', methods=['GET'])
 def labeled_data():
     return server.labeled_data()
 
-@app.route('/api/batch', methods=['GET'])
+@app.route('/lightbulb/api/batch', methods=['GET'])
 def batch():
     return server.get_batch()
 
@@ -276,16 +276,16 @@ def _df_to_jsonable(df):
     return rows
 
 
-@app.route('/api/batch_items_batch', methods=['GET'])
+@app.route('/lightbulb/api/batch_items_batch', methods=['GET'])
 def batch_items_batch():
     # TODO: Fix this shit.
     return server.batch_items_batch()
 
-@app.route('/api/history', methods=['GET'])
+@app.route('/lightbulb/api/history', methods=['GET'])
 def history():
     return server.get_history()
 
-@app.route('/api/evalution', methods=['GET'])
+@app.route('/lightbulb/api/evalution', methods=['GET'])
 def evaluation():
     """
     Evalaute current model
@@ -310,11 +310,11 @@ def demo():
         label_type=server.label_app.label_helper.label_type,
     )
 
-@app.route("/api/score", methods=['POST', 'PUT', 'GET'])
+@app.route("/lightbulb/api/score", methods=['POST', 'PUT', 'GET'])
 def score():
     return server.score()
 
-@app.route("/api/predict", methods=['POST', 'PUT', 'GET'])
+@app.route("/lightbulb/api/predict", methods=['POST', 'PUT', 'GET'])
 def predict():
     return server.predict()
 
