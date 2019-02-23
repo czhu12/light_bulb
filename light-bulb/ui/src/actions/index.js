@@ -99,7 +99,7 @@ export function getNextBatch(params) {
     dispatch(fetchItems());
     const query = new URLSearchParams(params)
 
-    return fetch(`/batch?${query.toString()}`).then((response) => {
+    return fetch(`/api/batch?${query.toString()}`).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }
@@ -113,7 +113,7 @@ export function getNextBatch(params) {
 export function getStats() {
   return (dispatch) => {
     dispatch(fetchStats());
-    return fetch('/history').then((response) => {
+    return fetch('/api/history').then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }
@@ -127,7 +127,7 @@ export function getStats() {
 export function getTask() {
   return (dispatch) => {
     dispatch(fetchTask());
-    return fetch('/task').then((response) => {
+    return fetch('/api/task').then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }
@@ -165,7 +165,7 @@ export function submitJudgement(judgement) {
 export function submitJudgementToBackend(itemId, judgement, timeTaken, successCallback) {
   return (dispatch) => {
     dispatch(recordJudgement(itemId, judgement));
-    return fetch('/judgements', {
+    return fetch('/api/judgements', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ id: itemId, label: judgement, time_taken: timeTaken }),
@@ -240,7 +240,7 @@ export function submitDataToScore() {
 
     dispatch(submitData(body));
 
-    return fetch('/score', {
+    return fetch('/api/score', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -326,7 +326,7 @@ export function submitBatchJudgements(judgements, isSearch) {
 export function submitBatchJudgementsToBackend(judgements, timeTaken, isSearch) {
   return (dispatch) => {
     dispatch(recordJudgements(judgements));
-    return fetch('/judgements/batch', {
+    return fetch('/api/judgements/batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ labels: judgements, time_taken: timeTaken }),
@@ -360,7 +360,7 @@ export const fetchNextBatchItemsBatch = () => {
   return (dispatch) => {
     dispatch(fetchBatchItems());
 
-    return fetch(`/batch_items_batch`).then((response) => {
+    return fetch(`/api/batch_items_batch`).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }
@@ -395,7 +395,7 @@ export const submitSearchBatchQuery = () => {
     let state = getState();
     let searchQuery = state.batchItems.searchQuery;
     dispatch(fetchBatchItems());
-    return fetch(`/batch_items_batch?search_query=${searchQuery}`).then((response) => {
+    return fetch(`/api/batch_items_batch?search_query=${searchQuery}`).then((response) => {
       if (!response.ok) {
         throw Error(response.statusText);
       }

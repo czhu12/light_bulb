@@ -235,7 +235,7 @@ def index():
         label_type=server.label_app.label_helper.label_type,
     )
 
-@app.route('/task', methods=['GET'])
+@app.route('/api/task', methods=['GET'])
 def task():
     """
     Returns:
@@ -246,11 +246,11 @@ def task():
     """
     return server.get_task()
 
-@app.route('/judgements', methods=['POST'])
+@app.route('/api/judgements', methods=['POST'])
 def create_judgement():
     return server.create_judgement()
 
-@app.route('/judgements/batch', methods=['POST'])
+@app.route('/api/judgements/batch', methods=['POST'])
 def create_judgements():
     return server.create_judgements()
 
@@ -258,7 +258,7 @@ def create_judgements():
 def labeled_data():
     return server.labeled_data()
 
-@app.route('/batch', methods=['GET'])
+@app.route('/api/batch', methods=['GET'])
 def batch():
     return server.get_batch()
 
@@ -276,16 +276,16 @@ def _df_to_jsonable(df):
     return rows
 
 
-@app.route('/batch_items_batch', methods=['GET'])
+@app.route('/api/batch_items_batch', methods=['GET'])
 def batch_items_batch():
     # TODO: Fix this shit.
     return server.batch_items_batch()
 
-@app.route('/history', methods=['GET'])
+@app.route('/api/history', methods=['GET'])
 def history():
     return server.get_history()
 
-@app.route('/evalution', methods=['GET'])
+@app.route('/api/evalution', methods=['GET'])
 def evaluation():
     """
     Evalaute current model
@@ -310,11 +310,11 @@ def demo():
         label_type=server.label_app.label_helper.label_type,
     )
 
-@app.route("/score", methods=['POST', 'PUT', 'GET'])
+@app.route("/api/score", methods=['POST', 'PUT', 'GET'])
 def score():
     return server.score()
 
-@app.route("/predict", methods=['POST', 'PUT', 'GET'])
+@app.route("/api/predict", methods=['POST', 'PUT', 'GET'])
 def predict():
     return server.predict()
 
