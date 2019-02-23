@@ -4,14 +4,14 @@ PWD = $(shell pwd)
 
 .PHONY: clean run docker_build
 
-all: light-bulb/ui/build/index.html docker_build dataset vendor/glove.6B
+all: light_bulb/ui/build/index.html docker_build dataset vendor/glove.6B
 
 docker_build:
-	docker build -t light-bulb .
+	docker build -t light_bulb .
 
-light-bulb/ui/build/index.html:
-	cd light-bulb/ui; yarn install
-	cd light-bulb/ui; yarn build
+light_bulb/ui/build/index.html:
+	cd light_bulb/ui; yarn install
+	cd light_bulb/ui; yarn build
 
 .virt:
 	virtualenv -p python3 $@
@@ -49,7 +49,7 @@ run:
 	 	-v ${PWD}/dataset:/app/dataset \
 	 	-v ${PWD}/outputs:/app/outputs \
 	 	-v ${PWD}/vendor:/app/vendor \
-	 	-p 5000:5000 light-bulb /bin/bash
+	 	-p 5000:5000 light_bulb /bin/bash
 
 dataset:
 	mkdir dataset
