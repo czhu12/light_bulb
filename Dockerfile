@@ -28,3 +28,6 @@ RUN make .virt
 
 # Add code
 ADD . /app
+
+WORKDIR /app
+RUN make light_bulb/ui/build/index.html
