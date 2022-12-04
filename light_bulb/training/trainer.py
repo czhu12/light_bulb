@@ -147,6 +147,7 @@ class Trainer():
         return self.history
 
     def should_learn_to_represent(self, dataset, history):
+        return False
         if history.finished_representation_learning:
             return False
         return len(dataset.unlabelled) > MIN_UNSUPERVISED_EXAMPLES

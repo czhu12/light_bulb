@@ -1,7 +1,6 @@
 import numpy as np
-from models.base_model import BaseModel
 
-class StubModel(BaseModel):
+class StubModel():
     def representation_learning(self, x_train):
         pass
 

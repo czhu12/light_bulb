@@ -1,0 +1,13 @@
+task:
+  title: Draw bounding boxes around the players
+dataset:
+  directory: dataset/cat_not_cat/
+  data_type: images
+  judgements_file: outputs/object_detection/labels.csv
+label:
+  type: object_detection
+  classes:
+    - cat
+model:
+  directory: outputs/object_detection/models/
+user: chris

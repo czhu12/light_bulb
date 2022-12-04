@@ -4,7 +4,7 @@ PWD = $(shell pwd)
 
 .PHONY: clean run docker_build
 
-all: light_bulb/ui/build/index.html docker_build dataset vendor/glove.6B
+all: light_bulb/ui/build/index.html dataset vendor/glove.6B
 
 docker_build:
 	docker build -t light_bulb .

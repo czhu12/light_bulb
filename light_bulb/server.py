@@ -55,7 +55,7 @@ class Server():
             id = data.get('id')
             label = data.get('label')
             time_taken = data.get('time_taken')
-            self.label_app.add_label(id, label, time_taken=time_taken)
+            self.label_app.add_label(id, label, time_taken)
             return jsonify({'id': id, 'label': label})
         except LabelError as e:
             return jsonify({'error': e.message})
@@ -329,7 +329,7 @@ def root():
     log_level=("Log level.", "option", "l", str, ['DEBUG', 'INFO', 'ERROR']),
     no_train=("Don't train model.", "flag", "d", bool),
 )
-def main(config, port=5000, mode="training", log_level='DEBUG', no_train=False):
+def main(config, port=8000, mode="training", log_level='DEBUG', no_train=False):
     global server
     label_app = LabelApp.load_from({'path': config, 'log_level': log_level})
     server = Server(label_app)
@@ -345,7 +345,7 @@ def main(config, port=5000, mode="training", log_level='DEBUG', no_train=False):
         labelling_thread.start()
 
     print("Setting log level to {}".format(log_level))
-    print("Started local server at http://localhost:5000")
+    print("Started local server at http://localhost:8000")
     app.logger.setLevel(getattr(logging, log_level))
     app.run(host='0.0.0.0', debug=True, use_reloader=False, port=port)
 

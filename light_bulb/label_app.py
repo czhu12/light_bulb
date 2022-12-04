@@ -162,7 +162,8 @@ class LabelApp:
         # Validate label
         # TODO: Reevaluate this get_data thing, I'm not a fan of this.
         data = self.dataset.get_data(_id)
-        self.label_helper.validate(data, label)
+        if data:
+            self.label_helper.validate(data, label)
         label = self.label_helper.decode(label)
         # _id is just the path to the file
         self.dataset.add_label(

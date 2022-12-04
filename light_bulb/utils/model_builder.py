@@ -5,15 +5,9 @@ import logging
 
 from dataset import Dataset
 from labels.label import Label
-from models.cnn_model import CNNModel
-from models.rnn_model import RNNModel
-from models.cnn_text_classifier import CNNTextClassifier
 from models.stub_model import StubModel
-from models.tf_pretrained_model import TFPretrainedModel
-from keras.models import load_model
 #from models.language_model import LM_TextClassifier, LanguageModel
 #from models.sequence_model import SequenceModel
-from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
 
 logger = logging.getLogger('label_app')
 logger.setLevel(logging.DEBUG)
@@ -57,28 +51,28 @@ class ModelBuilder:
         #    lm = self.build_language_model()
 
         # Right now there is an assumption that
-        if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.BINARY:
-            return CNNModel(2, input_shape=(128, 128))
+        #if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.BINARY:
+        #    return CNNModel(2, input_shape=(128, 128))
 
-        if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.CLASSIFICATION:
-            return CNNModel(len(self.label.classes), input_shape=(128, 128))
+        #if self.dataset.data_type == Dataset.IMAGE_TYPE and self.label.label_type == Label.CLASSIFICATION:
+        #    return CNNModel(len(self.label.classes), input_shape=(128, 128))
 
-        word_list = pickle.load(open("vendor/keras_language_model/vocab.p", "rb"))
+        #word_list = pickle.load(open("vendor/keras_language_model/vocab.p", "rb"))
 
-        if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
-            cnn_model = CNNTextClassifier(2)
-            return cnn_model
+        #if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.BINARY:
+        #    cnn_model = CNNTextClassifier(2)
+        #    return cnn_model
 
-        if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
-            cnn_model = CNNTextClassifier(len(self.label.classes))
-            return cnn_model
+        #if self.dataset.data_type == Dataset.TEXT_TYPE and self.label.label_type == Label.CLASSIFICATION:
+        #    cnn_model = CNNTextClassifier(len(self.label.classes))
+        #    return cnn_model
 
-        if self.dataset.data_type == Dataset.JSON_TYPE and self.label.label_type == Label.SEQUENCE:
-            from models.cnn_sequence_tagger import CNNSequenceTagger
-            return CNNSequenceTagger(self.label.score_classes)
+        #if self.dataset.data_type == Dataset.JSON_TYPE and self.label.label_type == Label.SEQUENCE:
+        #    from models.cnn_sequence_tagger import CNNSequenceTagger
+        #    return CNNSequenceTagger(self.label.score_classes)
 
-        if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
-            from models.lightnet_model import LightnetModel
-            return LightnetModel()
+        #if self.dataset.data_type == Dataset.OBJECT_DETECTION_TYPE and self.label.label_type == Label.OBJECT_DETECTION:
+        #    from models.lightnet_model import LightnetModel
+        #    return LightnetModel()
 
         return StubModel()

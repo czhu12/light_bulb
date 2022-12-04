@@ -36,7 +36,7 @@
     "test:debug": "react-scripts --inspect-brk test --runInBand --env=jsdom",
     "eject": "react-scripts eject"
   },
-  "proxy": "http://localhost:8888",
+  "proxy": "http://localhost:8000",
   "devDependencies": {
     "dotenv-cli": "^1.4.0",
     "eslint-config-airbnb-base": "^12.1.0",

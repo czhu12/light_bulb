@@ -1,10 +1,6 @@
 import numpy as np
-import keras
-from keras.preprocessing import image as image_utils
-from keras.applications import imagenet_utils
-from keras.preprocessing import sequence
 from collections import Counter
-from nltk import word_tokenize
+#from nltk import word_tokenize
 from PIL import Image
 import requests
 from io import BytesIO
@@ -32,12 +28,16 @@ def load_images(image_paths, input_shape):
     images = np.zeros((len(image_paths), input_shape[0], input_shape[1], 3))
 
     for (idx, image_path) in enumerate(image_paths):
-        images[idx] = image_utils.load_img(image_path, target_size=input_shape)
+        img = Image.open(image_path)
+        images[idx] = img.resize((input_shape[0], input_shape[1]))
 
-    return imagenet_utils.preprocess_input(images)
+    return images
 
 def one_hot_encode(y, num_classes):
-    return keras.utils.to_categorical(y, num_classes=num_classes)
+    output = np.zeros((len(y), num_classes))
+    for idx, val in enumerate(y):
+        output[idx][val] = 1
+    return output
 
 def download_urls(urls, target_size=(128, 128)):
     images = []

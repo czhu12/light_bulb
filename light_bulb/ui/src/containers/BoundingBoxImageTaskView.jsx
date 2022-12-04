@@ -61,6 +61,7 @@ class BoundingBoxImageTaskView extends React.Component {
     if (isDown) {
       let width = this.state.mouseX - this.state.startX;
       let height = this.state.mouseY - this.state.startY;
+
       this.drawBox(
         ctx,
         this.state.startX - offsetX,
@@ -164,12 +165,14 @@ class BoundingBoxImageTaskView extends React.Component {
 
   onKeyPress(e) {
     if (e.key === 'Enter') {
-      this.props.submitJudgement(this.state.boxes);
       this.setState({
-        ...this.state,
+        startX: undefined,
+        startY: undefined,
+        img: this.state.img,
         isDown: false,
         boxes: [],
       })
+      this.props.submitJudgement(this.state.boxes);
     }
   }
 

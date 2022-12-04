@@ -1,7 +1,7 @@
 import json
-from nltk import word_tokenize
+#from nltk import word_tokenize
 from utils import utils
-from utils.text_utils import Tokenizer, UNKNOWN_TOKEN, EOS_TOKEN, PAD_TOKEN
+from utils.text_utils import PAD_TOKEN
 
 class LabelError(Exception):
     def __init__(self, message):
@@ -86,8 +86,8 @@ class ObjectDetectionLabel(Label):
     def decode(self, encoded):
         boxes = json.loads(encoded)
         boxes = [{
-            'class_label': box['currentClass'],
-            'object_id': self.classes.index(box['currentClass']),
+            'object_id': box['currentClass'],
+            'class_label': self.classes[box['currentClass']],
             'x_top_left': box['startX'],
             'y_top_left': box['startY'],
             'width': box['width'],
@@ -96,7 +96,7 @@ class ObjectDetectionLabel(Label):
 
         return json.dumps(boxes)
 
-    def validate(self, boxes, label):
+    def validate(self, boxes):
         boxes = json.loads(boxes)
         assert all(['startX' in box for box in boxes]), "startX not in {}".format(boxes)
         assert all(['startY' in box for box in boxes]), "startY not in {}".format(boxes)

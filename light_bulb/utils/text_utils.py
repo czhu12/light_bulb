@@ -1,14 +1,11 @@
 import pdb
-import sys
-import string
 import logging
 import numpy as np
-from keras.preprocessing.text import Tokenizer
-from keras.preprocessing.sequence import pad_sequences
-from nltk.tokenize import word_tokenize
+#from keras.preprocessing.sequence import pad_sequences
+#from nltk.tokenize import word_tokenize
 import requests
-from nltk.tokenize.toktok import ToktokTokenizer
-from keras.layers import Embedding
+#from nltk.tokenize.toktok import ToktokTokenizer
+#from keras.layers import Embedding
 
 import re
 import html
