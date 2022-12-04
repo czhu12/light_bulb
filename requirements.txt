@@ -20,7 +20,7 @@ kiwisolver==1.0.1
 Markdown==2.6.11
 MarkupSafe==1.0
 matplotlib==2.2.2
-nltk==3.2.5
+nltk==3.6.6
 numpy==1.22.0
 pandas==0.23.4
 Pillow==9.3.0
