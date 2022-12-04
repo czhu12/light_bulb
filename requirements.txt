@@ -25,7 +25,7 @@ numpy==1.22.0
 pandas==0.23.4
 Pillow==9.3.0
 plac==0.9.6
-protobuf==3.5.2.post1
+protobuf==3.18.3
 pyparsing==2.2.0
 python-dateutil==2.7.2
 pytz==2018.4
