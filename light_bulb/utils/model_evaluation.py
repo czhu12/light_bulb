@@ -1,4 +1,3 @@
-from sklearn.metrics import precision_recall_curve
 import numpy as np
 
 class Evaluator():

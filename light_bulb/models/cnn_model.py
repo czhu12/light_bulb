@@ -8,7 +8,6 @@ from keras.models import Model
 from keras.layers import Dense, Dropout, Activation, Flatten, BatchNormalization, Reshape, Conv2D, UpSampling2D, Input
 from keras import optimizers
 from keras.callbacks import EarlyStopping
-from sklearn.model_selection import train_test_split
 from utils import utils
 
 class CNNModel(BaseModel):

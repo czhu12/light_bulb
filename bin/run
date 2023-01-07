@@ -3,4 +3,5 @@ docker run -it \
   -v $(PWD)/dataset:/app/dataset \
   -v $(PWD)/outputs:/app/outputs \
   -v $(PWD)/vendor:/app/vendor \
-  -p 5000:5000 light_bulb .virt/bin/python light_bulb/server.py --config $1
+  -v $(PWD)/light_bulb:/app/light_bulb \
+  -p 8000:8000 light_bulb python light_bulb/server.py --config $1

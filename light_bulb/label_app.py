@@ -1,6 +1,7 @@
 from queue import Queue
 import numpy as np
 import yaml
+from yaml import Loader
 import time
 from operator import itemgetter
 
@@ -20,7 +21,7 @@ class LabelApp:
     @staticmethod
     def load_from(config_meta):
         with open(config_meta['path']) as f:
-            config = yaml.load(f)
+            config = yaml.load(f, Loader)
             parser = ConfigParser(config)
             parser._create_directories()
 
